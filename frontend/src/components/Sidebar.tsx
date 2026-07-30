@@ -1,4 +1,6 @@
-'import React';
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -9,13 +11,14 @@ export default function Sidebar() {
   const isAnalysisActive = pathname?.startsWith('/analysis');
 
   return (
-    <aside className="sidebar border-r border-[#232a3a] bg-gradient-to-b from-[#10141d] to-[#0a0d14] flex flex-col p-6 sticky top-0 h-screen overflow-y-auto z-20">
+    <aside className="sidebar border-r border-[#232a3a] bg-gradient-to-b from-[#10141d] to-[#0a0d14] flex flex-col p-[24px_16px] sticky top-0 h-screen overflow-y-auto z-20 w-[264px] shrink-0">
+      {/* BRAND */}
       <div className="flex items-center gap-[10px] pb-6 px-[10px]">
         <div className="w-[34px] h-[34px] rounded-[9px] bg-gradient-to-br from-[#4c7dff] to-[#2a52d6] flex items-center justify-center font-[family-name:var(--font-sora)] font-extrabold text-[15px] text-white shadow-[0_6px_18px_-6px_rgba(76,125,255,.55)] shrink-0">
           FX
         </div>
         <div>
-          <div className="font-[family-name:var(--font-sora)] font-bold text-[16.5px] tracking-[-0.01em]">
+          <div className="font-[family-name:var(--font-sora)] font-bold text-[16.5px] tracking-[-0.01em] text-[#eef1f8]">
             Trade<span className="text-[#7aa0ff]">FX</span>Book
           </div>
           <div className="text-[9.5px] font-[family-name:var(--font-jetbrains-mono)] tracking-[0.12em] text-[#565e73] uppercase">
@@ -24,6 +27,7 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* PROFILE CARD */}
       <div className="flex items-center gap-[10px] p-[10px] border border-[#232a3a] rounded-[10px] bg-[#161b27] mb-[22px] cursor-pointer hover:border-[#2c3448] hover:bg-[#1c2230] transition-all">
         <div className="w-[36px] h-[36px] rounded-full bg-gradient-to-br from-[#3a4356] to-[#242a38] flex items-center justify-center font-[family-name:var(--font-sora)] font-bold text-[13px] text-[#eef1f8] relative shrink-0">
           SH
@@ -38,6 +42,7 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* MENU */}
       <div className="text-[10.5px] tracking-[0.12em] text-[#565e73] font-semibold px-[10px] mb-2 uppercase">
         Menu
       </div>
@@ -122,12 +127,7 @@ export default function Sidebar() {
               }`}
             >
               <svg className="w-[15px] h-[15px] opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <path d="M12 16v5"></path>
-                <path d="M16 14v7"></path>
-                <path d="M20 10v11"></path>
-                <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"></path>
-                <path d="M4 18v3"></path>
-                <path d="M8 14v7"></path>
+                <path d="M12 16v5"></path><path d="M16 14v7"></path><path d="M20 10v11"></path><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"></path><path d="M4 18v3"></path><path d="M8 14v7"></path>
               </svg>
               Performance
             </Link>
@@ -138,11 +138,7 @@ export default function Sidebar() {
               }`}
             >
               <svg className="w-[15px] h-[15px] opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.7.7l3.6 3.6a2.4 2.4 0 0 1 .7 1.7v12a2 2 0 0 1-2 2z"></path>
-                <path d="M14 2v5a1 1 0 0 0 1 1h5"></path>
-                <path d="M10 9H8"></path>
-                <path d="M16 13H8"></path>
-                <path d="M16 17H8"></path>
+                <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.7.7l3.6 3.6a2.4 2.4 0 0 1 .7 1.7v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path>
               </svg>
               Trade Analysis
             </Link>
@@ -183,6 +179,7 @@ export default function Sidebar() {
         </Link>
       </nav>
 
+      {/* FOOTER */}
       <div className="mt-auto pt-[18px] border-t border-[#232a3a] flex flex-col gap-[2px]">
         <Link href="#" className="flex items-center gap-[11px] px-[10px] py-[9px] rounded-[9px] text-[13.5px] font-medium text-[#8d94a8] hover:bg-[#161b27] hover:text-[#eef1f8] transition-colors">
           <svg className="w-[18px] h-[18px] shrink-0 opacity-85" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
