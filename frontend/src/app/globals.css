@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0a0d14;
+  --surface: #10141d;
+  --surface-2: #161b27;
+  --surface-3: #1c2230;
+  --border: #232a3a;
+  --border-soft: #1a2029;
+  --text-1: #eef1f8;
+  --text-2: #8d94a8;
+  --text-3: #565e73;
+  --accent: #4c7dff;
+  --accent-2: #7aa0ff;
+  --accent-soft: rgba(76,125,255,0.12);
+  --profit: #00d9a3;
+  --profit-soft: rgba(0,217,163,0.12);
+  --loss: #ff5c7a;
+  --loss-soft: rgba(255,92,122,0.12);
+  --gold: #f2b84b;
+  --purple: #a78bfa;
+  --purple-soft: rgba(167,139,250,0.14);
+
+  --bg-deep: #090b10;
+  --bg-panel: #0e1017;
+  --bg-elevated: #141824;
+  --bg-hover: #1a1f2c;
+  --border-login: #212636;
+  --border-login-soft: #1a1e2b;
+  --accent-login: #2981eb;
+  --accent-login-soft: #5aa2f2;
+  --accent-dim: rgba(41,129,235,.14);
+  --profit-login: #22c58b;
+  --loss-login: #ef4b5c;
+  --text-hi: #f4f6fa;
+  --text-mid: #9aa2b3;
+  --text-low: #5c6478;
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --font-display: var(--font-sora), var(--font-outfit), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html{ color-scheme: dark; }
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+body::before {
+  content:"";
+  position: fixed;
+  inset:0;
+  background-image:
+    linear-gradient(var(--border-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+  background-size: 64px 64px;
+  opacity: .35;
+  pointer-events: none;
+  z-index: 0;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+::selection { background: var(--accent-soft); color: var(--text-1); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #2a3244; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fadein { to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: scaleY(.4); } to { opacity: 1; transform: scaleY(1); } }

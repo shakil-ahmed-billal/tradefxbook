@@ -1,0 +1,6 @@
+node_modules
+generate
+dist
+.env
+.vercel
+api
