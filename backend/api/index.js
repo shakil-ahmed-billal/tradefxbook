@@ -53,6 +53,11 @@ var auth = betterAuth({
   },
   trustedOrigins: [
     process.env.CLIENT_URL || "http://localhost:3000",
+    "http://localhost:3000",
+    "http://localhost:4000",
+    "http://localhost:8000",
+    "https://tradefxbook-eight.vercel.app",
+    "https://tradefxbook-eta.vercel.app",
     "https://job-mailer-ai.vercel.app",
     "https://api-job-mailer-ai.vercel.app"
   ],
