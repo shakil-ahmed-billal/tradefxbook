@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FXBook — Trades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0d14;
+    --surface: #10141d;
+    --surface-2: #161b27;
+    --surface-3: #1c2230;
+    --border: #232a3a;
+    --border-soft: #1a2029;
+    --text-1: #eef1f8;
+    --text-2: #8d94a8;
+    --text-3: #565e73;
+    --accent: #4c7dff;
+    --accent-2: #7aa0ff;
+    --accent-soft: rgba(76,125,255,0.12);
+    --profit: #00d9a3;
+    --profit-soft: rgba(0,217,163,0.12);
+    --loss: #ff5c7a;
+    --loss-soft: rgba(255,92,122,0.12);
+    --gold: #f2b84b;
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.14);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ color-scheme: dark; }
+  body{ background: var(--bg); color: var(--text-1); font-family: var(--font-body); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  body::before{ content:""; position: fixed; inset:0;
+    background-image: linear-gradient(var(--border-soft) 1px, transparent 1px), linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+    background-size: 64px 64px; opacity: .35; pointer-events: none; z-index: 0; }
+  a{ color: inherit; text-decoration: none; }
+  button{ font-family: inherit; cursor: pointer; }
+  ::selection{ background: var(--accent-soft); color: var(--text-1); }
+  ::-webkit-scrollbar{ width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track{ background: transparent; }
+  ::-webkit-scrollbar-thumb{ background: var(--surface-3); border-radius: 8px; }
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .app{ position: relative; z-index: 1; display: grid; grid-template-columns: 264px 1fr; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar{ border-right: 1px solid var(--border); background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    display:flex; flex-direction:column; padding: 24px 16px; position: sticky; top:0; height: 100vh; }
+  .brand{ display:flex; align-items:center; gap:10px; padding: 4px 10px 24px 10px; }
+  .brand-mark{ width:34px; height:34px; border-radius:9px; background: linear-gradient(135deg, var(--accent) 0%, #2a52d6 100%);
+    display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-weight:800; font-size:15px; color:#fff;
+    box-shadow: 0 6px 18px -6px rgba(76,125,255,.55); flex-shrink:0; }
+  .brand-name{ font-family: var(--font-display); font-weight:700; font-size:16.5px; letter-spacing:-.01em; }
+  .brand-name span{ color: var(--accent-2); }
+  .brand-tag{ font-size:9.5px; font-family: var(--font-mono); letter-spacing:.12em; color: var(--text-3); text-transform: uppercase; }
+
+  .profile-card{ display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface-2); margin-bottom:22px; cursor:pointer; }
+  .avatar{ width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg,#3a4356,#242a38); display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-display); font-weight:700; font-size:13px; color: var(--text-1); position:relative; flex-shrink:0; }
+  .avatar::after{ content:""; position:absolute; bottom:-1px; right:-1px; width:9px; height:9px; border-radius:50%; background: var(--profit); border:2px solid var(--surface-2); }
+  .profile-meta{ min-width:0; flex:1; }
+  .profile-name-row{ display:flex; align-items:center; gap:6px; }
+  .profile-name{ font-size:13.5px; font-weight:600; }
+  .badge-plan{ font-size:9px; font-weight:700; padding:2px 6px; border-radius:5px; background: var(--surface-3); color: var(--text-2); letter-spacing:.04em; }
+  .profile-email{ font-size:11px; color: var(--text-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
+
+  .nav-label{ font-size:10.5px; letter-spacing:.12em; color: var(--text-3); font-weight:600; padding:0 10px; margin-bottom:8px; text-transform:uppercase; }
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-item{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:9px; font-size:13.5px; font-weight:500; color: var(--text-2); position:relative; cursor:pointer; }
+  .nav-item svg{ width:18px; height:18px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background: var(--surface-2); color: var(--text-1); }
+  .nav-item.active{ background: var(--accent-soft); color: var(--text-1); }
+  .nav-item.active svg{ color: var(--accent-2); opacity:1; }
+  .nav-item.active::before{ content:""; position:absolute; left:-16px; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:2px; background: var(--accent); }
+  .tier-tag{ margin-left:auto; font-size:9px; font-weight:700; padding:2px 6px; border-radius:5px; letter-spacing:.04em;
+    background: linear-gradient(135deg,#3a2f0e,#2a2410); color: var(--gold); border:1px solid rgba(242,184,75,.25); }
+
+  .sidebar-bottom{ margin-top:auto; padding-top:18px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:2px; }
+
+  /* MAIN */
+  .main{ display:flex; flex-direction:column; min-width:0; }
+  .topbar{ height:72px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px;
+    position:sticky; top:0; background: rgba(10,13,20,.78); backdrop-filter: blur(10px); z-index:10; }
+  .page-title{ font-family: var(--font-display); font-size:20px; font-weight:700; letter-spacing:-.01em; }
+  .page-date{ font-size:12px; color: var(--text-3); font-family: var(--font-mono); margin-top:2px; display:block; }
+  .search-box{ display:flex; align-items:center; gap:8px; background: var(--surface-2); border:1px solid var(--border); padding:8px 12px; border-radius:9px; width:280px; color: var(--text-3); font-size:13px; }
+  .search-box svg{ width:15px; height:15px; }
+  .kbd{ margin-left:auto; font-family: var(--font-mono); font-size:10px; background: var(--surface-3); padding:2px 6px; border-radius:4px; color: var(--text-3); }
+  .topbar-right{ display:flex; align-items:center; gap:10px; }
+  .icon-btn{ width:38px; height:38px; border:1px solid var(--border); background: var(--surface-2); border-radius:10px; display:flex; align-items:center; justify-content:center; color: var(--text-2); position:relative; cursor:pointer; }
+  .icon-btn svg{ width:17px; height:17px; }
+  .dot-ping{ position:absolute; top:8px; right:9px; width:6px; height:6px; border-radius:50%; background: var(--loss); box-shadow: 0 0 0 2px var(--surface-2); }
+  .clock-chip{ display:flex; align-items:center; gap:7px; font-family: var(--font-mono); font-size:12.5px; color: var(--text-2); padding:8px 12px; border:1px solid var(--border); border-radius:10px; background: var(--surface-2); }
+  .clock-chip svg{ width:14px; height:14px; }
+
+  .content{ padding: 26px 32px 60px; }
+
+  /* PAGE HEADER */
+  .trades-header{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
+  .trades-title-row{ display:flex; align-items:center; gap:14px; }
+  .trades-title{ font-family: var(--font-display); font-size:22px; font-weight:700; letter-spacing:-.01em; }
+  .conn-status{ display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600; color: var(--text-3); background: var(--surface-2); border:1px solid var(--border); padding:6px 12px; border-radius:20px; }
+  .conn-dot{ width:7px; height:7px; border-radius:50%; background: var(--text-3); }
+  .conn-status.disconnected .conn-dot{ background: var(--loss); box-shadow: 0 0 0 3px var(--loss-soft); }
+
+  .header-actions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600; padding:10px 16px; border-radius:10px; border:1px solid transparent; white-space:nowrap; }
+  .btn svg{ width:15px; height:15px; }
+  .btn-primary{ background: linear-gradient(135deg, var(--accent), #3a63d9); color:#fff; box-shadow: 0 6px 18px -8px rgba(76,125,255,.6); }
+  .btn-ghost-danger{ background: var(--surface-2); border-color: var(--border); color: var(--loss); }
+  .btn-outline{ background: var(--surface-2); border-color: var(--border); color: var(--text-2); }
+
+  /* TABLE SECTION */
+  .table-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); overflow:hidden; }
+  .table-header{ display:flex; align-items:center; justify-content:space-between; padding:20px 22px; border-bottom:1px solid var(--border-soft); flex-wrap:wrap; gap:12px; }
+  .table-title-group{ display:flex; align-items:baseline; gap:10px; }
+  .table-title{ font-family: var(--font-display); font-size:16px; font-weight:600; }
+  .table-count{ font-size:12px; color: var(--text-3); font-family: var(--font-mono); }
+  .filter-btn{ display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color: var(--text-2); background: var(--surface-2); border:1px solid var(--border); padding:8px 14px; border-radius:9px; }
+  .filter-btn svg{ width:14px; height:14px; }
+  .filter-dot{ width:6px; height:6px; border-radius:50%; background: var(--accent-2); }
+
+  .plan-notice{ margin:16px 22px 0; background: var(--accent-soft); border:1px solid rgba(76,125,255,.25); color: var(--text-2); font-size:12.5px; padding:11px 16px; border-radius:10px; }
+  .plan-notice b{ color: var(--accent-2); font-weight:700; }
+
+  .table-scroll{ overflow-x:auto; padding: 18px 22px 22px; }
+  table{ width:100%; border-collapse: collapse; min-width: 880px; }
+  thead th{ text-align:left; font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color: var(--text-3); padding: 0 14px 12px; border-bottom:1px solid var(--border); }
+  tbody td{ padding: 14px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover td{ background: var(--surface-2); }
+
+  .date-row{ display:flex; flex-direction:column; gap:3px; }
+  .date-line{ display:flex; gap:6px; font-size:11.5px; }
+  .date-label{ color: var(--text-3); width:36px; flex-shrink:0; }
+  .date-value{ font-family: var(--font-mono); color: var(--text-2); }
+
+  .symbol-cell{ display:flex; align-items:center; gap:10px; }
+  .pair-chip{ width:26px; height:26px; border-radius:50%; background: var(--surface-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family: var(--font-mono); font-size:8px; font-weight:700; color: var(--text-2); flex-shrink:0; }
+  .symbol-name{ font-size:13px; font-weight:600; }
+
+  .type-badge{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; }
+  .type-badge.long{ background: var(--profit-soft); color: var(--profit); }
+  .type-badge svg{ width:12px; height:12px; }
+
+  .price-cell{ font-family: var(--font-mono); font-size:13px; color: var(--text-2); }
+  .qty-cell{ font-family: var(--font-mono); font-size:13px; color: var(--text-2); }
+
+  .pnl-value{ font-family: var(--font-mono); font-weight:700; font-size:13.5px; }
+  .pnl-value.negative{ color: var(--loss); }
+  .pnl-value.positive{ color: var(--profit); }
+
+  .source-badge{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; background: var(--surface-2); border:1px solid var(--border); color: var(--text-2); }
+  .source-badge svg{ width:12px; height:12px; }
+
+  .row-actions{ display:flex; align-items:center; gap:4px; }
+  .icon-action{ width:28px; height:28px; border-radius:8px; border:none; background:transparent; color: var(--text-3); display:flex; align-items:center; justify-content:center; }
+  .icon-action:hover{ background: var(--surface-3); color: var(--accent-2); }
+  .icon-action.danger:hover{ color: var(--loss); }
+  .icon-action svg{ width:14px; height:14px; }
+
+  /* Upsell overlay card (shown separately, not blocking, as an inline promo) */
+  .upsell-card{ margin-top:16px; background: linear-gradient(160deg, #171b2c 0%, var(--surface) 60%); border:1px solid #2a3156; border-radius: var(--radius); padding:24px; }
+  .upsell-head{ display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+  .upsell-icon{ width:44px; height:44px; border-radius:12px; background: linear-gradient(135deg, rgba(76,125,255,.2), rgba(167,139,250,.2)); display:flex; align-items:center; justify-content:center; color: var(--accent-2); flex-shrink:0; }
+  .upsell-icon svg{ width:22px; height:22px; }
+  .upsell-title{ font-family: var(--font-display); font-size:16px; font-weight:700; }
+  .upsell-sub{ font-size:12.5px; color: var(--text-3); margin-top:2px; }
+  .upsell-list{ display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
+  .upsell-list-item{ display:flex; align-items:center; gap:10px; font-size:13px; color: var(--text-2); }
+  .upsell-list-item svg{ width:15px; height:15px; color: var(--profit); flex-shrink:0; }
+  .upsell-tiers{ display:flex; gap:10px; margin-bottom:16px; }
+  .tier-chip{ font-size:11.5px; font-weight:600; padding:7px 14px; border-radius:9px; }
+  .tier-chip.pro{ background: var(--accent-soft); color: var(--accent-2); }
+  .tier-chip.elite{ background: var(--purple-soft); color: var(--purple); }
+  .upsell-btn{ width:100%; padding:13px 20px; border-radius:11px; border:none; background: linear-gradient(135deg, var(--accent), #3a63d9); color:#fff; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .upsell-btn svg{ width:16px; height:16px; }
+  .upsell-footnote{ text-align:center; font-size:11.5px; color: var(--text-3); margin-top:12px; }
+
+  @media (max-width: 860px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{ display:none; }
+    .content{ padding: 20px; }
+    .search-box{ display:none; }
+    .header-actions{ width:100%; }
+    .btn{ flex:1; justify-content:center; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">FX</div>
+      <div>
+        <div class="brand-name">Trade<span>FX</span>Book</div>
+        <div class="brand-tag">Beta</div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar">SH</div>
+      <div class="profile-meta">
+        <div class="profile-name-row">
+          <span class="profile-name">Shakil</span>
+          <span class="badge-plan">Free</span>
+        </div>
+        <span class="profile-email">xhakil2023@gmail.com</span>
+      </div>
+    </div>
+
+    <div class="nav-label">Menu</div>
+    <nav class="nav">
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+        Dashboard
+      </a>
+      <a class="nav-item active" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg>
+        Trades
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+        Journal
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+        Analysis
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>
+        Market
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path><path d="M9 13a4.5 4.5 0 0 0 3-4"></path></svg>
+        AI Report
+        <span class="tier-tag">PRO</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>
+        Backtesting
+        <span class="tier-tag">ELITE</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        Traders Lounge
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.1-3.1c.32-.32.86-.22.98.22a6 6 0 0 1-8.26 7.06l-7.9 7.9a1 1 0 0 1-3-3l7.9-7.9a6 6 0 0 1 7.06-8.26c.44.12.54.66.22.98z"></path></svg>
+        Tools
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9.67 4.14a2.34 2.34 0 0 1 4.66 0 2.34 2.34 0 0 0 3.32 1.9 2.34 2.34 0 0 1 2.33 4.04 2.34 2.34 0 0 0 0 3.83 2.34 2.34 0 0 1-2.33 4.03 2.34 2.34 0 0 0-3.32 1.92 2.34 2.34 0 0 1-4.66 0 2.34 2.34 0 0 0-3.32-1.92 2.34 2.34 0 0 1-2.33-4.03 2.34 2.34 0 0 0 0-3.83A2.34 2.34 0 0 1 6.35 6.05a2.34 2.34 0 0 0 3.32-1.9"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        Settings
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
+        Help &amp; Support
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">Trades</h1>
+        <span class="page-date">Thursday, July 30 2026</span>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+        Search trades, symbols…
+        <span class="kbd">⌘K</span>
+      </div>
+      <div class="topbar-right">
+        <div class="clock-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>
+          10:45:17 PM
+        </div>
+        <button class="icon-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.27 21a2 2 0 0 0 3.46 0"></path><path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8a6 6 0 0 0-12 0c0 4.5-1.41 5.96-2.74 7.33"></path></svg>
+          <span class="dot-ping"></span>
+        </button>
+        <div class="avatar" style="width:38px;height:38px;">SH</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- PAGE HEADER -->
+      <section class="trades-header">
+        <div class="trades-title-row">
+          <h1 class="trades-title">Trades</h1>
+          <div class="conn-status disconnected"><span class="conn-dot"></span>Not connected</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary">Connect MT4/MT5</button>
+          <button class="btn btn-ghost-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"></path></svg>Clear All</button>
+          <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>Add Trade</button>
+        </div>
+      </section>
+
+      <!-- TABLE CARD -->
+      <section class="table-card">
+        <div class="table-header">
+          <div class="table-title-group">
+            <span class="table-title">Trade History</span>
+            <span class="table-count">2 of 2 trades</span>
+          </div>
+          <button class="filter-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"></path></svg>Filters<span class="filter-dot"></span></button>
+        </div>
+
+        <div class="plan-notice">Free plan loads <b>your last 15 trades</b>. Upgrade to Pro to unlock full history and longer timeframes.</div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Open / Close</th>
+                <th>Symbol</th>
+                <th>Type</th>
+                <th>Entry</th>
+                <th>Exit</th>
+                <th>Size</th>
+                <th>P&amp;L</th>
+                <th>Source</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="date-row">
+                    <div class="date-line"><span class="date-label">Open:</span><span class="date-value">Jul 30 07:38 AM</span></div>
+                    <div class="date-line"><span class="date-label">Close:</span><span class="date-value">Jul 31 01:38 PM</span></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="symbol-cell">
+                    <span class="pair-chip">XAU</span>
+                    <span class="symbol-name">XAU/USD</span>
+                  </div>
+                </td>
+                <td><span class="type-badge long"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>Long</span></td>
+                <td class="price-cell">$63.00</td>
+                <td class="price-cell">$52.00</td>
+                <td class="qty-cell">40</td>
+                <td><span class="pnl-value negative">-$440.00</span></td>
+                <td><span class="source-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg>Manual</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="icon-action" title="Edit trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg></button>
+                    <button class="icon-action" title="Share trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg></button>
+                    <button class="icon-action danger" title="Delete trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"></path></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="date-row">
+                    <div class="date-line"><span class="date-label">Open:</span><span class="date-value">Jul 30 06:01 AM</span></div>
+                    <div class="date-line"><span class="date-label">Close:</span><span class="date-value">Jul 31 12:01 PM</span></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="symbol-cell">
+                    <span class="pair-chip">EUR</span>
+                    <span class="symbol-name">EUR/USD</span>
+                  </div>
+                </td>
+                <td><span class="type-badge long"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>Long</span></td>
+                <td class="price-cell">$21.00</td>
+                <td class="price-cell">$14.00</td>
+                <td class="qty-cell">36</td>
+                <td><span class="pnl-value negative">-$252.00</span></td>
+                <td><span class="source-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg>Manual</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="icon-action" title="Edit trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg></button>
+                    <button class="icon-action" title="Share trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg></button>
+                    <button class="icon-action danger" title="Delete trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"></path></svg></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- MT4/MT5 UPSELL -->
+      <section class="upsell-card">
+        <div class="upsell-head">
+          <div class="upsell-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg></div>
+          <div>
+            <div class="upsell-title">MT4/MT5 Auto-Sync</div>
+            <div class="upsell-sub">Upgrade to Pro to connect your trading account</div>
+          </div>
+        </div>
+        <div class="upsell-list">
+          <div class="upsell-list-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>Automatically sync all your trades</div>
+          <div class="upsell-list-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>Track real-time P&amp;L and equity</div>
+          <div class="upsell-list-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>View performance analytics</div>
+          <div class="upsell-list-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>Journal trades with context</div>
+        </div>
+        <div class="upsell-tiers">
+          <span class="tier-chip pro">Pro: 3 accounts</span>
+          <span class="tier-chip elite">Elite: Unlimited</span>
+        </div>
+        <button class="upsell-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg>Upgrade to Pro</button>
+        <div class="upsell-footnote">Free plan supports manual trade entry only</div>
+      </section>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

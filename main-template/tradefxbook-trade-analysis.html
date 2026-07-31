@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FXBook — Trade Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0d14;
+    --surface: #10141d;
+    --surface-2: #161b27;
+    --surface-3: #1c2230;
+    --border: #232a3a;
+    --border-soft: #1a2029;
+    --text-1: #eef1f8;
+    --text-2: #8d94a8;
+    --text-3: #565e73;
+    --accent: #4c7dff;
+    --accent-2: #7aa0ff;
+    --accent-soft: rgba(76,125,255,0.12);
+    --profit: #00d9a3;
+    --profit-soft: rgba(0,217,163,0.12);
+    --loss: #ff5c7a;
+    --loss-soft: rgba(255,92,122,0.12);
+    --gold: #f2b84b;
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.14);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ color-scheme: dark; }
+  body{ background: var(--bg); color: var(--text-1); font-family: var(--font-body); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  body::before{ content:""; position: fixed; inset:0;
+    background-image: linear-gradient(var(--border-soft) 1px, transparent 1px), linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+    background-size: 64px 64px; opacity: .35; pointer-events: none; z-index: 0; }
+  a{ color: inherit; text-decoration: none; }
+  button{ font-family: inherit; cursor: pointer; }
+  ::selection{ background: var(--accent-soft); color: var(--text-1); }
+  ::-webkit-scrollbar{ width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track{ background: transparent; }
+  ::-webkit-scrollbar-thumb{ background: var(--surface-3); border-radius: 8px; }
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .app{ position: relative; z-index: 1; display: grid; grid-template-columns: 264px 1fr; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar{ border-right: 1px solid var(--border); background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    display:flex; flex-direction:column; padding: 24px 16px; position: sticky; top:0; height: 100vh; }
+  .brand{ display:flex; align-items:center; gap:10px; padding: 4px 10px 24px 10px; }
+  .brand-mark{ width:34px; height:34px; border-radius:9px; background: linear-gradient(135deg, var(--accent) 0%, #2a52d6 100%);
+    display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-weight:800; font-size:15px; color:#fff;
+    box-shadow: 0 6px 18px -6px rgba(76,125,255,.55); flex-shrink:0; }
+  .brand-name{ font-family: var(--font-display); font-weight:700; font-size:16.5px; letter-spacing:-.01em; }
+  .brand-name span{ color: var(--accent-2); }
+  .brand-tag{ font-size:9.5px; font-family: var(--font-mono); letter-spacing:.12em; color: var(--text-3); text-transform: uppercase; }
+
+  .profile-card{ display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface-2); margin-bottom:22px; cursor:pointer; }
+  .avatar{ width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg,#3a4356,#242a38); display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-display); font-weight:700; font-size:13px; color: var(--text-1); position:relative; flex-shrink:0; }
+  .avatar::after{ content:""; position:absolute; bottom:-1px; right:-1px; width:9px; height:9px; border-radius:50%; background: var(--profit); border:2px solid var(--surface-2); }
+  .profile-meta{ min-width:0; flex:1; }
+  .profile-name-row{ display:flex; align-items:center; gap:6px; }
+  .profile-name{ font-size:13.5px; font-weight:600; }
+  .badge-plan{ font-size:9px; font-weight:700; padding:2px 6px; border-radius:5px; background: var(--surface-3); color: var(--text-2); letter-spacing:.04em; }
+  .profile-email{ font-size:11px; color: var(--text-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
+
+  .nav-label{ font-size:10.5px; letter-spacing:.12em; color: var(--text-3); font-weight:600; padding:0 10px; margin-bottom:8px; text-transform:uppercase; }
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-item{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:9px; font-size:13.5px; font-weight:500; color: var(--text-2); position:relative; cursor:pointer; }
+  .nav-item svg{ width:18px; height:18px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background: var(--surface-2); color: var(--text-1); }
+  .nav-item.active{ background: var(--accent-soft); color: var(--text-1); }
+  .nav-item.active svg{ color: var(--accent-2); opacity:1; }
+  .nav-item.active::before{ content:""; position:absolute; left:-16px; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:2px; background: var(--accent); }
+  .tier-tag{ margin-left:auto; font-size:9px; font-weight:700; padding:2px 6px; border-radius:5px; letter-spacing:.04em;
+    background: linear-gradient(135deg,#3a2f0e,#2a2410); color: var(--gold); border:1px solid rgba(242,184,75,.25); }
+  .chev{ margin-left:auto; width:14px !important; height:14px !important; transition: transform .15s ease; }
+  .nav-item.expanded .chev{ transform: rotate(180deg); }
+  .submenu{ display:flex; flex-direction:column; gap:1px; margin: 2px 0 4px 30px; border-left:1px solid var(--border); padding-left:10px; }
+  .submenu-item{ display:flex; align-items:center; gap:9px; padding:7px 9px; border-radius:7px; font-size:12.5px; color: var(--text-3); font-weight:500; }
+  .submenu-item svg{ width:15px; height:15px; opacity:.8; }
+  .submenu-item:hover{ background: var(--surface-2); color: var(--text-1); }
+  .submenu-item.active{ color: var(--accent-2); background: var(--accent-soft); }
+
+  .sidebar-bottom{ margin-top:auto; padding-top:18px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:2px; }
+
+  /* MAIN */
+  .main{ display:flex; flex-direction:column; min-width:0; }
+  .topbar{ height:72px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px;
+    position:sticky; top:0; background: rgba(10,13,20,.78); backdrop-filter: blur(10px); z-index:10; }
+  .page-title{ font-family: var(--font-display); font-size:20px; font-weight:700; letter-spacing:-.01em; }
+  .page-date{ font-size:12px; color: var(--text-3); font-family: var(--font-mono); margin-top:2px; display:block; }
+  .search-box{ display:flex; align-items:center; gap:8px; background: var(--surface-2); border:1px solid var(--border); padding:8px 12px; border-radius:9px; width:280px; color: var(--text-3); font-size:13px; }
+  .search-box svg{ width:15px; height:15px; }
+  .kbd{ margin-left:auto; font-family: var(--font-mono); font-size:10px; background: var(--surface-3); padding:2px 6px; border-radius:4px; color: var(--text-3); }
+  .topbar-right{ display:flex; align-items:center; gap:10px; }
+  .icon-btn{ width:38px; height:38px; border:1px solid var(--border); background: var(--surface-2); border-radius:10px; display:flex; align-items:center; justify-content:center; color: var(--text-2); position:relative; cursor:pointer; }
+  .icon-btn svg{ width:17px; height:17px; }
+  .dot-ping{ position:absolute; top:8px; right:9px; width:6px; height:6px; border-radius:50%; background: var(--loss); box-shadow: 0 0 0 2px var(--surface-2); }
+  .clock-chip{ display:flex; align-items:center; gap:7px; font-family: var(--font-mono); font-size:12.5px; color: var(--text-2); padding:8px 12px; border:1px solid var(--border); border-radius:10px; background: var(--surface-2); }
+  .clock-chip svg{ width:14px; height:14px; }
+
+  .content{ padding: 26px 32px 60px; }
+
+  /* TWO COLUMN LAYOUT: trade list sidebar + main detail */
+  .ta-grid{ display:grid; grid-template-columns: 300px 1fr; gap:20px; align-items:start; }
+
+  .ta-list-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:18px; position:sticky; top:98px; }
+  .ta-list-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .ta-list-title{ font-family: var(--font-display); font-size:15px; font-weight:600; }
+  .ta-entry-count{ font-size:11px; color: var(--text-3); font-family: var(--font-mono); }
+
+  .ta-tabs{ display:flex; gap:4px; background: var(--surface-2); padding:4px; border-radius:9px; border:1px solid var(--border); margin-bottom:14px; }
+  .ta-tab{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; font-weight:600; padding:6px 8px; border-radius:6px; color: var(--text-3); border:none; background:none; }
+  .ta-tab.active{ background: var(--surface-3); color: var(--text-1); }
+  .ta-tab-count{ font-size:10px; font-family: var(--font-mono); background: var(--surface-3); padding:1px 6px; border-radius:10px; color: var(--text-2); }
+  .ta-tab.active .ta-tab-count{ background: var(--accent-soft); color: var(--accent-2); }
+
+  .ta-filters{ display:flex; gap:8px; margin-bottom:14px; }
+  .ta-filter-select{ flex:1; background: var(--surface-2); border:1px solid var(--border); color: var(--text-2); font-size:11.5px; padding:7px 8px; border-radius:8px; font-family: var(--font-body); }
+
+  .ta-trade-list{ display:flex; flex-direction:column; gap:8px; max-height: 560px; overflow-y:auto; }
+  .ta-trade-card{ display:block; width:100%; text-align:left; background: var(--surface-2); border:1px solid var(--border-soft); border-radius:11px; padding:12px 13px; }
+  .ta-trade-card.selected{ border-color: var(--accent); background: var(--accent-soft); }
+  .jtc-top{ display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+  .pair-chip{ width:24px; height:24px; border-radius:50%; background: var(--surface-3); display:flex; align-items:center; justify-content:center; font-family: var(--font-mono); font-size:8px; font-weight:700; color: var(--text-2); flex-shrink:0; border:1px solid var(--border); }
+  .jtc-symbol{ font-size:13px; font-weight:600; flex:1; }
+  .jtc-badge{ font-size:9px; font-weight:700; padding:2px 7px; border-radius:20px; background: var(--accent-soft); color: var(--accent-2); }
+  .jtc-middle{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .jtc-type{ font-size:10px; font-weight:700; padding:2px 7px; border-radius:5px; }
+  .jtc-type.long{ background: var(--profit-soft); color: var(--profit); }
+  .jtc-entry{ font-family: var(--font-mono); font-size:11.5px; color: var(--text-3); }
+  .jtc-pnl{ margin-left:auto; font-family: var(--font-mono); font-weight:600; font-size:13px; }
+  .jtc-pnl.negative{ color: var(--loss); }
+  .jtc-date{ font-size:10.5px; color: var(--text-3); font-family: var(--font-mono); }
+
+  /* MAIN DETAIL PANEL */
+  .ta-main-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:24px; }
+
+  .jdh{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px; padding-bottom:22px; border-bottom:1px solid var(--border-soft); }
+  .jdh-title-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .jdh-pair-icon{ width:32px; height:32px; border-radius:50%; background: var(--surface-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family: var(--font-mono); font-size:9px; font-weight:700; color: var(--text-2); }
+  .jdh-symbol{ font-family: var(--font-display); font-size:19px; font-weight:700; }
+  .jdh-outcome{ font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; }
+  .jdh-outcome.loser{ background: var(--loss-soft); color: var(--loss); }
+  .ta-score-badge{ font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; background: var(--surface-3); color: var(--text-2); }
+  .ta-score-badge.needs-work{ background: rgba(242,184,75,.14); color: var(--gold); }
+  .jdh-meta{ display:flex; align-items:center; gap:8px; font-size:12.5px; color: var(--text-3); flex-wrap:wrap; }
+  .jdh-type{ font-size:10px; font-weight:700; padding:2px 8px; border-radius:5px; }
+  .jdh-type.long{ background: var(--profit-soft); color: var(--profit); }
+  .ta-pnl-display{ display:flex; flex-direction:column; align-items:flex-end; }
+  .ta-pnl-label{ font-size:11px; color: var(--text-3); margin-bottom:4px; }
+  .ta-pnl-value{ font-family: var(--font-mono); font-size:26px; font-weight:700; }
+  .ta-pnl-display.negative .ta-pnl-value{ color: var(--loss); }
+
+  .ta-stats-grid{ display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-bottom:24px; }
+  .ta-stat-item{ background: var(--surface-2); border:1px solid var(--border-soft); border-radius:11px; padding:14px 16px; }
+  .ta-stat-label{ font-size:11px; color: var(--text-3); display:block; margin-bottom:6px; }
+  .ta-stat-value{ font-family: var(--font-mono); font-size:16px; font-weight:600; }
+  .ta-stat-value.negative{ color: var(--loss); }
+
+  .ta-section-header{ display:flex; align-items:center; gap:9px; font-family: var(--font-display); font-size:14.5px; font-weight:600; margin-bottom:14px; }
+  .ta-section-header svg{ width:16px; height:16px; color: var(--accent-2); }
+  .ta-badge{ margin-left:auto; font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; }
+  .ta-badge.warning{ background: rgba(242,184,75,.14); color: var(--gold); }
+  .ta-coming-soon-badge{ margin-left:auto; font-size:10px; font-weight:700; padding:3px 10px; border-radius:20px; background: var(--purple-soft); color: var(--purple); }
+
+  /* Trade simulation */
+  .ta-chart-section{ margin-bottom:24px; }
+  .sim-box{ background: var(--surface-2); border:1px solid var(--border-soft); border-radius: var(--radius-sm); overflow:hidden; }
+  .sim-header{ display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border-soft); flex-wrap:wrap; gap:12px; }
+  .sim-symbol-row{ display:flex; align-items:center; gap:10px; }
+  .sim-symbol-text{ font-size:14px; font-weight:600; }
+  .sim-stats{ display:flex; gap:20px; }
+  .sim-stat-label{ font-size:10px; color: var(--text-3); display:block; margin-bottom:2px; }
+  .sim-stat-value{ font-family: var(--font-mono); font-size:13px; font-weight:600; }
+  .sim-stat-value.loss{ color: var(--loss); }
+  .sim-placeholder{ height: 320px; display:flex; align-items:center; justify-content:center; }
+  .sim-placeholder-content{ display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; max-width:320px; padding: 0 20px; }
+  .sim-placeholder-content svg{ width:36px; height:36px; color: var(--text-3); opacity:.6; }
+  .sim-placeholder-title{ font-size:14px; font-weight:600; }
+  .sim-placeholder-desc{ font-size:12px; color: var(--text-3); line-height:1.5; }
+  .sim-footer{ padding:12px 18px; border-top:1px solid var(--border-soft); }
+  .manual-badge{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color: var(--text-3); }
+  .manual-badge svg{ width:13px; height:13px; }
+
+  .ta-content-row{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px; }
+  .ta-section{ background: var(--surface-2); border:1px solid var(--border-soft); border-radius: var(--radius-sm); padding:20px; }
+
+  .no-journal{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding: 24px 10px; text-align:center; }
+  .no-journal p{ font-size:13px; color: var(--text-3); }
+  .journal-btn{ font-size:12.5px; font-weight:600; padding:9px 18px; border-radius:9px; border:none; background: linear-gradient(135deg, var(--accent), #3a63d9); color:#fff; }
+
+  /* Quality */
+  .quality-display{ display:flex; align-items:center; gap:24px; margin-bottom:18px; flex-wrap:wrap; }
+  .quality-circle{ width:76px; height:76px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    background: conic-gradient(var(--gold) 0deg, var(--surface-3) 0deg); border:5px solid var(--surface-3); }
+  .quality-circle .qn{ font-family: var(--font-mono); font-size:22px; font-weight:700; color: var(--gold); }
+  .quality-breakdown{ flex:1; min-width:180px; display:flex; flex-direction:column; gap:9px; }
+  .qb-row{ display:flex; align-items:center; gap:10px; font-size:11.5px; color: var(--text-2); }
+  .qb-row span:first-child{ width:78px; flex-shrink:0; }
+  .qb-track{ flex:1; height:6px; border-radius:4px; background: var(--surface-3); overflow:hidden; }
+  .qb-fill{ height:100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius:4px; }
+  .qb-row span:last-child{ font-family: var(--font-mono); font-size:11px; color: var(--text-3); width:38px; text-align:right; flex-shrink:0; }
+
+  .quality-explanation{ border-top:1px solid var(--border); padding-top:16px; }
+  .qe-title{ font-size:11.5px; font-weight:600; color: var(--text-2); margin-bottom:10px; }
+  .qe-item{ display:flex; justify-content:space-between; gap:10px; font-size:11.5px; padding:6px 0; border-bottom:1px solid var(--border-soft); }
+  .qe-item:last-child{ border-bottom:none; }
+  .qe-label{ color: var(--text-1); font-weight:600; flex-shrink:0; }
+  .qe-desc{ color: var(--text-3); text-align:right; }
+  .qgrades{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .qgrade{ font-size:10px; font-weight:700; padding:4px 10px; border-radius:20px; }
+  .qgrade.excellent{ background: var(--profit-soft); color: var(--profit); }
+  .qgrade.good{ background: var(--accent-soft); color: var(--accent-2); }
+  .qgrade.average{ background: rgba(242,184,75,.14); color: var(--gold); }
+  .qgrade.needs-work{ background: var(--loss-soft); color: var(--loss); }
+
+  /* Insights (coming soon) */
+  .insights-section{ background: var(--surface-2); border:1px solid var(--border-soft); border-radius: var(--radius-sm); padding:20px; margin-bottom:16px; opacity:.75; }
+  .insight-item{ display:flex; gap:14px; align-items:flex-start; padding:14px; border-radius:10px; background: var(--surface-3); border:1px dashed var(--border); }
+  .insight-icon{ font-size:20px; }
+  .insight-title{ font-size:13px; font-weight:600; display:block; margin-bottom:3px; }
+  .insight-message{ font-size:12px; color: var(--text-3); }
+
+  /* Comparison */
+  .comparison-section{ background: var(--surface-2); border:1px solid var(--border-soft); border-radius: var(--radius-sm); padding:20px; }
+  .comparison-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+  .comp-item{ background: var(--surface-3); border:1px solid var(--border-soft); border-radius:11px; padding:14px 16px; display:flex; flex-direction:column; gap:6px; }
+  .comp-metric{ font-size:11px; color: var(--text-3); }
+  .comp-value{ font-family: var(--font-mono); font-size:16px; font-weight:600; }
+  .comp-diff{ font-size:11px; font-weight:600; }
+  .comp-diff.negative{ color: var(--loss); }
+  .comp-diff.positive{ color: var(--profit); }
+
+  @media (max-width: 1080px){
+    .ta-grid{ grid-template-columns: 1fr; }
+    .ta-list-card{ position:static; }
+    .ta-stats-grid{ grid-template-columns: repeat(2,1fr); }
+    .ta-content-row, .comparison-grid{ grid-template-columns: 1fr; }
+  }
+  @media (max-width: 860px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{ display:none; }
+    .content{ padding: 20px; }
+    .search-box{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">FX</div>
+      <div>
+        <div class="brand-name">Trade<span>FX</span>Book</div>
+        <div class="brand-tag">Beta</div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar">SH</div>
+      <div class="profile-meta">
+        <div class="profile-name-row">
+          <span class="profile-name">Shakil</span>
+          <span class="badge-plan">Free</span>
+        </div>
+        <span class="profile-email">xhakil2023@gmail.com</span>
+      </div>
+    </div>
+
+    <div class="nav-label">Menu</div>
+    <nav class="nav">
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg>
+        Trades
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+        Journal
+      </a>
+
+      <a class="nav-item active expanded" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+        Analysis
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"></path></svg>
+      </a>
+      <div class="submenu">
+        <a class="submenu-item" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 16v5"></path><path d="M16 14v7"></path><path d="M20 10v11"></path><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"></path><path d="M4 18v3"></path><path d="M8 14v7"></path></svg>
+          Performance
+        </a>
+        <a class="submenu-item active" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.7.7l3.6 3.6a2.4 2.4 0 0 1 .7 1.7v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+          Trade Analysis
+        </a>
+      </div>
+
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>
+        Market
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path><path d="M9 13a4.5 4.5 0 0 0 3-4"></path></svg>
+        AI Report
+        <span class="tier-tag">PRO</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>
+        Backtesting
+        <span class="tier-tag">ELITE</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        Traders Lounge
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.1-3.1c.32-.32.86-.22.98.22a6 6 0 0 1-8.26 7.06l-7.9 7.9a1 1 0 0 1-3-3l7.9-7.9a6 6 0 0 1 7.06-8.26c.44.12.54.66.22.98z"></path></svg>
+        Tools
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9.67 4.14a2.34 2.34 0 0 1 4.66 0 2.34 2.34 0 0 0 3.32 1.9 2.34 2.34 0 0 1 2.33 4.04 2.34 2.34 0 0 0 0 3.83 2.34 2.34 0 0 1-2.33 4.03 2.34 2.34 0 0 0-3.32 1.92 2.34 2.34 0 0 1-4.66 0 2.34 2.34 0 0 0-3.32-1.92 2.34 2.34 0 0 1-2.33-4.03 2.34 2.34 0 0 0 0-3.83A2.34 2.34 0 0 1 6.35 6.05a2.34 2.34 0 0 0 3.32-1.9"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        Settings
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
+        Help &amp; Support
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">Trade Analysis</h1>
+        <span class="page-date">Thursday, July 30 2026</span>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+        Search trades, symbols…
+        <span class="kbd">Ctrl K</span>
+      </div>
+      <div class="topbar-right">
+        <div class="clock-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>
+          02:15:21 PM
+        </div>
+        <button class="icon-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.27 21a2 2 0 0 0 3.46 0"></path><path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8a6 6 0 0 0-12 0c0 4.5-1.41 5.96-2.74 7.33"></path></svg>
+          <span class="dot-ping"></span>
+        </button>
+        <div class="avatar" style="width:38px;height:38px;">SH</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="ta-grid">
+
+        <!-- TRADE LIST SIDEBAR -->
+        <div class="ta-list-card">
+          <div class="ta-list-header">
+            <span class="ta-list-title">Trade Analysis</span>
+            <span class="ta-entry-count">2 trades</span>
+          </div>
+
+          <div class="ta-tabs">
+            <button class="ta-tab active">All <span class="ta-tab-count">2</span></button>
+            <button class="ta-tab">Winners <span class="ta-tab-count">0</span></button>
+            <button class="ta-tab">Losers <span class="ta-tab-count">2</span></button>
+          </div>
+
+          <div class="ta-filters">
+            <select class="ta-filter-select"><option>All Time</option><option>Today</option><option>This Week</option><option>This Month</option><option>3 Months</option><option>This Year</option></select>
+            <select class="ta-filter-select"><option>By Date</option><option>By P&amp;L</option><option>By Symbol</option></select>
+          </div>
+
+          <div class="ta-trade-list">
+            <button class="ta-trade-card selected">
+              <div class="jtc-top">
+                <span class="pair-chip">XAU</span>
+                <span class="jtc-symbol">XAU/USD</span>
+                <span class="jtc-badge">New</span>
+              </div>
+              <div class="jtc-middle">
+                <span class="jtc-type long">Long</span>
+                <span class="jtc-entry">63.0000</span>
+                <span class="jtc-pnl negative">-$440.00</span>
+              </div>
+              <div class="jtc-date">30 Jul, 07:38</div>
+            </button>
+            <button class="ta-trade-card">
+              <div class="jtc-top">
+                <span class="pair-chip">EUR</span>
+                <span class="jtc-symbol">EUR/USD</span>
+                <span class="jtc-badge">New</span>
+              </div>
+              <div class="jtc-middle">
+                <span class="jtc-type long">Long</span>
+                <span class="jtc-entry">21.0000</span>
+                <span class="jtc-pnl negative">-$252.00</span>
+              </div>
+              <div class="jtc-date">30 Jul, 06:01</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- MAIN DETAIL PANEL -->
+        <div class="ta-main-card">
+
+          <div class="jdh">
+            <div>
+              <div class="jdh-title-row">
+                <span class="jdh-pair-icon">XAU</span>
+                <span class="jdh-symbol">XAU/USD</span>
+                <span class="jdh-outcome loser">Loser</span>
+                <span class="ta-score-badge needs-work">Score: 0</span>
+              </div>
+              <div class="jdh-meta">
+                <span class="jdh-type long">Long</span>
+                <span>•</span>
+                <span>30 Jul, 07:38</span>
+                <span>•</span>
+                <span>Duration: 1d 6h</span>
+              </div>
+            </div>
+            <div class="ta-pnl-display negative">
+              <span class="ta-pnl-label">P&amp;L</span>
+              <span class="ta-pnl-value">-$440.00</span>
+            </div>
+          </div>
+
+          <div class="ta-stats-grid">
+            <div class="ta-stat-item"><span class="ta-stat-label">Entry Price</span><span class="ta-stat-value">63.0000</span></div>
+            <div class="ta-stat-item"><span class="ta-stat-label">Exit Price</span><span class="ta-stat-value">52.0000</span></div>
+            <div class="ta-stat-item"><span class="ta-stat-label">Quantity</span><span class="ta-stat-value">40</span></div>
+            <div class="ta-stat-item"><span class="ta-stat-label">Price Move</span><span class="ta-stat-value negative">-17.46%</span></div>
+          </div>
+
+          <div class="ta-chart-section">
+            <h3 class="ta-section-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"></path><path d="M18 9l-5 5-4-4-3 3"></path></svg>Trade Simulation</h3>
+
+            <div class="sim-box">
+              <div class="sim-header">
+                <div class="sim-symbol-row">
+                  <span class="pair-chip" style="width:28px;height:28px;">XAU</span>
+                  <span class="sim-symbol-text">XAU/USD</span>
+                  <span class="jtc-type long">Long</span>
+                </div>
+                <div class="sim-stats">
+                  <div><span class="sim-stat-label">Entry</span><span class="sim-stat-value">$63.00</span></div>
+                  <div><span class="sim-stat-label">Exit</span><span class="sim-stat-value">$52.00</span></div>
+                  <div><span class="sim-stat-label">P&amp;L</span><span class="sim-stat-value loss">-$440.00</span></div>
+                </div>
+              </div>
+              <div class="sim-placeholder">
+                <div class="sim-placeholder-content">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+                  <span class="sim-placeholder-title">Trade Replay Not Available</span>
+                  <p class="sim-placeholder-desc">This trade was added manually. Connect a trading account to view trade replay and simulation features.</p>
+                </div>
+              </div>
+              <div class="sim-footer">
+                <span class="manual-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Manual Entry</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ta-content-row">
+            <div class="ta-section">
+              <h3 class="ta-section-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.25v13m0-13C10.83 5.48 9.25 5 7.5 5S4.17 5.48 3 6.25v13C4.17 18.48 5.75 18 7.5 18s3.33.48 4.5 1.25m0-13C13.17 5.48 14.75 5 16.5 5c1.75 0 3.33.48 4.5 1.25v13C19.83 18.48 18.25 18 16.5 18c-1.75 0-3.33.48-4.5 1.25"></path></svg>Journal Entry<span class="ta-badge warning">Not Journaled</span></h3>
+              <div class="no-journal">
+                <p>No journal entry for this trade</p>
+                <button class="journal-btn">Add Journal Entry</button>
+              </div>
+            </div>
+
+            <div class="ta-section">
+              <h3 class="ta-section-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Trade Quality</h3>
+
+              <div class="quality-display">
+                <div class="quality-circle"><span class="qn">0</span></div>
+                <div class="quality-breakdown">
+                  <div class="qb-row"><span>Profitability</span><div class="qb-track"><div class="qb-fill" style="width:0%"></div></div><span>0/30</span></div>
+                  <div class="qb-row"><span>Execution</span><div class="qb-track"><div class="qb-fill" style="width:0%"></div></div><span>0/40</span></div>
+                  <div class="qb-row"><span>Journal</span><div class="qb-track"><div class="qb-fill" style="width:0%"></div></div><span>0/20</span></div>
+                  <div class="qb-row"><span>Rating</span><div class="qb-track"><div class="qb-fill" style="width:0%"></div></div><span>0/10</span></div>
+                </div>
+              </div>
+
+              <div class="quality-explanation">
+                <div class="qe-title">How is this calculated?</div>
+                <div class="qe-item"><span class="qe-label">Profitability (30 pts)</span><span class="qe-desc">Win: 30 | Break-even: 15 | Loss: 0</span></div>
+                <div class="qe-item"><span class="qe-label">Execution (40 pts)</span><span class="qe-desc">10 pts each: Plan, Risk, Entry, Exit</span></div>
+                <div class="qe-item"><span class="qe-label">Journal (20 pts)</span><span class="qe-desc">5 pts each: Pre-analysis, Review, Emotions, Lessons</span></div>
+                <div class="qe-item"><span class="qe-label">Rating (10 pts)</span><span class="qe-desc">Your self-rating (1–10)</span></div>
+                <div class="qgrades">
+                  <span class="qgrade excellent">80+ Excellent</span>
+                  <span class="qgrade good">60+ Good</span>
+                  <span class="qgrade average">40+ Average</span>
+                  <span class="qgrade needs-work">&lt;40 Needs Work</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="insights-section">
+            <h3 class="ta-section-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>Insights<span class="ta-coming-soon-badge">Coming Soon</span></h3>
+            <div class="insight-item">
+              <div class="insight-icon">💡</div>
+              <div>
+                <span class="insight-title">AI-Powered Insights</span>
+                <span class="insight-message">Get personalized trading insights and pattern analysis.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="comparison-section">
+            <h3 class="ta-section-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>vs Your Average</h3>
+            <div class="comparison-grid">
+              <div class="comp-item">
+                <span class="comp-metric">vs Avg Loser</span>
+                <span class="comp-value">-$440.00</span>
+                <span class="comp-diff negative">-27%</span>
+              </div>
+              <div class="comp-item">
+                <span class="comp-metric">Hold Duration</span>
+                <span class="comp-value">1d 6h</span>
+                <span class="comp-diff negative">+0%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
