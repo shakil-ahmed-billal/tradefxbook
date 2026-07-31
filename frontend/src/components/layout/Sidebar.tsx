@@ -54,14 +54,14 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon, label, isActive, isCollap
       className={`flex items-center gap-2.5 rounded-lg text-[13.5px] font-medium transition-all duration-150 relative w-full
         ${isCollapsed ? 'px-0 py-2.5 justify-center' : 'px-2.5 py-2'}
         ${isActive 
-          ? 'bg-[rgba(41,129,235,0.14)] text-[#5aa2f2]' 
-          : 'text-[#9aa2b3] hover:bg-[#1a1f2c] hover:text-[#f4f6fa]'
+          ? 'bg-[#2981eb]/15 text-[#2981eb] dark:text-[#5aa2f2] font-semibold' 
+          : 'text-[var(--text-mid)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-hi)]'
         }`}
     >
       {isActive && (
         <span className="absolute -left-[18px] top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[#2981eb] rounded-r" />
       )}
-      <span className={`shrink-0 ${isActive ? 'text-[#5aa2f2]' : ''}`}>{icon}</span>
+      <span className={`shrink-0 ${isActive ? 'text-[#2981eb] dark:text-[#5aa2f2]' : ''}`}>{icon}</span>
       {!isCollapsed && <span className="truncate">{label}</span>}
       {!isCollapsed && badge}
     </Link>

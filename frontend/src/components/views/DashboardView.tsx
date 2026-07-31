@@ -107,7 +107,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* STAT CARDS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total PnL */}
-        <div className="bg-gradient-to-br from-[#121a2c] via-[#10141d] to-[#10141d] border border-[#253156] rounded-2xl p-5 relative overflow-hidden shadow-lg">
+        <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5 relative overflow-hidden shadow-lg">
           <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-[radial-gradient(circle,rgba(76,125,255,0.18),transparent_70%)] pointer-events-none" />
           <div className="flex items-center justify-between mb-4">
             <div className="w-8 h-8 rounded-lg bg-[#2981eb]/15 text-[#5aa2f2] flex items-center justify-center">
