@@ -160,8 +160,12 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
   // ── Equity Curve SVG points ────────────────────────────────────────────────
   const equityCurvePoints = useMemo(() => {
     if (sortedTrades.length < 2) return null;
+    const pts: number[] = [];
     let cum = 0;
-    const pts = sortedTrades.map(t => { cum += Number(t.pnl||0); return cum; });
+    for (const t of sortedTrades) {
+      cum += Number(t.pnl || 0);
+      pts.push(cum);
+    }
     const min = Math.min(0,...pts), max = Math.max(0,...pts);
     const range = max - min || 1;
     const toY = (v: number) => 210 - ((v-min)/range)*180;
@@ -172,12 +176,13 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
   // ── Drawdown Curve ─────────────────────────────────────────────────────────
   const drawdownPoints = useMemo(() => {
     if (sortedTrades.length < 2) return null;
+    const dds: number[] = [];
     let cum = 0, peak = 0;
-    const dds = sortedTrades.map(t => {
-      cum += Number(t.pnl||0);
+    for (const t of sortedTrades) {
+      cum += Number(t.pnl || 0);
       peak = Math.max(peak, cum);
-      return peak > 0 ? ((cum-peak)/peak)*100 : 0;
-    });
+      dds.push(peak > 0 ? ((cum - peak) / peak) * 100 : 0);
+    }
     const min = Math.min(...dds), max = 0;
     const range = max - min || 1;
     const toY = (v: number) => 30 + ((max-v)/range)*180;

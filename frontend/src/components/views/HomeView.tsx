@@ -258,7 +258,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {trades.length === 0 ? (
             <div className="py-12 text-center text-xs text-[#565e73]">
-              No trades logged yet. Click "Log New Trade" to get started.
+              No trades logged yet. Click &quot;Log New Trade&quot; to get started.
             </div>
           ) : (
             <div className="overflow-x-auto">

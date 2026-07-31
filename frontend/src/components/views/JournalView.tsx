@@ -258,7 +258,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
               <span className="text-[#5c6478]">•</span>
               <span>Entry {activeTrade.entryPrice}</span>
               <span className="text-[#5c6478]">•</span>
-              <span>Size {activeTrade.lotSize}</span>
+              <span>Size {activeTrade.size}</span>
               <span className="text-[#5c6478]">•</span>
               <span>{activeTrade.openTime ? activeTrade.openTime.slice(0, 16).replace('T', ', ') : 'N/A'}</span>
             </div>

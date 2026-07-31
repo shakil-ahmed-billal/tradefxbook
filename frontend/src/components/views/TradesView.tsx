@@ -121,7 +121,7 @@ export const TradesView: React.FC<TradesViewProps> = ({
           {trades.length === 0 ? (
             <div className="py-12 text-center text-[#5c6478]">
               <p className="text-sm font-medium">No trades recorded yet.</p>
-              <p className="text-xs mt-1">Import your Exness CSV or click "Add Trade" to log your first trade.</p>
+              <p className="text-xs mt-1">Import your Exness CSV or click &quot;Add Trade&quot; to log your first trade.</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse min-w-[800px]">
