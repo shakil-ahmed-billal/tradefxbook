@@ -74,11 +74,11 @@ app.use(express.json());
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // API routes
-app.use("/api/v1", router);
+app.use("/api", router);
 
 // Health check
 app.get("/", (req: Request, res: Response) => {
-  res.send("JobMailer AI Server is running 🚀");
+  res.send("TradeFXBook Server is running 🚀");
 });
 
 // Global error handler (must be last)

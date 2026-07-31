@@ -9,78 +9,53 @@
 * 🟢 You can import this file directly.
 */
 
-export const JobStatus = {
-  DRAFT: 'DRAFT',
-  APPLIED: 'APPLIED',
-  INTERVIEW: 'INTERVIEW',
-  REJECTED: 'REJECTED',
-  OFFER: 'OFFER'
+export const PlanTier = {
+  FREE: 'FREE',
+  PRO: 'PRO',
+  ELITE: 'ELITE'
 } as const
 
-export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
+export type PlanTier = (typeof PlanTier)[keyof typeof PlanTier]
 
 
-export const JobRole = {
-  FRONTEND_DEVELOPER: 'FRONTEND_DEVELOPER',
-  FRONTEND_ENGINEER: 'FRONTEND_ENGINEER',
-  BACKEND_DEVELOPER: 'BACKEND_DEVELOPER',
-  BACKEND_ENGINEER: 'BACKEND_ENGINEER',
-  MERN_STACK_DEVELOPER: 'MERN_STACK_DEVELOPER',
-  FULL_STACK_DEVELOPER: 'FULL_STACK_DEVELOPER',
-  SOFTWARE_ENGINEER: 'SOFTWARE_ENGINEER',
-  CMS_DEVELOPER: 'CMS_DEVELOPER'
+export const TradeType = {
+  LONG: 'LONG',
+  SHORT: 'SHORT'
 } as const
 
-export type JobRole = (typeof JobRole)[keyof typeof JobRole]
+export type TradeType = (typeof TradeType)[keyof typeof TradeType]
 
 
-export const ApplyStatus = {
-  NOT_APPLIED: 'NOT_APPLIED',
-  APPLIED: 'APPLIED'
+export const TradeSource = {
+  MANUAL: 'MANUAL',
+  MT4: 'MT4',
+  MT5: 'MT5'
 } as const
 
-export type ApplyStatus = (typeof ApplyStatus)[keyof typeof ApplyStatus]
+export type TradeSource = (typeof TradeSource)[keyof typeof TradeSource]
 
 
-export const ResponseStatus = {
-  NO_RESPONSE: 'NO_RESPONSE',
-  REPLIED: 'REPLIED',
-  REJECTED: 'REJECTED',
-  ACCEPTED: 'ACCEPTED'
+export const TradeStatus = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED'
 } as const
 
-export type ResponseStatus = (typeof ResponseStatus)[keyof typeof ResponseStatus]
+export type TradeStatus = (typeof TradeStatus)[keyof typeof TradeStatus]
 
 
-export const EmailSendStatus = {
-  NOT_SENT: 'NOT_SENT',
-  SENT: 'SENT',
-  FAILED: 'FAILED'
+export const BrokerPlatform = {
+  MT4: 'MT4',
+  MT5: 'MT5'
 } as const
 
-export type EmailSendStatus = (typeof EmailSendStatus)[keyof typeof EmailSendStatus]
+export type BrokerPlatform = (typeof BrokerPlatform)[keyof typeof BrokerPlatform]
 
 
-export const EmailType = {
-  APPLICATION: 'APPLICATION',
-  REPLY: 'REPLY'
+export const SyncStatus = {
+  CONNECTED: 'CONNECTED',
+  DISCONNECTED: 'DISCONNECTED',
+  SYNCING: 'SYNCING',
+  ERROR: 'ERROR'
 } as const
 
-export type EmailType = (typeof EmailType)[keyof typeof EmailType]
-
-
-export const TaskStatus = {
-  PENDING: 'PENDING',
-  SUBMITTED: 'SUBMITTED',
-  OVERDUE: 'OVERDUE'
-} as const
-
-export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
-
-
-export const AIProvider = {
-  OPENAI: 'OPENAI',
-  GEMINI: 'GEMINI'
-} as const
-
-export type AIProvider = (typeof AIProvider)[keyof typeof AIProvider]
+export type SyncStatus = (typeof SyncStatus)[keyof typeof SyncStatus]

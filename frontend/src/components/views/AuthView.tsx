@@ -1,30 +1,78 @@
 import React, { useState } from 'react';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
 import { UserProfile } from '../../types';
+import { authClient } from '@/lib/auth-client';
 
 interface AuthViewProps {
   onSuccessAuth: (user: UserProfile) => void;
 }
 
 export const AuthView: React.FC<AuthViewProps> = ({ onSuccessAuth }) => {
-  const [email, setEmail] = useState('xhakil2023@gmail.com');
-  const [password, setPassword] = useState('password123');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const nameFromEmail = email.split('@')[0];
-    const user: UserProfile = {
-      name: nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1),
-      email,
-      plan: 'FREE',
-      avatarInitials: nameFromEmail.charAt(0).toUpperCase(),
-      isAuthenticated: true,
-    };
-    onSuccessAuth(user);
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        const res = await authClient.signUp.email({
+          email,
+          password,
+          name: name.trim() || email.split('@')[0],
+        });
+
+        if (res.error) {
+          setError(res.error.message || 'Registration failed. Please try again.');
+          setLoading(false);
+          return;
+        }
+
+        const userName = name.trim() || email.split('@')[0];
+        onSuccessAuth({
+          name: userName,
+          email,
+          plan: 'FREE',
+          avatarInitials: userName.charAt(0).toUpperCase(),
+          isAuthenticated: true,
+        });
+      } else {
+        const res = await authClient.signIn.email({
+          email,
+          password,
+        });
+
+        if (res.error) {
+          setError(res.error.message || 'Invalid email or password.');
+          setLoading(false);
+          return;
+        }
+
+        const nameFromEmail = email.split('@')[0];
+        const userName = res.data?.user?.name || nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+        onSuccessAuth({
+          name: userName,
+          email,
+          plan: 'FREE',
+          avatarInitials: userName.charAt(0).toUpperCase(),
+          isAuthenticated: true,
+        });
+      }
+    } catch (err: any) {
+      setError(err?.message || 'An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-64px)] animate-in fade-in duration-200 bg-[#090b10]">
+    <div className="grid grid-cols-1 lg:grid-cols-12 min-h-screen animate-in fade-in duration-200 bg-[#090b10]">
       
       {/* LEFT AUTH PANEL */}
       <section className="lg:col-span-5 bg-[#0e1017] border-r border-[#1a1e2b] p-8 lg:p-12 flex flex-col justify-between relative z-10">
@@ -44,33 +92,60 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccessAuth }) => {
           </div>
 
           <h1 className="font-outfit text-2xl lg:text-3xl font-bold text-[#f4f6fa] tracking-tight mb-2">
-            Welcome back, trader
+            {isSignUp ? 'Create your account' : 'Welcome back, trader'}
           </h1>
           <p className="text-sm text-[#9aa2b3] leading-relaxed mb-6">
-            Sign in to review your open positions and today's journal entries.
+            {isSignUp
+              ? 'Start tracking your trades and analyzing performance today.'
+              : 'Sign in to review your open positions and today\'s journal entries.'}
           </p>
 
-          <button 
-            type="button"
-            onClick={() => onSuccessAuth({ name: 'Shakil', email, plan: 'FREE', avatarInitials: 'S', isAuthenticated: true })}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-3 bg-[#141824] border border-[#212636] rounded-xl text-sm font-medium text-[#f4f6fa] hover:border-[#39415a] transition-all"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-          </button>
-
-          <div className="flex items-center gap-3 my-5 text-xs text-[#5c6478]">
-            <span className="flex-1 h-px bg-[#212636]" />
-            OR CONTINUE WITH EMAIL
-            <span className="flex-1 h-px bg-[#212636]" />
+          {/* Auth Tab Switcher */}
+          <div className="flex bg-[#141824] p-1 rounded-xl border border-[#212636] mb-6">
+            <button
+              type="button"
+              onClick={() => { setIsSignUp(false); setError(null); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                !isSignUp ? 'bg-[#2981eb] text-white shadow-md' : 'text-[#9aa2b3] hover:text-white'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setIsSignUp(true); setError(null); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                isSignUp ? 'bg-[#2981eb] text-white shadow-md' : 'text-[#9aa2b3] hover:text-white'
+              }`}
+            >
+              Create Account
+            </button>
           </div>
 
+          {error && (
+            <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {isSignUp && (
+              <div>
+                <label className="block text-xs font-semibold text-[#9aa2b3] mb-1.5">Full Name</label>
+                <div className="relative flex items-center">
+                  <UserIcon className="w-4 h-4 text-[#5c6478] absolute left-3.5 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Alex Morgan"
+                    className="w-full bg-[#141824] border border-[#212636] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-[#f4f6fa] outline-none focus:border-[#2981eb]"
+                    required={isSignUp}
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-semibold text-[#9aa2b3] mb-1.5">Email address</label>
               <div className="relative flex items-center">
@@ -103,10 +178,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccessAuth }) => {
 
             <button
               type="submit"
-              className="w-full py-3 px-4 mt-2 bg-[#2981eb] hover:bg-[#5aa2f2] text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2981eb]/25"
+              disabled={loading}
+              className="w-full py-3 px-4 mt-2 bg-[#2981eb] hover:bg-[#5aa2f2] disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2981eb]/25"
             >
-              Sign in
-              <ArrowRight className="w-4 h-4" />
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  {isSignUp ? 'Create Account' : 'Sign In'}
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 
@@ -127,7 +209,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccessAuth }) => {
 
         <div className="relative z-10 max-w-lg">
           <div className="inline-flex items-center gap-2 font-mono text-xs text-[#22c58b] bg-[#22c58b]/10 border border-[#22c58b]/25 px-3 py-1.5 rounded-full mb-6">
-            <span>▲</span> Live journal · +18.4% this month
+            <span>▲</span> Live journal · Exness & MT4/MT5 support
           </div>
 
           <h2 className="font-outfit text-4xl font-bold text-[#f4f6fa] tracking-tight leading-tight mb-4">
@@ -135,47 +217,34 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccessAuth }) => {
           </h2>
 
           <p className="text-sm text-[#9aa2b3] leading-relaxed">
-            MT4/MT5 auto-sync, real analytics, and a global desk of traders — TradeFXBook turns your history into your edge.
+            Import your Exness CSV trade logs in one click, track your Win Rate, Max Drawdown, and performance analytics seamlessly.
           </p>
         </div>
 
-        {/* Animated Signature Equity Card */}
         <div className="relative z-10 bg-[#141824]/60 border border-[#212636] rounded-2xl p-6 backdrop-blur-md my-8 shadow-2xl">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <div className="font-mono text-xs text-[#9aa2b3]">EQUITY CURVE — 30D</div>
+              <div className="font-mono text-xs text-[#9aa2b3]">EQUITY CURVE</div>
               <div className="font-mono text-xl font-bold text-[#f4f6fa]">$48,206.40</div>
             </div>
             <div className="font-mono text-xs text-[#22c58b] text-right">
               ▲ +12.7%
-              <span className="block text-[10px] text-[#5c6478]">since last sync</span>
+              <span className="block text-[10px] text-[#5c6478]">realtime metrics</span>
             </div>
           </div>
 
           <svg className="w-full h-[130px]" viewBox="0 0 480 130" preserveAspectRatio="none">
-            <g stroke="#22c58b" strokeWidth="2">
-              <line className="animate-candle" x1="20" y1="60" x2="20" y2="95" style={{ animationDelay: '0.1s' }} />
-              <line className="animate-candle" x1="45" y1="50" x2="45" y2="80" style={{ animationDelay: '0.2s' }} />
-              <line className="animate-candle" x1="70" y1="70" x2="70" y2="100" stroke="#ef4b5c" style={{ animationDelay: '0.3s' }} />
-              <line className="animate-candle" x1="95" y1="40" x2="95" y2="75" style={{ animationDelay: '0.4s' }} />
-              <line className="animate-candle" x1="120" y1="55" x2="120" y2="90" stroke="#ef4b5c" style={{ animationDelay: '0.5s' }} />
-              <line className="animate-candle" x1="145" y1="30" x2="145" y2="65" style={{ animationDelay: '0.6s' }} />
-            </g>
-
             <defs>
               <linearGradient id="authGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#2981EB" stopOpacity="0.35" />
                 <stop offset="100%" stopColor="#2981EB" stopOpacity="0" />
               </linearGradient>
             </defs>
-
             <path 
-              className="animate-equity-fill"
               d="M0,110 C40,105 60,90 90,85 C130,78 150,60 190,55 C230,50 250,40 290,32 C330,25 350,20 400,14 C430,10 460,8 480,5 L480,130 L0,130 Z" 
               fill="url(#authGradient)" 
             />
             <path 
-              className="animate-equity-line"
               fill="none" 
               stroke="#2981eb" 
               strokeWidth="2.5" 
@@ -192,7 +261,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccessAuth }) => {
           </div>
           <div>
             <span className="font-mono text-xl font-bold text-[#f4f6fa] block">8.2M</span>
-            <span className="text-xs text-[#5c6478]">Trades synced</span>
+            <span className="text-xs text-[#5c6478]">Trades logged</span>
           </div>
           <div>
             <span className="font-mono text-xl font-bold text-[#f4f6fa] block">99.99%</span>

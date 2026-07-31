@@ -41,6 +41,9 @@ export type UserMinAggregateOutputType = {
   certifications: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  clerkId: string | null
+  plan: $Enums.PlanTier | null
+  timezone: string | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -60,6 +63,9 @@ export type UserMaxAggregateOutputType = {
   certifications: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  clerkId: string | null
+  plan: $Enums.PlanTier | null
+  timezone: string | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -79,6 +85,9 @@ export type UserCountAggregateOutputType = {
   certifications: number
   createdAt: number
   updatedAt: number
+  clerkId: number
+  plan: number
+  timezone: number
   _all: number
 }
 
@@ -100,6 +109,9 @@ export type UserMinAggregateInputType = {
   certifications?: true
   createdAt?: true
   updatedAt?: true
+  clerkId?: true
+  plan?: true
+  timezone?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -119,6 +131,9 @@ export type UserMaxAggregateInputType = {
   certifications?: true
   createdAt?: true
   updatedAt?: true
+  clerkId?: true
+  plan?: true
+  timezone?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -138,6 +153,9 @@ export type UserCountAggregateInputType = {
   certifications?: true
   createdAt?: true
   updatedAt?: true
+  clerkId?: true
+  plan?: true
+  timezone?: true
   _all?: true
 }
 
@@ -230,6 +248,9 @@ export type UserGroupByOutputType = {
   certifications: string | null
   createdAt: Date
   updatedAt: Date
+  clerkId: string | null
+  plan: $Enums.PlanTier
+  timezone: string
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -270,13 +291,13 @@ export type UserWhereInput = {
   certifications?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  clerkId?: Prisma.StringNullableFilter<"User"> | string | null
+  plan?: Prisma.EnumPlanTierFilter<"User"> | $Enums.PlanTier
+  timezone?: Prisma.StringFilter<"User"> | string
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
-  jobs?: Prisma.JobListRelationFilter
-  tasks?: Prisma.TaskListRelationFilter
-  emails?: Prisma.EmailListRelationFilter
-  resumes?: Prisma.ResumeListRelationFilter
-  topCompanies?: Prisma.TopCompanyListRelationFilter
+  trades?: Prisma.TradeListRelationFilter
+  brokerAccounts?: Prisma.BrokerAccountListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -296,18 +317,19 @@ export type UserOrderByWithRelationInput = {
   certifications?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  clerkId?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
-  jobs?: Prisma.JobOrderByRelationAggregateInput
-  tasks?: Prisma.TaskOrderByRelationAggregateInput
-  emails?: Prisma.EmailOrderByRelationAggregateInput
-  resumes?: Prisma.ResumeOrderByRelationAggregateInput
-  topCompanies?: Prisma.TopCompanyOrderByRelationAggregateInput
+  trades?: Prisma.TradeOrderByRelationAggregateInput
+  brokerAccounts?: Prisma.BrokerAccountOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  clerkId?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
@@ -325,14 +347,13 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   certifications?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  plan?: Prisma.EnumPlanTierFilter<"User"> | $Enums.PlanTier
+  timezone?: Prisma.StringFilter<"User"> | string
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
-  jobs?: Prisma.JobListRelationFilter
-  tasks?: Prisma.TaskListRelationFilter
-  emails?: Prisma.EmailListRelationFilter
-  resumes?: Prisma.ResumeListRelationFilter
-  topCompanies?: Prisma.TopCompanyListRelationFilter
-}, "id" | "email">
+  trades?: Prisma.TradeListRelationFilter
+  brokerAccounts?: Prisma.BrokerAccountListRelationFilter
+}, "id" | "clerkId" | "email">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -351,6 +372,9 @@ export type UserOrderByWithAggregationInput = {
   certifications?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  clerkId?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -376,6 +400,9 @@ export type UserScalarWhereWithAggregatesInput = {
   certifications?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  clerkId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  plan?: Prisma.EnumPlanTierWithAggregatesFilter<"User"> | $Enums.PlanTier
+  timezone?: Prisma.StringWithAggregatesFilter<"User"> | string
 }
 
 export type UserCreateInput = {
@@ -395,13 +422,13 @@ export type UserCreateInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -421,13 +448,13 @@ export type UserUncheckedCreateInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailUncheckedCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyUncheckedCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeUncheckedCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -447,13 +474,13 @@ export type UserUpdateInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -473,13 +500,13 @@ export type UserUncheckedUpdateInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUncheckedUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUncheckedUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUncheckedUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -499,6 +526,9 @@ export type UserCreateManyInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
 }
 
 export type UserUpdateManyMutationInput = {
@@ -518,6 +548,9 @@ export type UserUpdateManyMutationInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -537,6 +570,9 @@ export type UserUncheckedUpdateManyInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -556,6 +592,9 @@ export type UserCountOrderByAggregateInput = {
   certifications?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  clerkId?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -575,6 +614,9 @@ export type UserMaxOrderByAggregateInput = {
   certifications?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  clerkId?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -594,6 +636,9 @@ export type UserMinOrderByAggregateInput = {
   certifications?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  clerkId?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -615,6 +660,10 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type EnumPlanTierFieldUpdateOperationsInput = {
+  set?: $Enums.PlanTier
 }
 
 export type UserCreateNestedOneWithoutSessionsInput = {
@@ -645,74 +694,32 @@ export type UserUpdateOneRequiredWithoutAccountsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAccountsInput, Prisma.UserUpdateWithoutAccountsInput>, Prisma.UserUncheckedUpdateWithoutAccountsInput>
 }
 
-export type UserCreateNestedOneWithoutJobsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutJobsInput, Prisma.UserUncheckedCreateWithoutJobsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutJobsInput
+export type UserCreateNestedOneWithoutBrokerAccountsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBrokerAccountsInput, Prisma.UserUncheckedCreateWithoutBrokerAccountsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBrokerAccountsInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutJobsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutJobsInput, Prisma.UserUncheckedCreateWithoutJobsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutJobsInput
-  upsert?: Prisma.UserUpsertWithoutJobsInput
+export type UserUpdateOneRequiredWithoutBrokerAccountsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBrokerAccountsInput, Prisma.UserUncheckedCreateWithoutBrokerAccountsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBrokerAccountsInput
+  upsert?: Prisma.UserUpsertWithoutBrokerAccountsInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutJobsInput, Prisma.UserUpdateWithoutJobsInput>, Prisma.UserUncheckedUpdateWithoutJobsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBrokerAccountsInput, Prisma.UserUpdateWithoutBrokerAccountsInput>, Prisma.UserUncheckedUpdateWithoutBrokerAccountsInput>
 }
 
-export type UserCreateNestedOneWithoutResumesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutResumesInput, Prisma.UserUncheckedCreateWithoutResumesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResumesInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutResumesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutResumesInput, Prisma.UserUncheckedCreateWithoutResumesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResumesInput
-  upsert?: Prisma.UserUpsertWithoutResumesInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResumesInput, Prisma.UserUpdateWithoutResumesInput>, Prisma.UserUncheckedUpdateWithoutResumesInput>
-}
-
-export type UserCreateNestedOneWithoutEmailsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutEmailsInput, Prisma.UserUncheckedCreateWithoutEmailsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmailsInput
+export type UserCreateNestedOneWithoutTradesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTradesInput, Prisma.UserUncheckedCreateWithoutTradesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTradesInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutEmailsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutEmailsInput, Prisma.UserUncheckedCreateWithoutEmailsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmailsInput
-  upsert?: Prisma.UserUpsertWithoutEmailsInput
+export type UserUpdateOneRequiredWithoutTradesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTradesInput, Prisma.UserUncheckedCreateWithoutTradesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTradesInput
+  upsert?: Prisma.UserUpsertWithoutTradesInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEmailsInput, Prisma.UserUpdateWithoutEmailsInput>, Prisma.UserUncheckedUpdateWithoutEmailsInput>
-}
-
-export type UserCreateNestedOneWithoutTasksInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTasksInput, Prisma.UserUncheckedCreateWithoutTasksInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTasksInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutTasksNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTasksInput, Prisma.UserUncheckedCreateWithoutTasksInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTasksInput
-  upsert?: Prisma.UserUpsertWithoutTasksInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTasksInput, Prisma.UserUpdateWithoutTasksInput>, Prisma.UserUncheckedUpdateWithoutTasksInput>
-}
-
-export type UserCreateNestedOneWithoutTopCompaniesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTopCompaniesInput, Prisma.UserUncheckedCreateWithoutTopCompaniesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTopCompaniesInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutTopCompaniesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTopCompaniesInput, Prisma.UserUncheckedCreateWithoutTopCompaniesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTopCompaniesInput
-  upsert?: Prisma.UserUpsertWithoutTopCompaniesInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTopCompaniesInput, Prisma.UserUpdateWithoutTopCompaniesInput>, Prisma.UserUncheckedUpdateWithoutTopCompaniesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTradesInput, Prisma.UserUpdateWithoutTradesInput>, Prisma.UserUncheckedUpdateWithoutTradesInput>
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -732,12 +739,12 @@ export type UserCreateWithoutSessionsInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -757,12 +764,12 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailUncheckedCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyUncheckedCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeUncheckedCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -798,12 +805,12 @@ export type UserUpdateWithoutSessionsInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -823,12 +830,12 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUncheckedUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUncheckedUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUncheckedUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -848,12 +855,12 @@ export type UserCreateWithoutAccountsInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -873,12 +880,12 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailUncheckedCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyUncheckedCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeUncheckedCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -914,12 +921,12 @@ export type UserUpdateWithoutAccountsInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -939,15 +946,15 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUncheckedUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUncheckedUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUncheckedUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutJobsInput = {
+export type UserCreateWithoutBrokerAccountsInput = {
   id: string
   name: string
   email: string
@@ -964,15 +971,15 @@ export type UserCreateWithoutJobsInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutJobsInput = {
+export type UserUncheckedCreateWithoutBrokerAccountsInput = {
   id: string
   name: string
   email: string
@@ -989,31 +996,31 @@ export type UserUncheckedCreateWithoutJobsInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailUncheckedCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyUncheckedCreateNestedManyWithoutUserInput
+  trades?: Prisma.TradeUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutJobsInput = {
+export type UserCreateOrConnectWithoutBrokerAccountsInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutJobsInput, Prisma.UserUncheckedCreateWithoutJobsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBrokerAccountsInput, Prisma.UserUncheckedCreateWithoutBrokerAccountsInput>
 }
 
-export type UserUpsertWithoutJobsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutJobsInput, Prisma.UserUncheckedUpdateWithoutJobsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutJobsInput, Prisma.UserUncheckedCreateWithoutJobsInput>
+export type UserUpsertWithoutBrokerAccountsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBrokerAccountsInput, Prisma.UserUncheckedUpdateWithoutBrokerAccountsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBrokerAccountsInput, Prisma.UserUncheckedCreateWithoutBrokerAccountsInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutJobsInput = {
+export type UserUpdateToOneWithWhereWithoutBrokerAccountsInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutJobsInput, Prisma.UserUncheckedUpdateWithoutJobsInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBrokerAccountsInput, Prisma.UserUncheckedUpdateWithoutBrokerAccountsInput>
 }
 
-export type UserUpdateWithoutJobsInput = {
+export type UserUpdateWithoutBrokerAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1030,15 +1037,15 @@ export type UserUpdateWithoutJobsInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutJobsInput = {
+export type UserUncheckedUpdateWithoutBrokerAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1055,15 +1062,15 @@ export type UserUncheckedUpdateWithoutJobsInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUncheckedUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUncheckedUpdateManyWithoutUserNestedInput
+  trades?: Prisma.TradeUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutResumesInput = {
+export type UserCreateWithoutTradesInput = {
   id: string
   name: string
   email: string
@@ -1080,15 +1087,15 @@ export type UserCreateWithoutResumesInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutResumesInput = {
+export type UserUncheckedCreateWithoutTradesInput = {
   id: string
   name: string
   email: string
@@ -1105,31 +1112,31 @@ export type UserUncheckedCreateWithoutResumesInput = {
   certifications?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  clerkId?: string | null
+  plan?: $Enums.PlanTier
+  timezone?: string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailUncheckedCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyUncheckedCreateNestedManyWithoutUserInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutResumesInput = {
+export type UserCreateOrConnectWithoutTradesInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutResumesInput, Prisma.UserUncheckedCreateWithoutResumesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTradesInput, Prisma.UserUncheckedCreateWithoutTradesInput>
 }
 
-export type UserUpsertWithoutResumesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutResumesInput, Prisma.UserUncheckedUpdateWithoutResumesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutResumesInput, Prisma.UserUncheckedCreateWithoutResumesInput>
+export type UserUpsertWithoutTradesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTradesInput, Prisma.UserUncheckedUpdateWithoutTradesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTradesInput, Prisma.UserUncheckedCreateWithoutTradesInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutResumesInput = {
+export type UserUpdateToOneWithWhereWithoutTradesInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutResumesInput, Prisma.UserUncheckedUpdateWithoutResumesInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTradesInput, Prisma.UserUncheckedUpdateWithoutTradesInput>
 }
 
-export type UserUpdateWithoutResumesInput = {
+export type UserUpdateWithoutTradesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1146,15 +1153,15 @@ export type UserUpdateWithoutResumesInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutResumesInput = {
+export type UserUncheckedUpdateWithoutTradesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1171,360 +1178,12 @@ export type UserUncheckedUpdateWithoutResumesInput = {
   certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clerkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanTierFieldUpdateOperationsInput | $Enums.PlanTier
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUncheckedUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutEmailsInput = {
-  id: string
-  name: string
-  email: string
-  emailVerified?: boolean
-  image?: string | null
-  profileBio?: string | null
-  resumeLink?: string | null
-  linkedinLink?: string | null
-  portfolioLink?: string | null
-  resumeContent?: string | null
-  skills?: string | null
-  experience?: string | null
-  education?: string | null
-  certifications?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutEmailsInput = {
-  id: string
-  name: string
-  email: string
-  emailVerified?: boolean
-  image?: string | null
-  profileBio?: string | null
-  resumeLink?: string | null
-  linkedinLink?: string | null
-  portfolioLink?: string | null
-  resumeContent?: string | null
-  skills?: string | null
-  experience?: string | null
-  education?: string | null
-  certifications?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutEmailsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutEmailsInput, Prisma.UserUncheckedCreateWithoutEmailsInput>
-}
-
-export type UserUpsertWithoutEmailsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutEmailsInput, Prisma.UserUncheckedUpdateWithoutEmailsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutEmailsInput, Prisma.UserUncheckedCreateWithoutEmailsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutEmailsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutEmailsInput, Prisma.UserUncheckedUpdateWithoutEmailsInput>
-}
-
-export type UserUpdateWithoutEmailsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profileBio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  linkedinLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portfolioLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  experience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutEmailsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profileBio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  linkedinLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portfolioLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  experience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutTasksInput = {
-  id: string
-  name: string
-  email: string
-  emailVerified?: boolean
-  image?: string | null
-  profileBio?: string | null
-  resumeLink?: string | null
-  linkedinLink?: string | null
-  portfolioLink?: string | null
-  resumeContent?: string | null
-  skills?: string | null
-  experience?: string | null
-  education?: string | null
-  certifications?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutTasksInput = {
-  id: string
-  name: string
-  email: string
-  emailVerified?: boolean
-  image?: string | null
-  profileBio?: string | null
-  resumeLink?: string | null
-  linkedinLink?: string | null
-  portfolioLink?: string | null
-  resumeContent?: string | null
-  skills?: string | null
-  experience?: string | null
-  education?: string | null
-  certifications?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailUncheckedCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
-  topCompanies?: Prisma.TopCompanyUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutTasksInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutTasksInput, Prisma.UserUncheckedCreateWithoutTasksInput>
-}
-
-export type UserUpsertWithoutTasksInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutTasksInput, Prisma.UserUncheckedUpdateWithoutTasksInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutTasksInput, Prisma.UserUncheckedCreateWithoutTasksInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutTasksInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutTasksInput, Prisma.UserUncheckedUpdateWithoutTasksInput>
-}
-
-export type UserUpdateWithoutTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profileBio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  linkedinLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portfolioLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  experience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutTasksInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profileBio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  linkedinLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portfolioLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  experience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUncheckedUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
-  topCompanies?: Prisma.TopCompanyUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutTopCompaniesInput = {
-  id: string
-  name: string
-  email: string
-  emailVerified?: boolean
-  image?: string | null
-  profileBio?: string | null
-  resumeLink?: string | null
-  linkedinLink?: string | null
-  portfolioLink?: string | null
-  resumeContent?: string | null
-  skills?: string | null
-  experience?: string | null
-  education?: string | null
-  certifications?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutTopCompaniesInput = {
-  id: string
-  name: string
-  email: string
-  emailVerified?: boolean
-  image?: string | null
-  profileBio?: string | null
-  resumeLink?: string | null
-  linkedinLink?: string | null
-  portfolioLink?: string | null
-  resumeContent?: string | null
-  skills?: string | null
-  experience?: string | null
-  education?: string | null
-  certifications?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
-  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
-  emails?: Prisma.EmailUncheckedCreateNestedManyWithoutUserInput
-  resumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutTopCompaniesInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutTopCompaniesInput, Prisma.UserUncheckedCreateWithoutTopCompaniesInput>
-}
-
-export type UserUpsertWithoutTopCompaniesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutTopCompaniesInput, Prisma.UserUncheckedUpdateWithoutTopCompaniesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutTopCompaniesInput, Prisma.UserUncheckedCreateWithoutTopCompaniesInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutTopCompaniesInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutTopCompaniesInput, Prisma.UserUncheckedUpdateWithoutTopCompaniesInput>
-}
-
-export type UserUpdateWithoutTopCompaniesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profileBio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  linkedinLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portfolioLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  experience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutTopCompaniesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profileBio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  linkedinLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portfolioLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resumeContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skills?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  experience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  certifications?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
-  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
-  emails?: Prisma.EmailUncheckedUpdateManyWithoutUserNestedInput
-  resumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
+  brokerAccounts?: Prisma.BrokerAccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1535,21 +1194,15 @@ export type UserUncheckedUpdateWithoutTopCompaniesInput = {
 export type UserCountOutputType = {
   sessions: number
   accounts: number
-  jobs: number
-  tasks: number
-  emails: number
-  resumes: number
-  topCompanies: number
+  trades: number
+  brokerAccounts: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
-  jobs?: boolean | UserCountOutputTypeCountJobsArgs
-  tasks?: boolean | UserCountOutputTypeCountTasksArgs
-  emails?: boolean | UserCountOutputTypeCountEmailsArgs
-  resumes?: boolean | UserCountOutputTypeCountResumesArgs
-  topCompanies?: boolean | UserCountOutputTypeCountTopCompaniesArgs
+  trades?: boolean | UserCountOutputTypeCountTradesArgs
+  brokerAccounts?: boolean | UserCountOutputTypeCountBrokerAccountsArgs
 }
 
 /**
@@ -1579,36 +1232,15 @@ export type UserCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.E
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.JobWhereInput
+export type UserCountOutputTypeCountTradesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TradeWhereInput
 }
 
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TaskWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountEmailsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EmailWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountResumesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ResumeWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountTopCompaniesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TopCompanyWhereInput
+export type UserCountOutputTypeCountBrokerAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BrokerAccountWhereInput
 }
 
 
@@ -1629,13 +1261,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   certifications?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  clerkId?: boolean
+  plan?: boolean
+  timezone?: boolean
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
-  jobs?: boolean | Prisma.User$jobsArgs<ExtArgs>
-  tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
-  emails?: boolean | Prisma.User$emailsArgs<ExtArgs>
-  resumes?: boolean | Prisma.User$resumesArgs<ExtArgs>
-  topCompanies?: boolean | Prisma.User$topCompaniesArgs<ExtArgs>
+  trades?: boolean | Prisma.User$tradesArgs<ExtArgs>
+  brokerAccounts?: boolean | Prisma.User$brokerAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1656,6 +1288,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   certifications?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  clerkId?: boolean
+  plan?: boolean
+  timezone?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1675,6 +1310,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   certifications?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  clerkId?: boolean
+  plan?: boolean
+  timezone?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1694,17 +1332,17 @@ export type UserSelectScalar = {
   certifications?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  clerkId?: boolean
+  plan?: boolean
+  timezone?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "profileBio" | "resumeLink" | "linkedinLink" | "portfolioLink" | "resumeContent" | "skills" | "experience" | "education" | "certifications" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "profileBio" | "resumeLink" | "linkedinLink" | "portfolioLink" | "resumeContent" | "skills" | "experience" | "education" | "certifications" | "createdAt" | "updatedAt" | "clerkId" | "plan" | "timezone", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
-  jobs?: boolean | Prisma.User$jobsArgs<ExtArgs>
-  tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
-  emails?: boolean | Prisma.User$emailsArgs<ExtArgs>
-  resumes?: boolean | Prisma.User$resumesArgs<ExtArgs>
-  topCompanies?: boolean | Prisma.User$topCompaniesArgs<ExtArgs>
+  trades?: boolean | Prisma.User$tradesArgs<ExtArgs>
+  brokerAccounts?: boolean | Prisma.User$brokerAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1715,11 +1353,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
-    jobs: Prisma.$JobPayload<ExtArgs>[]
-    tasks: Prisma.$TaskPayload<ExtArgs>[]
-    emails: Prisma.$EmailPayload<ExtArgs>[]
-    resumes: Prisma.$ResumePayload<ExtArgs>[]
-    topCompanies: Prisma.$TopCompanyPayload<ExtArgs>[]
+    trades: Prisma.$TradePayload<ExtArgs>[]
+    brokerAccounts: Prisma.$BrokerAccountPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1738,6 +1373,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     certifications: string | null
     createdAt: Date
     updatedAt: Date
+    clerkId: string | null
+    plan: $Enums.PlanTier
+    timezone: string
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -2134,11 +1772,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  jobs<T extends Prisma.User$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  tasks<T extends Prisma.User$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  emails<T extends Prisma.User$emailsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$emailsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  resumes<T extends Prisma.User$resumesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resumesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResumePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  topCompanies<T extends Prisma.User$topCompaniesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$topCompaniesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TopCompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  trades<T extends Prisma.User$tradesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tradesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TradePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  brokerAccounts<T extends Prisma.User$brokerAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$brokerAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrokerAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2184,6 +1819,9 @@ export interface UserFieldRefs {
   readonly certifications: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly clerkId: Prisma.FieldRef<"User", 'String'>
+  readonly plan: Prisma.FieldRef<"User", 'PlanTier'>
+  readonly timezone: Prisma.FieldRef<"User", 'String'>
 }
     
 
@@ -2620,123 +2258,51 @@ export type User$accountsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * User.jobs
+ * User.trades
  */
-export type User$jobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$tradesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Job
+   * Select specific fields to fetch from the Trade
    */
-  select?: Prisma.JobSelect<ExtArgs> | null
+  select?: Prisma.TradeSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Job
+   * Omit specific fields from the Trade
    */
-  omit?: Prisma.JobOmit<ExtArgs> | null
+  omit?: Prisma.TradeOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.JobInclude<ExtArgs> | null
-  where?: Prisma.JobWhereInput
-  orderBy?: Prisma.JobOrderByWithRelationInput | Prisma.JobOrderByWithRelationInput[]
-  cursor?: Prisma.JobWhereUniqueInput
+  include?: Prisma.TradeInclude<ExtArgs> | null
+  where?: Prisma.TradeWhereInput
+  orderBy?: Prisma.TradeOrderByWithRelationInput | Prisma.TradeOrderByWithRelationInput[]
+  cursor?: Prisma.TradeWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.JobScalarFieldEnum | Prisma.JobScalarFieldEnum[]
+  distinct?: Prisma.TradeScalarFieldEnum | Prisma.TradeScalarFieldEnum[]
 }
 
 /**
- * User.tasks
+ * User.brokerAccounts
  */
-export type User$tasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$brokerAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Task
+   * Select specific fields to fetch from the BrokerAccount
    */
-  select?: Prisma.TaskSelect<ExtArgs> | null
+  select?: Prisma.BrokerAccountSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Task
+   * Omit specific fields from the BrokerAccount
    */
-  omit?: Prisma.TaskOmit<ExtArgs> | null
+  omit?: Prisma.BrokerAccountOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TaskInclude<ExtArgs> | null
-  where?: Prisma.TaskWhereInput
-  orderBy?: Prisma.TaskOrderByWithRelationInput | Prisma.TaskOrderByWithRelationInput[]
-  cursor?: Prisma.TaskWhereUniqueInput
+  include?: Prisma.BrokerAccountInclude<ExtArgs> | null
+  where?: Prisma.BrokerAccountWhereInput
+  orderBy?: Prisma.BrokerAccountOrderByWithRelationInput | Prisma.BrokerAccountOrderByWithRelationInput[]
+  cursor?: Prisma.BrokerAccountWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
-}
-
-/**
- * User.emails
- */
-export type User$emailsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Email
-   */
-  select?: Prisma.EmailSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Email
-   */
-  omit?: Prisma.EmailOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EmailInclude<ExtArgs> | null
-  where?: Prisma.EmailWhereInput
-  orderBy?: Prisma.EmailOrderByWithRelationInput | Prisma.EmailOrderByWithRelationInput[]
-  cursor?: Prisma.EmailWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.EmailScalarFieldEnum | Prisma.EmailScalarFieldEnum[]
-}
-
-/**
- * User.resumes
- */
-export type User$resumesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Resume
-   */
-  select?: Prisma.ResumeSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Resume
-   */
-  omit?: Prisma.ResumeOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ResumeInclude<ExtArgs> | null
-  where?: Prisma.ResumeWhereInput
-  orderBy?: Prisma.ResumeOrderByWithRelationInput | Prisma.ResumeOrderByWithRelationInput[]
-  cursor?: Prisma.ResumeWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ResumeScalarFieldEnum | Prisma.ResumeScalarFieldEnum[]
-}
-
-/**
- * User.topCompanies
- */
-export type User$topCompaniesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the TopCompany
-   */
-  select?: Prisma.TopCompanySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the TopCompany
-   */
-  omit?: Prisma.TopCompanyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TopCompanyInclude<ExtArgs> | null
-  where?: Prisma.TopCompanyWhereInput
-  orderBy?: Prisma.TopCompanyOrderByWithRelationInput | Prisma.TopCompanyOrderByWithRelationInput[]
-  cursor?: Prisma.TopCompanyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.TopCompanyScalarFieldEnum | Prisma.TopCompanyScalarFieldEnum[]
+  distinct?: Prisma.BrokerAccountScalarFieldEnum | Prisma.BrokerAccountScalarFieldEnum[]
 }
 
 /**

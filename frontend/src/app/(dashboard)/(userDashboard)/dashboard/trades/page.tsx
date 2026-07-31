@@ -11,6 +11,7 @@ export default function TradesPage() {
     trades,
     setIsAddTradeOpen,
     setIsConnectBrokerOpen,
+    setIsImportCSVOpen,
     handleClearAll,
     handleDeleteTrade,
     setShareTrade,
@@ -22,6 +23,7 @@ export default function TradesPage() {
       trades={trades}
       onOpenAddTrade={() => setIsAddTradeOpen(true)}
       onOpenConnectBroker={() => setIsConnectBrokerOpen(true)}
+      onOpenImportCSV={() => setIsImportCSVOpen(true)}
       onClearAll={handleClearAll}
       onDeleteTrade={handleDeleteTrade}
       onShareTrade={(trade) => setShareTrade(trade)}

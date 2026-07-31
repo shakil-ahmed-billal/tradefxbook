@@ -7,58 +7,39 @@ datasource db {
   provider = "postgresql"
 }
 
-// ============= Enums =============
-enum JobStatus {
-  DRAFT
-  APPLIED
-  INTERVIEW
-  REJECTED
-  OFFER
+// ============= TradeFXBook Enums =============
+enum PlanTier {
+  FREE
+  PRO
+  ELITE
 }
 
-enum JobRole {
-  FRONTEND_DEVELOPER
-  FRONTEND_ENGINEER
-  BACKEND_DEVELOPER
-  BACKEND_ENGINEER
-  MERN_STACK_DEVELOPER
-  FULL_STACK_DEVELOPER
-  SOFTWARE_ENGINEER
-  CMS_DEVELOPER
+enum TradeType {
+  LONG
+  SHORT
 }
 
-enum ApplyStatus {
-  NOT_APPLIED
-  APPLIED
+enum TradeSource {
+  MANUAL
+  MT4
+  MT5
 }
 
-enum ResponseStatus {
-  NO_RESPONSE
-  REPLIED
-  REJECTED
-  ACCEPTED
+enum TradeStatus {
+  OPEN
+  CLOSED
 }
 
-enum EmailSendStatus {
-  NOT_SENT
-  SENT
-  FAILED
+enum BrokerPlatform {
+  MT4
+  MT5
 }
 
-enum EmailType {
-  APPLICATION
-  REPLY
-}
-
-enum TaskStatus {
-  PENDING
-  SUBMITTED
-  OVERDUE
-}
-
-enum AIProvider {
-  OPENAI
-  GEMINI
+enum SyncStatus {
+  CONNECTED
+  DISCONNECTED
+  SYNCING
+  ERROR
 }
 
 // ============= Models =============
@@ -82,11 +63,12 @@ model User {
   
   sessions        Session[]
   accounts        Account[]
-  jobs            Job[]
-  tasks           Task[]
-  emails          Email[]
-  resumes         Resume[]
-  topCompanies    TopCompany[]
+  // TradeFXBook specific fields
+  clerkId         String?   @unique
+  plan            PlanTier  @default(FREE)
+  timezone        String    @default("UTC")
+  trades          Trade[]
+  brokerAccounts  BrokerAccount[]
 
   @@unique([email])
   @@map("user")
@@ -140,113 +122,80 @@ model Verification {
   @@map("verification")
 }
 
-model Job {
-  id                String           @id @default(uuid())
-  userId            String
-  companyName       String
-  companyEmail      String
-  jobTitle          String
-  jobDescription    String           @db.Text
-  companyWebsite    String?
-  companyLinkedin   String?
-  companyNumber     String?
-  location          String?
-  salary            String?
-  notes             String?          @db.Text
-  jobRole           JobRole          @default(SOFTWARE_ENGINEER)
+// ============= TradeFXBook Models =============
 
-  status            JobStatus        @default(DRAFT)
-  applyStatus       ApplyStatus      @default(NOT_APPLIED)
-  responseStatus    ResponseStatus   @default(NO_RESPONSE)
-  emailSendStatus   EmailSendStatus  @default(NOT_SENT)
+model BrokerAccount {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform      BrokerPlatform
+  accountNumber String
+  server        String
+  syncStatus    SyncStatus      @default(DISCONNECTED)
+  lastSyncedAt  DateTime?
+  createdAt     DateTime        @default(now())
 
-  applyDate         DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  trades        Trade[]
 
-  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tasks             Task[]
-  emails            Email[]
-
-  @@index([userId])
-  @@index([status])
-  @@index([applyStatus])
-  @@map("job")
+  @@map("broker_accounts")
 }
 
-model Resume {
-  id        String   @id @default(uuid())
-  userId    String
-  jobRole   JobRole
-  fileUrl   String
-  publicId  String?
-  fileName  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, jobRole])
-  @@index([userId])
-  @@index([jobRole])
-  @@map("resume")
-}
-
-model Email {
-  id          String          @id @default(uuid())
-  userId      String
-  jobId       String
-  subject     String
-  content     String          @db.Text
-  aiProvider  AIProvider      @default(OPENAI)
-  emailType   EmailType
-  status      EmailSendStatus @default(NOT_SENT)
-  sentAt      DateTime?
-  createdAt   DateTime        @default(now())
-
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job         Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([jobId])
-  @@index([emailType])
-  @@index([aiProvider])
-  @@map("email")
-}
-
-model Task {
-  id              String      @id @default(uuid())
+model Trade {
+  id              String        @id @default(uuid())
   userId          String
-  jobId           String
-  title           String
-  taskLink        String?
-  deadline        DateTime
-  submitStatus    TaskStatus  @default(PENDING)
-  description     String?     @db.Text
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job             Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  brokerAccountId String?
+  brokerAccount   BrokerAccount? @relation(fields: [brokerAccountId], references: [id])
 
-  @@index([userId])
-  @@index([jobId])
-  @@index([deadline])
-  @@map("task")
+  symbol          String        // e.g. "EUR/USD", "XAU/USD"
+  type            TradeType
+  status          TradeStatus   @default(CLOSED)
+  source          TradeSource   @default(MANUAL)
+
+  entryPrice      Decimal       @db.Decimal(18, 5)
+  exitPrice       Decimal?      @db.Decimal(18, 5)
+  quantity        Decimal       @db.Decimal(18, 2)   // lots / units
+
+  pnl             Decimal?      @db.Decimal(18, 2)
+  commission      Decimal       @default(0) @db.Decimal(18, 2)
+  swap            Decimal       @default(0) @db.Decimal(18, 2)
+
+  openedAt        DateTime
+  closedAt        DateTime?
+
+  notes           String?       @db.Text
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  journalEntry    JournalEntry?
+
+  @@index([userId, openedAt])
+  @@index([userId, symbol])
+  @@map("trades")
 }
 
-model TopCompany {
-  id          String   @id @default(uuid())
-  userId      String
-  name        String
-  company     String?
-  webLink     String?
-  location    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model JournalEntry {
+  id              String   @id @default(uuid())
+  tradeId         String   @unique
+  trade           Trade    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preAnalysis     String?  @db.Text
+  postReview      String?  @db.Text
+  emotions        String?  @db.Text
+  lessons         String?  @db.Text
 
-  @@index([userId])
-  @@map("top_company")
+  // Execution checklist — 10 pts each, feeds Trade Quality Score
+  followedPlan    Boolean  @default(false)
+  properRisk      Boolean  @default(false)
+  goodEntry       Boolean  @default(false)
+  patientExit     Boolean  @default(false)
+
+  selfRating      Int?     // 1–10, feeds Trade Quality Score
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("journal_entries")
 }

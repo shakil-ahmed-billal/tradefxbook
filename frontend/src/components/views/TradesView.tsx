@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   Plus, 
   Filter, 
@@ -9,7 +8,8 @@ import {
   Check, 
   ArrowUpRight, 
   ArrowDownRight,
-  PenTool
+  PenTool,
+  Upload
 } from 'lucide-react';
 import { Trade } from '../../types';
 
@@ -17,6 +17,7 @@ interface TradesViewProps {
   trades: Trade[];
   onOpenAddTrade: () => void;
   onOpenConnectBroker: () => void;
+  onOpenImportCSV?: () => void;
   onClearAll: () => void;
   onDeleteTrade: (id: string) => void;
   onShareTrade: (trade: Trade) => void;
@@ -27,6 +28,7 @@ export const TradesView: React.FC<TradesViewProps> = ({
   trades,
   onOpenAddTrade,
   onOpenConnectBroker,
+  onOpenImportCSV,
   onClearAll,
   onDeleteTrade,
   onShareTrade,
@@ -45,6 +47,16 @@ export const TradesView: React.FC<TradesViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          {onOpenImportCSV && (
+            <button
+              onClick={onOpenImportCSV}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#161b27] border border-[#232a3a] text-[#5aa2f2] hover:border-[#2981eb] transition-colors flex items-center gap-1.5"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Import Exness CSV
+            </button>
+          )}
+
           <button
             onClick={onOpenConnectBroker}
             className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#161b27] border border-[#232a3a] text-[#f4f6fa] hover:border-[#2a2f42] transition-colors"

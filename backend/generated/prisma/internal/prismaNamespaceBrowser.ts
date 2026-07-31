@@ -55,11 +55,9 @@ export const ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
-  Job: 'Job',
-  Resume: 'Resume',
-  Email: 'Email',
-  Task: 'Task',
-  TopCompany: 'TopCompany'
+  BrokerAccount: 'BrokerAccount',
+  Trade: 'Trade',
+  JournalEntry: 'JournalEntry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -94,7 +92,10 @@ export const UserScalarFieldEnum = {
   education: 'education',
   certifications: 'certifications',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  clerkId: 'clerkId',
+  plan: 'plan',
+  timezone: 'timezone'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -145,90 +146,61 @@ export const VerificationScalarFieldEnum = {
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
-export const JobScalarFieldEnum = {
+export const BrokerAccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  companyName: 'companyName',
-  companyEmail: 'companyEmail',
-  jobTitle: 'jobTitle',
-  jobDescription: 'jobDescription',
-  companyWebsite: 'companyWebsite',
-  companyLinkedin: 'companyLinkedin',
-  companyNumber: 'companyNumber',
-  location: 'location',
-  salary: 'salary',
-  notes: 'notes',
-  jobRole: 'jobRole',
-  status: 'status',
-  applyStatus: 'applyStatus',
-  responseStatus: 'responseStatus',
-  emailSendStatus: 'emailSendStatus',
-  applyDate: 'applyDate',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
-
-
-export const ResumeScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  jobRole: 'jobRole',
-  fileUrl: 'fileUrl',
-  publicId: 'publicId',
-  fileName: 'fileName',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum]
-
-
-export const EmailScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  jobId: 'jobId',
-  subject: 'subject',
-  content: 'content',
-  aiProvider: 'aiProvider',
-  emailType: 'emailType',
-  status: 'status',
-  sentAt: 'sentAt',
+  platform: 'platform',
+  accountNumber: 'accountNumber',
+  server: 'server',
+  syncStatus: 'syncStatus',
+  lastSyncedAt: 'lastSyncedAt',
   createdAt: 'createdAt'
 } as const
 
-export type EmailScalarFieldEnum = (typeof EmailScalarFieldEnum)[keyof typeof EmailScalarFieldEnum]
+export type BrokerAccountScalarFieldEnum = (typeof BrokerAccountScalarFieldEnum)[keyof typeof BrokerAccountScalarFieldEnum]
 
 
-export const TaskScalarFieldEnum = {
+export const TradeScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  jobId: 'jobId',
-  title: 'title',
-  taskLink: 'taskLink',
-  deadline: 'deadline',
-  submitStatus: 'submitStatus',
-  description: 'description',
+  brokerAccountId: 'brokerAccountId',
+  symbol: 'symbol',
+  type: 'type',
+  status: 'status',
+  source: 'source',
+  entryPrice: 'entryPrice',
+  exitPrice: 'exitPrice',
+  quantity: 'quantity',
+  pnl: 'pnl',
+  commission: 'commission',
+  swap: 'swap',
+  openedAt: 'openedAt',
+  closedAt: 'closedAt',
+  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+export type TradeScalarFieldEnum = (typeof TradeScalarFieldEnum)[keyof typeof TradeScalarFieldEnum]
 
 
-export const TopCompanyScalarFieldEnum = {
+export const JournalEntryScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  name: 'name',
-  company: 'company',
-  webLink: 'webLink',
-  location: 'location',
+  tradeId: 'tradeId',
+  preAnalysis: 'preAnalysis',
+  postReview: 'postReview',
+  emotions: 'emotions',
+  lessons: 'lessons',
+  followedPlan: 'followedPlan',
+  properRisk: 'properRisk',
+  goodEntry: 'goodEntry',
+  patientExit: 'patientExit',
+  selfRating: 'selfRating',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type TopCompanyScalarFieldEnum = (typeof TopCompanyScalarFieldEnum)[keyof typeof TopCompanyScalarFieldEnum]
+export type JournalEntryScalarFieldEnum = (typeof JournalEntryScalarFieldEnum)[keyof typeof JournalEntryScalarFieldEnum]
 
 
 export const SortOrder = {

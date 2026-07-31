@@ -8,6 +8,7 @@ import { AddTradeModal } from '@/components/modals/AddTradeModal';
 import { ConnectBrokerModal } from '@/components/modals/ConnectBrokerModal';
 import { ShareTradeModal } from '@/components/modals/ShareTradeModal';
 import { SearchModal } from '@/components/modals/SearchModal';
+import { ImportCSVModal } from '@/components/modals/ImportCSVModal';
 import { DashboardProvider, useDashboard } from './DashboardContext';
 import { NavTab } from '@/types';
 
@@ -18,12 +19,15 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     user,
     setUser,
     handleAddTrade,
+    handleLogout,
     isAddTradeOpen,
     setIsAddTradeOpen,
     isConnectBrokerOpen,
     setIsConnectBrokerOpen,
     isSearchOpen,
     setIsSearchOpen,
+    isImportCSVOpen,
+    setIsImportCSVOpen,
     shareTrade,
     setShareTrade,
     isMobileSidebarOpen,
@@ -59,7 +63,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         user={user}
         isOpenMobile={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        onLogout={() => setUser({ ...user, isAuthenticated: false })}
+        onLogout={handleLogout}
         onCollapsedChange={setIsSidebarCollapsed}
       />
 
@@ -70,7 +74,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           onOpenSearch={() => setIsSearchOpen(true)}
           onOpenAddTrade={() => setIsAddTradeOpen(true)}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          onLogout={() => setUser({ ...user, isAuthenticated: false })}
+          onLogout={handleLogout}
         />
 
         {/* Full-width content — no max-w constraint */}
@@ -92,6 +96,11 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         onConnected={() => {
           setUser(prev => ({ ...prev, plan: 'PRO' }));
         }}
+      />
+
+      <ImportCSVModal
+        isOpen={isImportCSVOpen}
+        onClose={() => setIsImportCSVOpen(false)}
       />
 
       <ShareTradeModal

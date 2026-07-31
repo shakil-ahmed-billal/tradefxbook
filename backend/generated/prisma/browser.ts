@@ -38,27 +38,17 @@ export type Account = Prisma.AccountModel
  */
 export type Verification = Prisma.VerificationModel
 /**
- * Model Job
+ * Model BrokerAccount
  * 
  */
-export type Job = Prisma.JobModel
+export type BrokerAccount = Prisma.BrokerAccountModel
 /**
- * Model Resume
+ * Model Trade
  * 
  */
-export type Resume = Prisma.ResumeModel
+export type Trade = Prisma.TradeModel
 /**
- * Model Email
+ * Model JournalEntry
  * 
  */
-export type Email = Prisma.EmailModel
-/**
- * Model Task
- * 
- */
-export type Task = Prisma.TaskModel
-/**
- * Model TopCompany
- * 
- */
-export type TopCompany = Prisma.TopCompanyModel
+export type JournalEntry = Prisma.JournalEntryModel
