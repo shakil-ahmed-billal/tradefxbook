@@ -1,0 +1,6 @@
+{
+  "name": "TradeFXBook",
+  "description": "Trading journal, performance analytics, trade analysis, and portfolio tracking app.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

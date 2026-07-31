@@ -1,10 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @layer base {
   :root {
-    --background: #090b10;
-    --foreground: #f4f6fa;
     --bg-deep: #090b10;
     --bg-panel: #0e1017;
     --bg-elevated: #141824;
@@ -103,3 +100,4 @@
   opacity: 0;
   animation: popCandle 0.4s ease forwards;
 }
+
