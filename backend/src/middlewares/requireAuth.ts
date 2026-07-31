@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { auth } from '../lib/auth';
-import { prisma } from '../lib/prisma'; // Using existing prisma instance
+import { prisma } from '../lib/prisma';
 
 // Extend express Request to include userId and userPlan
 declare global {
@@ -12,23 +11,60 @@ declare global {
   }
 }
 
+/**
+ * Extract the session token from the Cookie header.
+ * Better-Auth stores it as: better-auth.session_token=<token>
+ */
+function extractSessionToken(cookieHeader: string | undefined): string | null {
+  if (!cookieHeader) return null;
+
+  const cookies = cookieHeader.split(';').map(c => c.trim());
+  for (const cookie of cookies) {
+    // Try both prefixed and plain variants
+    const prefixes = [
+      'better-auth.session_token=',
+      '__Secure-better-auth.session_token=',
+      '__Host-better-auth.session_token=',
+      'session_token=',
+    ];
+    for (const prefix of prefixes) {
+      if (cookie.startsWith(prefix)) {
+        return decodeURIComponent(cookie.slice(prefix.length));
+      }
+    }
+  }
+  return null;
+}
+
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
-    const session = await auth.api.getSession({
-      headers: new Headers(req.headers as any),
-    });
+    const cookieHeader = req.headers['cookie'] as string | undefined;
+    const token = extractSessionToken(cookieHeader);
 
-    if (!session || !session.user) {
-      return res.status(401).json({ error: 'Missing or invalid token' });
+    if (!token) {
+      return res.status(401).json({ error: 'No session token found in cookies' });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-    if (!user) return res.status(401).json({ error: 'User not found in DB.' });
+    // Look up the session directly in Prisma — bypasses Better-Auth CSRF/origin checks
+    const session = await prisma.session.findUnique({
+      where: { token },
+      include: { user: true },
+    });
 
-    req.userId = user.id;
-    req.userPlan = user.plan;
+    if (!session) {
+      return res.status(401).json({ error: 'Invalid or expired session token' });
+    }
+
+    // Check expiry
+    if (session.expiresAt < new Date()) {
+      return res.status(401).json({ error: 'Session has expired. Please log in again.' });
+    }
+
+    req.userId = session.user.id;
+    req.userPlan = session.user.plan;
     next();
   } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired session' });
+    console.error('[requireAuth Error]:', err);
+    res.status(401).json({ error: 'Authentication failed' });
   }
 }

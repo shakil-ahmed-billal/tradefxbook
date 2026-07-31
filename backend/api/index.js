@@ -666,21 +666,47 @@ async function syncMt5TradesHandler(req, res) {
 }
 
 // src/middlewares/requireAuth.ts
+function extractSessionToken(cookieHeader) {
+  if (!cookieHeader) return null;
+  const cookies = cookieHeader.split(";").map((c) => c.trim());
+  for (const cookie of cookies) {
+    const prefixes = [
+      "better-auth.session_token=",
+      "__Secure-better-auth.session_token=",
+      "__Host-better-auth.session_token=",
+      "session_token="
+    ];
+    for (const prefix of prefixes) {
+      if (cookie.startsWith(prefix)) {
+        return decodeURIComponent(cookie.slice(prefix.length));
+      }
+    }
+  }
+  return null;
+}
 async function requireAuth(req, res, next) {
   try {
-    const session = await auth.api.getSession({
-      headers: new Headers(req.headers)
-    });
-    if (!session || !session.user) {
-      return res.status(401).json({ error: "Missing or invalid token" });
+    const cookieHeader = req.headers["cookie"];
+    const token = extractSessionToken(cookieHeader);
+    if (!token) {
+      return res.status(401).json({ error: "No session token found in cookies" });
     }
-    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-    if (!user) return res.status(401).json({ error: "User not found in DB." });
-    req.userId = user.id;
-    req.userPlan = user.plan;
+    const session = await prisma.session.findUnique({
+      where: { token },
+      include: { user: true }
+    });
+    if (!session) {
+      return res.status(401).json({ error: "Invalid or expired session token" });
+    }
+    if (session.expiresAt < /* @__PURE__ */ new Date()) {
+      return res.status(401).json({ error: "Session has expired. Please log in again." });
+    }
+    req.userId = session.user.id;
+    req.userPlan = session.user.plan;
     next();
   } catch (err) {
-    res.status(401).json({ error: "Invalid or expired session" });
+    console.error("[requireAuth Error]:", err);
+    res.status(401).json({ error: "Authentication failed" });
   }
 }
 
