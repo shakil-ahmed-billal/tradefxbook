@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trade, ChecklistItem } from '../../types';
+import { API_BASE_URL } from '../../lib/api-config';
 
 interface JournalViewProps {
   trades: Trade[];
@@ -128,7 +129,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
 
       let uploadedUrl: string | null = null;
       try {
-        const response = await fetch('http://localhost:8000/api/upload/image', {
+        const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
           method: 'POST',
           body: formData,
         });
@@ -181,7 +182,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
     onUpdateTradeJournal(activeTrade.id, updatedJournal);
 
     try {
-      await fetch(`http://localhost:8000/api/trades/${activeTrade.id}/journal`, {
+      await fetch(`${API_BASE_URL}/api/trades/${activeTrade.id}/journal`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedJournal),
