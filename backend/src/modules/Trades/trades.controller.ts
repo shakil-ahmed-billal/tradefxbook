@@ -64,3 +64,12 @@ export async function deleteTradeHandler(req: Request, res: Response) {
     res.status(500).json({ error: err.message });
   }
 }
+
+export async function upsertJournalHandler(req: Request, res: Response) {
+  try {
+    const journal = await tradesService.upsertJournal(req.userId!, req.params.id as string, req.body);
+    res.json(journal);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}

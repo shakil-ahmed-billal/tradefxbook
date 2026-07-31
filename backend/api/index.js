@@ -104,7 +104,7 @@ var globalErrorHandler = (err, req, res, next) => {
 };
 
 // src/routes/index.ts
-import { Router as Router4 } from "express";
+import { Router as Router5 } from "express";
 
 // src/modules/Users/users.routes.ts
 import { Router } from "express";
@@ -443,6 +443,36 @@ async function deleteTrade(userId, id) {
     where: { id, userId }
   });
 }
+async function upsertJournal(userId, tradeId, data) {
+  const trade = await prisma.trade.findFirst({
+    where: { id: tradeId, userId }
+  });
+  if (!trade) {
+    throw new Error("Trade not found or unauthorized");
+  }
+  const journalData = {
+    preAnalysis: data.preTradeAnalysis ?? data.preAnalysis ?? null,
+    postReview: data.postTradeReview ?? data.postReview ?? null,
+    emotions: data.emotions ?? null,
+    lessons: data.lessons ?? null,
+    riskRewardRisk: data.riskRewardRisk ? Number(data.riskRewardRisk) : null,
+    riskRewardReward: data.riskRewardReward ? Number(data.riskRewardReward) : null,
+    tags: Array.isArray(data.tags) ? data.tags : [],
+    checklist: data.checklist || [],
+    screenshots: Array.isArray(data.screenshots) ? data.screenshots : [],
+    selfRating: data.rating ? Number(data.rating) : data.selfRating ? Number(data.selfRating) : null
+  };
+  return prisma.journalEntry.upsert({
+    where: { tradeId },
+    create: {
+      tradeId,
+      ...journalData
+    },
+    update: {
+      ...journalData
+    }
+  });
+}
 
 // src/modules/Trades/trades.controller.ts
 async function listTradesHandler(req, res) {
@@ -502,6 +532,14 @@ async function deleteTradeHandler(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+async function upsertJournalHandler(req, res) {
+  try {
+    const journal = await upsertJournal(req.userId, req.params.id, req.body);
+    res.json(journal);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 // src/middlewares/requireAuth.ts
 async function requireAuth(req, res, next) {
@@ -530,6 +568,7 @@ router2.post("/", createTradeHandler);
 router2.post("/import-csv", importCsvHandler);
 router2.get("/:id", getTradeHandler);
 router2.put("/:id", updateTradeHandler);
+router2.put("/:id/journal", upsertJournalHandler);
 router2.delete("/:id", deleteTradeHandler);
 var trades_routes_default = router2;
 
@@ -639,12 +678,104 @@ router3.get("/open-positions", getOpenPositionsHandler);
 router3.get("/recent-activity", getRecentActivityHandler);
 var dashboard_routes_default = router3;
 
-// src/routes/index.ts
+// src/modules/Upload/upload.routes.ts
+import { Router as Router4 } from "express";
+import multer from "multer";
+
+// src/utils/cloudinary.ts
+import { v2 as cloudinary } from "cloudinary";
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dl6twwnqv",
+  api_key: process.env.CLOUDINARY_API_KEY || "582918856444237",
+  api_secret: process.env.CLOUDINARY_API_SECRET || "6bKTUfGDWLDoYmR-rxSSmSnunEo",
+  secure: true
+});
+async function uploadImageToCloudinary(fileBuffer, folder = "tradefxbook/journals") {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: "auto"
+      },
+      (error, result) => {
+        if (error || !result) {
+          return reject(error || new Error("Cloudinary upload failed"));
+        }
+        resolve(result.secure_url);
+      }
+    );
+    uploadStream.end(fileBuffer);
+  });
+}
+async function uploadBase64ToCloudinary(base64Data, folder = "tradefxbook/journals") {
+  const result = await cloudinary.uploader.upload(base64Data, {
+    folder,
+    resource_type: "auto"
+  });
+  return result.secure_url;
+}
+
+// src/modules/Upload/upload.controller.ts
+async function uploadSingleImageHandler(req, res) {
+  try {
+    if (req.file) {
+      const imageUrl = await uploadImageToCloudinary(req.file.buffer, "tradefxbook/journals");
+      return res.json({ url: imageUrl, success: true });
+    }
+    if (req.body.image) {
+      const imageUrl = await uploadBase64ToCloudinary(req.body.image, "tradefxbook/journals");
+      return res.json({ url: imageUrl, success: true });
+    }
+    return res.status(400).json({ error: "No image file or base64 data provided" });
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    return res.status(500).json({ error: err.message || "Image upload failed" });
+  }
+}
+async function uploadMultipleImagesHandler(req, res) {
+  try {
+    const urls = [];
+    if (req.files && Array.isArray(req.files)) {
+      for (const file of req.files) {
+        const url = await uploadImageToCloudinary(file.buffer, "tradefxbook/journals");
+        urls.push(url);
+      }
+      return res.json({ urls, success: true });
+    }
+    if (req.body.images && Array.isArray(req.body.images)) {
+      for (const img of req.body.images) {
+        const url = await uploadBase64ToCloudinary(img, "tradefxbook/journals");
+        urls.push(url);
+      }
+      return res.json({ urls, success: true });
+    }
+    return res.status(400).json({ error: "No image files provided" });
+  } catch (err) {
+    console.error("Cloudinary multiple upload error:", err);
+    return res.status(500).json({ error: err.message || "Multiple image upload failed" });
+  }
+}
+
+// src/modules/Upload/upload.routes.ts
+var upload = multer({
+  limits: {
+    fileSize: 10 * 1024 * 1024
+    // 10MB limit
+  },
+  storage: multer.memoryStorage()
+});
 var router4 = Router4();
-router4.use("/users", users_routes_default);
-router4.use("/trades", trades_routes_default);
-router4.use("/dashboard", dashboard_routes_default);
-var routes_default = router4;
+router4.post("/image", upload.single("image"), uploadSingleImageHandler);
+router4.post("/images", upload.array("images", 10), uploadMultipleImagesHandler);
+var upload_routes_default = router4;
+
+// src/routes/index.ts
+var router5 = Router5();
+router5.use("/users", users_routes_default);
+router5.use("/trades", trades_routes_default);
+router5.use("/dashboard", dashboard_routes_default);
+router5.use("/upload", upload_routes_default);
+var routes_default = router5;
 
 // src/app.ts
 var app = express();

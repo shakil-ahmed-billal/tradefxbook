@@ -2,6 +2,7 @@ import { Router } from "express";
 import usersRoutes from "../modules/Users/users.routes";
 import tradesRoutes from "../modules/Trades/trades.routes";
 import dashboardRoutes from "../modules/Dashboard/dashboard.routes";
+import uploadRoutes from "../modules/Upload/upload.routes";
 
 const router = Router();
 
@@ -9,5 +10,6 @@ const router = Router();
 router.use("/users", usersRoutes);
 router.use("/trades", tradesRoutes);
 router.use("/dashboard", dashboardRoutes);
+router.use("/upload", uploadRoutes);
 
 export default router;

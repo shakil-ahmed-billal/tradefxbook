@@ -11,6 +11,7 @@ router.post('/', tradesController.createTradeHandler);
 router.post('/import-csv', tradesController.importCsvHandler);
 router.get('/:id', tradesController.getTradeHandler);
 router.put('/:id', tradesController.updateTradeHandler);
+router.put('/:id/journal', tradesController.upsertJournalHandler);
 router.delete('/:id', tradesController.deleteTradeHandler);
 
 export default router;

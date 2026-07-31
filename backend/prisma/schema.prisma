@@ -185,6 +185,12 @@ model JournalEntry {
   emotions        String?  @db.Text
   lessons         String?  @db.Text
 
+  riskRewardRisk  Float?
+  riskRewardReward Float?
+  tags            String[] @default([])
+  checklist       Json?
+  screenshots     String[] @default([])
+
   // Execution checklist — 10 pts each, feeds Trade Quality Score
   followedPlan    Boolean  @default(false)
   properRisk      Boolean  @default(false)

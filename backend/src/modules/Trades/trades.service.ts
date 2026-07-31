@@ -162,3 +162,37 @@ export async function deleteTrade(userId: string, id: string) {
     where: { id, userId },
   });
 }
+
+export async function upsertJournal(userId: string, tradeId: string, data: any) {
+  const trade = await prisma.trade.findFirst({
+    where: { id: tradeId, userId },
+  });
+
+  if (!trade) {
+    throw new Error('Trade not found or unauthorized');
+  }
+
+  const journalData = {
+    preAnalysis: data.preTradeAnalysis ?? data.preAnalysis ?? null,
+    postReview: data.postTradeReview ?? data.postReview ?? null,
+    emotions: data.emotions ?? null,
+    lessons: data.lessons ?? null,
+    riskRewardRisk: data.riskRewardRisk ? Number(data.riskRewardRisk) : null,
+    riskRewardReward: data.riskRewardReward ? Number(data.riskRewardReward) : null,
+    tags: Array.isArray(data.tags) ? data.tags : [],
+    checklist: data.checklist || [],
+    screenshots: Array.isArray(data.screenshots) ? data.screenshots : [],
+    selfRating: data.rating ? Number(data.rating) : data.selfRating ? Number(data.selfRating) : null,
+  };
+
+  return prisma.journalEntry.upsert({
+    where: { tradeId },
+    create: {
+      tradeId,
+      ...journalData,
+    },
+    update: {
+      ...journalData,
+    },
+  });
+}

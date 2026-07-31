@@ -113,20 +113,49 @@ export const JournalView: React.FC<JournalViewProps> = ({
     setNewChecklistLabel('');
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setScreenshots(prev => [...prev, event.target!.result as string]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setIsUploading(true);
 
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      let uploadedUrl: string | null = null;
+      try {
+        const response = await fetch('http://localhost:8000/api/upload/image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.url) {
+            uploadedUrl = data.url;
+            setScreenshots(prev => [...prev, data.url]);
+          }
+        }
+      } catch (err) {
+        console.warn('Cloudinary upload via backend fallback:', err);
+      }
+
+      if (!uploadedUrl) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setScreenshots(prev => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    setIsUploading(false);
     e.target.value = '';
   };
 
@@ -134,7 +163,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
     setScreenshots(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!activeTrade) return;
     const updatedJournal = {
       ...(activeTrade.journal || {}),
@@ -150,6 +179,17 @@ export const JournalView: React.FC<JournalViewProps> = ({
       screenshots,
     };
     onUpdateTradeJournal(activeTrade.id, updatedJournal);
+
+    try {
+      await fetch(`http://localhost:8000/api/trades/${activeTrade.id}/journal`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedJournal),
+      });
+    } catch (err) {
+      console.warn('Backend DB journal update:', err);
+    }
+
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
   };
@@ -461,11 +501,21 @@ export const JournalView: React.FC<JournalViewProps> = ({
                   type="file" 
                   accept="image/*" 
                   multiple 
+                  disabled={isUploading}
                   onChange={handleImageUpload} 
                   className="hidden" 
                 />
-                <div className="w-[20px] h-[20px]"><SvgPlus /></div>
-                Upload Image
+                {isUploading ? (
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-5 h-5 border-2 border-[#2981eb] border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[10px] text-[#5aa2f2]">Cloudinary...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-[20px] h-[20px]"><SvgPlus /></div>
+                    <span>Upload Image</span>
+                  </>
+                )}
               </label>
 
               {/* Uploaded Thumbnail Gallery */}
