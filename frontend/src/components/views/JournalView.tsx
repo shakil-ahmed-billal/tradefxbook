@@ -153,7 +153,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
     <div className="flex flex-col lg:grid lg:grid-cols-[328px_1fr] gap-[20px] items-start animate-in fade-in duration-200">
       
       {/* TRADE LIST SIDEBAR */}
-      <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl overflow-hidden w-full flex flex-col lg:sticky lg:top-[76px] self-start h-[calc(100vh-96px)] shadow-lg">
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl overflow-hidden w-full flex flex-col lg:sticky lg:top-[80px] self-start h-[calc(100vh-104px)] max-h-[calc(100vh-104px)] shadow-lg">
         <div className="flex items-center justify-between p-4 pb-3">
           <span className="font-outfit font-semibold text-[14.5px] text-[var(--text-hi)]">Trade Journal</span>
           <div className="flex items-center gap-[10px]">

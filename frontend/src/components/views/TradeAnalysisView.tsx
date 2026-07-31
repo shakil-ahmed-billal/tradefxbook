@@ -60,7 +60,7 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 animate-in fade-in duration-200 items-start">
       
       {/* TRADE LIST SIDEBAR */}
-      <div className="lg:col-span-4 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-4 lg:sticky lg:top-[76px] self-start shadow-lg">
+      <div className="lg:col-span-4 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-4 lg:sticky lg:top-[80px] self-start h-[calc(100vh-104px)] max-h-[calc(100vh-104px)] flex flex-col shadow-lg">
         <div className="flex items-center justify-between mb-3">
           <span className="font-sora font-semibold text-sm text-[var(--text-hi)]">Trade Analysis</span>
           <span className="font-mono text-xs text-[var(--text-low)]">{trades.length} trades</span>
@@ -81,8 +81,7 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
         </div>
 
         <div 
-          className="flex flex-col gap-2 overflow-y-auto"
-          style={{ maxHeight: 'calc(100vh - 240px)' }}
+          className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1"
           onScroll={(e) => {
             const target = e.target as HTMLDivElement;
             if (target.scrollHeight - target.scrollTop <= target.clientHeight + 50) {
