@@ -69,6 +69,8 @@ export const JournalView: React.FC<JournalViewProps> = ({
   const [screenshots, setScreenshots] = useState<string[]>([]);
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [imageToDeleteIndex, setImageToDeleteIndex] = useState<number | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
   
   useEffect(() => {
     if (activeTrade && activeTrade.journal) {
@@ -134,6 +136,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
       try {
         const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
           method: 'POST',
+          credentials: 'include',
           body: formData,
         });
 
@@ -165,23 +168,62 @@ export const JournalView: React.FC<JournalViewProps> = ({
     e.target.value = '';
   };
 
-  const handleRemoveImage = async (index: number) => {
-    const imgToRemove = screenshots[index];
-    setScreenshots(prev => prev.filter((_, i) => i !== index));
+  const confirmDeleteImage = async () => {
+    if (imageToDeleteIndex === null || !activeTrade) return;
+    setIsDeletingImage(true);
+
+    const idx = imageToDeleteIndex;
+    const imgToRemove = screenshots[idx];
+    const updatedScreenshots = screenshots.filter((_, i) => i !== idx);
+
+    setScreenshots(updatedScreenshots);
     setNewlyUploadedUrls(prev => prev.filter(url => url !== imgToRemove));
 
-    // If image is hosted on Cloudinary, delete from Cloudinary immediately
+    const updatedJournal = {
+      ...(activeTrade.journal || {}),
+      preTradeAnalysis: preAnalysis,
+      postTradeReview: postReview,
+      riskRewardRisk: parseFloat(risk) || 1,
+      riskRewardReward: parseFloat(reward) || 2.5,
+      emotions,
+      lessons,
+      tags: tagsInput.split(',').map(t => t.trim()).filter(Boolean),
+      rating,
+      checklist,
+      screenshots: updatedScreenshots,
+    };
+
+    // Immediately update local state & parent context
+    onUpdateTradeJournal(activeTrade.id, updatedJournal);
+
+    // Delete from Cloudinary if hosted on Cloudinary
     if (imgToRemove && imgToRemove.includes('cloudinary.com')) {
       try {
         await fetch(`${API_BASE_URL}/api/upload/delete-image`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ url: imgToRemove }),
         });
       } catch (err) {
         console.warn('Cloudinary deletion request error:', err);
       }
     }
+
+    // Immediately save updated journal to DB
+    try {
+      await fetch(`${API_BASE_URL}/api/trades/${activeTrade.id}/journal`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updatedJournal),
+      });
+    } catch (err) {
+      console.warn('Backend DB journal update error on image deletion:', err);
+    }
+
+    setIsDeletingImage(false);
+    setImageToDeleteIndex(null);
   };
 
   const handleSave = async () => {
@@ -209,6 +251,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
       const res = await fetch(`${API_BASE_URL}/api/trades/${activeTrade.id}/journal`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(updatedJournal),
       });
 
@@ -591,7 +634,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleRemoveImage(idx);
+                      setImageToDeleteIndex(idx);
                     }} 
                     className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center shadow-md cursor-pointer transition-all z-10"
                     title="Delete Image"
@@ -611,7 +654,10 @@ export const JournalView: React.FC<JournalViewProps> = ({
                     </button>
                     <button 
                       type="button"
-                      onClick={() => handleRemoveImage(idx)} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setImageToDeleteIndex(idx);
+                      }} 
                       className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center cursor-pointer transition-colors shadow-sm"
                       title="Delete Image"
                     >
@@ -690,6 +736,71 @@ export const JournalView: React.FC<JournalViewProps> = ({
         </div>
 
       </div>
+
+      {/* CONFIRM DELETE IMAGE MODAL */}
+      {imageToDeleteIndex !== null && screenshots[imageToDeleteIndex] && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => !isDeletingImage && setImageToDeleteIndex(null)}
+        >
+          <div 
+            className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-150 flex flex-col gap-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-500 shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-outfit font-bold text-base text-[var(--text-hi)]">
+                  Delete Screenshot?
+                </h3>
+                <p className="text-xs text-[var(--text-low)]">
+                  Are you sure you want to delete this image? It will be permanently removed.
+                </p>
+              </div>
+            </div>
+
+            {/* Thumbnail Preview of Image Being Deleted */}
+            <div className="w-full h-40 rounded-xl overflow-hidden border border-[var(--border-soft)] bg-black/50 relative">
+              <img 
+                src={screenshots[imageToDeleteIndex]} 
+                alt="Deleting image preview" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[var(--border-soft)]">
+              <button
+                type="button"
+                disabled={isDeletingImage}
+                onClick={() => setImageToDeleteIndex(null)}
+                className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-xs font-semibold text-[var(--text-hi)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingImage}
+                onClick={confirmDeleteImage}
+                className="px-4 py-2 rounded-xl bg-[#ef4b5c] hover:bg-red-600 text-white text-xs font-bold transition-all shadow-md shadow-[#ef4b5c]/20 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isDeletingImage ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Yes, Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FULLSCREEN IMAGE LIGHTBOX MODAL */}
       {modalImage && (

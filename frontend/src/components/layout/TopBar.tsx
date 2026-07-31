@@ -144,17 +144,17 @@ export const TopBar: React.FC<TopBarProps> = ({
 
           {userMenuOpen && (
             <div 
-              className="absolute right-0 mt-2 w-48 bg-[#141824] border border-[#212636] rounded-xl shadow-xl py-1.5 z-50 text-xs text-[#9aa2b3]"
+              className="absolute right-0 mt-2 w-52 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-xl shadow-2xl py-1.5 z-50 text-xs text-[var(--text-mid)]"
               onMouseLeave={() => setUserMenuOpen(false)}
             >
-              <div className="px-3 py-2 border-b border-[#212636] mb-1">
-                <div className="font-semibold text-[#f4f6fa]">{user.name}</div>
-                <div className="text-[10px] text-[#5c6478] truncate">{user.email}</div>
+              <div className="px-3 py-2 border-b border-[var(--border-soft)] mb-1">
+                <div className="font-semibold text-[var(--text-hi)]">{user.name}</div>
+                <div className="text-[10px] text-[var(--text-low)] truncate">{user.email}</div>
               </div>
 
               <button
-                onClick={() => { setUserMenuOpen(false); router.push('/auth'); }}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#1a1f2c] hover:text-[#f4f6fa] transition-colors text-left"
+                onClick={() => { setUserMenuOpen(false); router.push('/dashboard/settings'); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-[var(--text-mid)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-hi)] transition-colors text-left cursor-pointer"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Account Profile</span>
@@ -162,7 +162,7 @@ export const TopBar: React.FC<TopBarProps> = ({
 
               <button
                 onClick={() => { setUserMenuOpen(false); onLogout(); }}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#ef4b5c]/10 text-[#ef4b5c] transition-colors text-left"
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#ef4b5c]/10 text-[#ef4b5c] transition-colors text-left cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>

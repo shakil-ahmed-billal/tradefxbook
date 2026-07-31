@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronRight, LineChart, Shield, Zap, Target, BarChart3, Clock, Star } from 'lucide-react';
+import { ModeToggle } from '@/components/shared/ModeToggle';
 
 export default function LandingPage() {
   return (
@@ -46,6 +47,7 @@ export default function LandingPage() {
           <Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link>
         </div>
         <div className="flex items-center gap-4">
+          <ModeToggle />
           <Link href="/login" className="text-sm font-medium text-[#8d94a8] hover:text-white transition-colors">Log in</Link>
           <Link href="/dashboard" className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#eef1f8] text-[#0a0d14] text-sm font-bold hover:bg-white transition-transform hover:scale-105 active:scale-95">
             Get Started <ChevronRight className="w-4 h-4" />
@@ -65,9 +67,6 @@ export default function LandingPage() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2981eb] via-[#7aa0ff] to-[#00d9a3]">
             Elevate your trading.
           </span>
-          
-          frontend
-           
         </h1>
         
         <p className="text-[#8d94a8] text-lg md:text-xl max-w-2xl mb-12 animate-fade-up delay-200">
@@ -75,7 +74,7 @@ export default function LandingPage() {
         </p>
         
         <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-up delay-300">
-          <Link href="/auth" className="flex items-center gap-2 px-8 py-4 rounded-full bg-[#2981eb] hover:bg-[#4c7dff] text-white text-base font-bold shadow-[0_0_40px_rgba(41,129,235,0.4)] transition-all hover:shadow-[0_0_60px_rgba(41,129,235,0.6)] hover:-translate-y-1">
+          <Link href="/login" className="flex items-center gap-2 px-8 py-4 rounded-full bg-[#2981eb] hover:bg-[#4c7dff] text-white text-base font-bold shadow-[0_0_40px_rgba(41,129,235,0.4)] transition-all hover:shadow-[0_0_60px_rgba(41,129,235,0.6)] hover:-translate-y-1">
             Start Journaling for Free <ChevronRight className="w-5 h-5" />
           </Link>
           <a href="#demo" className="px-8 py-4 rounded-full bg-[#161b27] border border-[#232a3a] text-[#eef1f8] text-base font-bold hover:bg-[#1c2230] hover:border-[#2a2f42] transition-colors">

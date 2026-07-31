@@ -528,7 +528,7 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
                   </div>
                 </div>
                 <span className={`font-mono text-xl font-bold block mb-1 truncate ${s.pnl<0?'text-[#ff5c7a]':s.pnl>0?'text-[#00d9a3]':'text-[#565e73]'}`}>{s.count>0?fmt(s.pnl):'—'}</span>
-                <div className="w-full h-1.5 rounded-full bg-[#1c2230] overflow-hidden mb-3">
+                <div className="w-full h-2 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] overflow-hidden mb-3">
                   <div className={`h-full rounded-full ${s.pnl<0?'bg-[#ff5c7a]':'bg-[#00d9a3]'}`} style={{width:`${pnlBarPct}%`}}/>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[10.5px]">
@@ -544,24 +544,24 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
       </section>
 
       {/* ── MONTHLY CALENDAR ────────────────────────────────────────────── */}
-      <section className="bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
+      <section className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
           <div>
-            <h3 className="font-sora text-sm font-semibold text-[#eef1f8] flex items-center gap-2">
+            <h3 className="font-sora text-sm font-semibold text-[var(--text-hi)] flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-[#7aa0ff]"/> Monthly P&L Trading Calendar
             </h3>
-            <p className="text-xs text-[#565e73]">Browse month/year to view logged trade performance per day</p>
+            <p className="text-xs text-[var(--text-low)]">Browse month/year to view logged trade performance per day</p>
           </div>
           <div className="flex items-center gap-2 font-mono text-xs">
-            <button onClick={handlePrevMonth} className="p-1.5 rounded-lg bg-[#161b27] border border-[#232a3a] text-[#8d94a8] hover:text-[#eef1f8] transition-colors"><ChevronLeft className="w-4 h-4"/></button>
-            <span className="font-semibold text-[#eef1f8] px-3 py-1 bg-[#161b27] rounded-lg border border-[#232a3a]">{MONTH_NAMES[currentMonth]} {currentYear}</span>
-            <button onClick={handleNextMonth} className="p-1.5 rounded-lg bg-[#161b27] border border-[#232a3a] text-[#8d94a8] hover:text-[#eef1f8] transition-colors"><ChevronRight className="w-4 h-4"/></button>
+            <button onClick={handlePrevMonth} className="p-1.5 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-[var(--text-mid)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"><ChevronLeft className="w-4 h-4"/></button>
+            <span className="font-semibold text-[var(--text-hi)] px-3 py-1 bg-[var(--bg-elevated)] rounded-lg border border-[var(--border-soft)]">{MONTH_NAMES[currentMonth]} {currentYear}</span>
+            <button onClick={handleNextMonth} className="p-1.5 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-[var(--text-mid)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"><ChevronRight className="w-4 h-4"/></button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2">
-            <div className="grid grid-cols-7 gap-1 text-center font-mono text-[10.5px] text-[#565e73] font-semibold mb-2">
+            <div className="grid grid-cols-7 gap-1 text-center font-mono text-[10.5px] text-[var(--text-low)] font-semibold mb-2">
               <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
             </div>
             <div className="grid grid-cols-7 gap-1.5">
@@ -573,33 +573,33 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
                 const isToday = currentYear===now.getFullYear()&&currentMonth===now.getMonth()&&dayNum===now.getDate();
                 return (
                   <div key={dayNum} onClick={() => setSelectedDay(dayNum)} className={`aspect-[1/0.85] rounded-xl border p-1.5 text-xs cursor-pointer transition-all flex flex-col justify-between ${
-                    selectedDay===dayNum ? 'ring-2 ring-[#7aa0ff] bg-[#161b27] border-[#7aa0ff]/50'
+                    selectedDay===dayNum ? 'ring-2 ring-[#7aa0ff] bg-[var(--bg-elevated)] border-[#7aa0ff]'
                     : hasTrades
-                      ? dd.pnl<0 ? 'bg-[#ff5c7a]/15 border-[#ff5c7a]/40 text-[#eef1f8] hover:bg-[#ff5c7a]/20'
-                                 : 'bg-[#00d9a3]/15 border-[#00d9a3]/40 text-[#eef1f8] hover:bg-[#00d9a3]/20'
-                      : isToday ? 'border-[#2981eb] bg-[#1c2230] text-[#eef1f8] font-bold'
-                                : 'border-[#1a2029] bg-[#161b27] text-[#565e73] hover:border-[#2a2f42]'
+                      ? dd.pnl<0 ? 'bg-[#ff5c7a]/15 border-[#ff5c7a]/40 text-[var(--text-hi)] hover:bg-[#ff5c7a]/25'
+                                 : 'bg-[#00d9a3]/15 border-[#00d9a3]/40 text-[var(--text-hi)] hover:bg-[#00d9a3]/25'
+                      : isToday ? 'bg-[#2981eb]/25 border-2 border-[#2981eb] text-[var(--text-hi)] font-extrabold shadow-md shadow-[#2981eb]/20'
+                                : 'border-[var(--border-soft)] bg-[var(--bg-elevated)] text-[var(--text-low)] hover:border-[#2981eb]'
                   }`}>
                     <span className="font-mono text-[11px] font-semibold">{dayNum}</span>
                     {hasTrades && (
                       <div className="overflow-hidden">
                         <span className={`block font-mono text-[9px] font-bold truncate ${dd.pnl<0?'text-[#ff5c7a]':'text-[#00d9a3]'}`}>{fmt(dd.pnl)}</span>
-                        <span className="block text-[8px] text-[#565e73] truncate">{dd.count}t</span>
+                        <span className="block text-[8px] text-[var(--text-low)] truncate">{dd.count}t</span>
                       </div>
                     )}
                   </div>
                 );
               })}
             </div>
-            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#1a2029] text-[11px] text-[#565e73]">
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#00d9a3]"/>Profitable Day</span>
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#ff5c7a]"/>Losing Day</span>
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#232a3a] border border-[#565e73]"/>No Trades</span>
+            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[var(--border-soft)] text-[11px] text-[var(--text-low)]">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#00d9a3]"/>Profitable Day</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#ff5c7a]"/>Losing Day</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-soft)]"/>No Trades</span>
             </div>
           </div>
 
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-xl p-4 flex flex-col h-full">
-            <h4 className="font-semibold text-xs text-[#eef1f8] mb-3 flex items-center gap-2">
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-4 flex flex-col h-full">
+            <h4 className="font-semibold text-xs text-[var(--text-hi)] mb-3 flex items-center gap-2">
               <Clock className="w-4 h-4 text-[#7aa0ff]"/>
               Day Trades — {MONTH_NAMES[currentMonth].slice(0,3)} {selectedDay}, {currentYear}
             </h4>
@@ -607,17 +607,17 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
               <div className="flex flex-col gap-2 overflow-y-auto h-[400px] pr-1">
                 {selDayData.trades.map(t => (
                   <div key={t.id} onClick={() => onSelectTrade(t)}
-                    className="p-2.5 rounded-lg bg-[#10141d] border border-[#232a3a] flex items-center justify-between text-xs cursor-pointer hover:border-[#7aa0ff] transition-colors">
+                    className="p-2.5 rounded-lg bg-[var(--bg-panel)] border border-[var(--border-soft)] flex items-center justify-between text-xs cursor-pointer hover:border-[#7aa0ff] transition-colors">
                     <div>
-                      <span className="font-semibold text-[#eef1f8] block">{t.symbol}</span>
-                      <span className="text-[10px] text-[#565e73] uppercase font-mono">{t.type}</span>
+                      <span className="font-semibold text-[var(--text-hi)] block">{t.symbol}</span>
+                      <span className="text-[10px] text-[var(--text-low)] uppercase font-mono">{t.type}</span>
                     </div>
                     <span className={`font-mono font-bold ${Number(t.pnl)<0?'text-[#ff5c7a]':'text-[#00d9a3]'}`}>{fmt(Number(t.pnl))}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 text-[#565e73]">
+              <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 text-[var(--text-low)]">
                 <CalendarIcon className="w-8 h-8 opacity-40"/>
                 <p className="text-xs">Click on a day with trades to view details</p>
               </div>
@@ -629,14 +629,14 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
       {/* ── WIN/LOSS DISTRIBUTION + RECENT TRADES ────────────────────────── */}
       <section className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Win/Loss Distribution */}
-        <div className="lg:col-span-2 bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
-          <h3 className="font-sora text-sm font-semibold text-[#eef1f8] flex items-center gap-2 mb-1">
+        <div className="lg:col-span-2 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5 shadow-lg">
+          <h3 className="font-sora text-sm font-semibold text-[var(--text-hi)] flex items-center gap-2 mb-1">
             <BarChart2 className="w-4 h-4 text-[#7aa0ff]"/> Win/Loss Distribution
           </h3>
-          <p className="text-xs text-[#565e73] mb-4">Trade outcome breakdown</p>
+          <p className="text-xs text-[var(--text-low)] mb-4">Trade outcome breakdown</p>
 
           {/* Distribution bar */}
-          <div className="flex h-9 rounded-xl overflow-hidden mb-4 border border-[#1a2029]">
+          <div className="flex h-9 rounded-xl overflow-hidden mb-4 border border-[var(--border-soft)] bg-[var(--bg-elevated)]">
             {filteredTrades.length > 0 ? (
               <>
                 <div className="flex items-center justify-center font-mono text-[11px] font-bold text-[#0a0d14]"
@@ -648,29 +648,29 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
                   {losers.length > 0 ? `${losers.length}L` : ''}
                 </div>
                 {breakevenT.length > 0 && (
-                  <div className="flex items-center justify-center font-mono text-[11px] font-bold text-[#eef1f8]"
-                    style={{width:`${(breakevenT.length/filteredTrades.length)*100}%`,background:'#232a3a',minWidth:'24px'}}>
+                  <div className="flex items-center justify-center font-mono text-[11px] font-bold text-[#0a0d14]"
+                    style={{width:`${(breakevenT.length/filteredTrades.length)*100}%`,background:'linear-gradient(90deg,#f2b84b,#f5c96e)',minWidth:'24px'}}>
                     {breakevenT.length}B
                   </div>
                 )}
               </>
             ) : (
-              <div className="flex-1 bg-[#161b27] flex items-center justify-center text-xs text-[#565e73]">No data</div>
+              <div className="flex-1 bg-[var(--bg-elevated)] flex items-center justify-center text-xs text-[var(--text-low)] font-mono">No data</div>
             )}
           </div>
 
-          <div className="flex flex-col divide-y divide-[#1a2029]">
+          <div className="flex flex-col divide-y divide-[var(--border-soft)]">
             {[
               { dot:'bg-[#00d9a3]', label:'Gross Profit',  val: fmt(grossProfit), cls:'text-[#00d9a3]' },
               { dot:'bg-[#ff5c7a]', label:'Gross Loss',    val: `-$${grossLoss.toFixed(2)}`, cls:'text-[#ff5c7a]' },
-              { dot:'bg-[#565e73]', label:'Net Result',    val: fmt(totalPnL), cls: totalPnL<0?'text-[#ff5c7a]':'text-[#00d9a3]' },
+              { dot:'bg-[var(--text-low)]', label:'Net Result',    val: fmt(totalPnL), cls: totalPnL<0?'text-[#ff5c7a]':'text-[#00d9a3]' },
               { dot:'bg-[#a78bfa]', label:'Winners',       val: `${winners.length}`, cls:'text-[#a78bfa]' },
               { dot:'bg-[#ff5c7a]', label:'Losers',        val: `${losers.length}`, cls:'text-[#ff5c7a]' },
-              { dot:'bg-[#565e73]', label:'Breakeven',     val: `${breakevenT.length}`, cls:'text-[#eef1f8]' },
+              { dot:'bg-[#f2b84b]', label:'Breakeven',     val: `${breakevenT.length}`, cls:'text-[var(--text-hi)]' },
             ].map(({dot,label,val,cls}) => (
               <div key={label} className="flex items-center gap-2.5 py-2.5">
                 <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${dot}`}/>
-                <span className="flex-1 text-xs text-[#8d94a8]">{label}</span>
+                <span className="flex-1 text-xs text-[var(--text-mid)]">{label}</span>
                 <span className={`font-mono text-xs font-semibold ${cls}`}>{val}</span>
               </div>
             ))}
@@ -678,27 +678,27 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
         </div>
 
         {/* Recent Trades */}
-        <div className="lg:col-span-3 bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
-          <h3 className="font-sora text-sm font-semibold text-[#eef1f8] flex items-center gap-2 mb-1">
+        <div className="lg:col-span-3 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5 shadow-lg">
+          <h3 className="font-sora text-sm font-semibold text-[var(--text-hi)] flex items-center gap-2 mb-1">
             <Clock className="w-4 h-4 text-[#7aa0ff]"/> Recent Trades
           </h3>
-          <p className="text-xs text-[#565e73] mb-4">Your last 4 trades</p>
+          <p className="text-xs text-[var(--text-low)] mb-4">Your last 4 trades</p>
           {filteredTrades.length === 0 ? (
-            <div className="text-center text-[#565e73] text-xs py-12">No trades in this period.</div>
+            <div className="text-center text-[var(--text-low)] text-xs py-12">No trades in this period.</div>
           ) : (
-            <div className="flex flex-col divide-y divide-[#1a2029]">
+            <div className="flex flex-col divide-y divide-[var(--border-soft)]">
               {[...filteredTrades]
                 .sort((a,b) => new Date(b.openTime).getTime() - new Date(a.openTime).getTime())
                 .slice(0,4)
                 .map(t => (
                   <div key={t.id} onClick={() => onSelectTrade(t)}
-                    className="flex items-center gap-3 py-2.5 cursor-pointer hover:bg-[#161b27]/60 rounded transition-colors px-1">
+                    className="flex items-center gap-3 py-3 cursor-pointer hover:bg-[var(--bg-hover)] rounded-xl transition-all px-2.5 border border-transparent hover:border-[var(--border-soft)]">
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${t.type==='long'?'bg-[#00d9a3]/15 text-[#00d9a3]':'bg-[#ff5c7a]/15 text-[#ff5c7a]'}`}>
                       {t.type==='long'?<ArrowUpRight className="w-4 h-4"/>:<ArrowDownRight className="w-4 h-4"/>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="font-semibold text-xs text-[#eef1f8] block truncate">{t.symbol}</span>
-                      <span className="text-[11px] text-[#565e73] font-mono">{t.openTime ? t.openTime.slice(0,10) : 'N/A'}</span>
+                      <span className="font-semibold text-xs text-[var(--text-hi)] block truncate">{t.symbol}</span>
+                      <span className="text-[11px] text-[var(--text-low)] font-mono">{t.openTime ? t.openTime.slice(0,10) : 'N/A'}</span>
                     </div>
                     <span className={`font-mono text-xs font-bold ${Number(t.pnl)<0?'text-[#ff5c7a]':'text-[#00d9a3]'}`}>{fmt(Number(t.pnl))}</span>
                   </div>
