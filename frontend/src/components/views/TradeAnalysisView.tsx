@@ -36,7 +36,7 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
 
   if (!activeTrade) {
     return (
-      <div className="p-8 text-center text-[#5c6478]">
+      <div className="p-8 text-center text-[var(--text-low)]">
         No trade data available for analysis. Log a trade first.
       </div>
     );
@@ -60,19 +60,19 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 animate-in fade-in duration-200 items-start">
       
       {/* TRADE LIST SIDEBAR */}
-      <div className="lg:col-span-4 bg-[#10141d] border border-[#232a3a] rounded-2xl p-4 sticky top-[98px]">
+      <div className="lg:col-span-4 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-4 lg:sticky lg:top-[80px] shadow-lg">
         <div className="flex items-center justify-between mb-3">
-          <span className="font-sora font-semibold text-sm text-[#eef1f8]">Trade Analysis</span>
-          <span className="font-mono text-xs text-[#565e73]">{trades.length} trades</span>
+          <span className="font-sora font-semibold text-sm text-[var(--text-hi)]">Trade Analysis</span>
+          <span className="font-mono text-xs text-[var(--text-low)]">{trades.length} trades</span>
         </div>
 
-        <div className="flex items-center gap-1 bg-[#161b27] p-1 rounded-xl border border-[#232a3a] mb-3">
+        <div className="flex items-center gap-1 bg-[var(--bg-elevated)] p-1 rounded-xl border border-[var(--border-soft)] mb-3">
           {(['All', 'Winners', 'Losers'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeTab === tab ? 'bg-[#1c2230] text-[#eef1f8]' : 'text-[#565e73]'
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                activeTab === tab ? 'bg-[#2981eb] text-white shadow-sm' : 'text-[var(--text-mid)] hover:text-[var(--text-hi)]'
               }`}
             >
               {tab}
@@ -82,7 +82,7 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
 
         <div 
           className="flex flex-col gap-2 overflow-y-auto"
-          style={{ maxHeight: 'calc(100vh - 220px)' }}
+          style={{ maxHeight: 'calc(100vh - 240px)' }}
           onScroll={(e) => {
             const target = e.target as HTMLDivElement;
             if (target.scrollHeight - target.scrollTop <= target.clientHeight + 50) {
@@ -94,30 +94,30 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
             <button
               key={trade.id}
               onClick={() => setActiveTradeId(trade.id)}
-              className={`flex flex-col gap-2 p-3 rounded-xl text-left transition-colors border ${
+              className={`flex flex-col gap-2 p-3 rounded-xl text-left transition-colors border cursor-pointer ${
                 activeTradeId === trade.id
-                  ? 'bg-[#4c7dff]/15 border-[#4c7dff]'
-                  : 'bg-[#161b27] border-[#1a2029] hover:border-[#232a3a]'
+                  ? 'bg-[var(--bg-elevated)] border-[#2981eb] shadow-[inset_0_0_0_1px_rgba(41,129,235,0.25)]'
+                  : 'bg-transparent border-transparent hover:bg-[var(--bg-hover)]'
               }`}
             >
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-[#1c2230] border border-[#232a3a] flex items-center justify-center font-mono text-[9px] font-bold text-[#8d94a8]">
+                <span className="w-6 h-6 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] flex items-center justify-center font-mono text-[9px] font-bold text-[var(--text-mid)]">
                   {trade.pairCode}
                 </span>
-                <span className="font-semibold text-xs text-[#eef1f8] flex-1">{trade.symbol}</span>
-                <span className="text-[10px] font-semibold text-[#7aa0ff] bg-[#4c7dff]/15 px-2 py-0.5 rounded-full">
+                <span className="font-semibold text-xs text-[var(--text-hi)] flex-1">{trade.symbol}</span>
+                <span className="text-[10px] font-semibold text-[#5aa2f2] bg-[#2981eb]/15 px-2 py-0.5 rounded-full">
                   New
                 </span>
               </div>
 
               <div className="flex items-center gap-2 text-xs">
                 <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded ${
-                  trade.type === 'long' ? 'text-[#00d9a3] bg-[#00d9a3]/15' : 'text-[#ff5c7a] bg-[#ff5c7a]/15'
+                  trade.type === 'long' ? 'text-[#22c58b] bg-[#22c58b]/15' : 'text-[#ef4b5c] bg-[#ef4b5c]/15'
                 }`}>
                   {trade.type === 'long' ? 'Long' : 'Short'}
                 </span>
-                <span className="font-mono text-[#565e73]">{trade.entryPrice}</span>
-                <span className={`ml-auto font-mono font-bold ${trade.pnl < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}`}>
+                <span className="font-mono text-[var(--text-low)]">{trade.entryPrice}</span>
+                <span className={`ml-auto font-mono font-bold ${trade.pnl < 0 ? 'text-[#ef4b5c]' : 'text-[#22c58b]'}`}>
                   {trade.pnl < 0 ? '-' : '+'}${Math.abs(trade.pnl).toFixed(2)}
                 </span>
               </div>
@@ -127,29 +127,29 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
       </div>
 
       {/* MAIN DETAIL PANEL */}
-      <div className="lg:col-span-8 bg-[#10141d] border border-[#232a3a] rounded-2xl p-6 shadow-xl">
+      <div className="lg:col-span-8 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-6 shadow-xl">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-5 border-b border-[#1a2029] gap-4 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-5 border-b border-[var(--border-soft)] gap-4 mb-5">
           <div>
             <div className="flex items-center gap-2.5 mb-2 flex-wrap">
-              <span className="w-8 h-8 rounded-full bg-[#161b27] border border-[#232a3a] flex items-center justify-center font-mono text-xs font-bold text-[#8d94a8]">
+              <span className="w-8 h-8 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] flex items-center justify-center font-mono text-xs font-bold text-[var(--text-mid)]">
                 {activeTrade.pairCode}
               </span>
-              <span className="font-sora font-bold text-xl text-[#eef1f8]">{activeTrade.symbol}</span>
+              <span className="font-sora font-bold text-xl text-[var(--text-hi)]">{activeTrade.symbol}</span>
               <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                activeTrade.pnl < 0 ? 'text-[#ff5c7a] bg-[#ff5c7a]/15' : 'text-[#00d9a3] bg-[#00d9a3]/15'
+                activeTrade.pnl < 0 ? 'text-[#ef4b5c] bg-[#ef4b5c]/15' : 'text-[#22c58b] bg-[#22c58b]/15'
               }`}>
                 {activeTrade.outcome}
               </span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#f2b84b]/15 text-[#f2b84b]">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500">
                 Score: {totalQualityScore}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-[#565e73] flex-wrap font-mono">
+            <div className="flex items-center gap-2 text-xs text-[var(--text-low)] flex-wrap font-mono">
               <span className={`font-bold px-2 py-0.5 rounded ${
-                activeTrade.type === 'long' ? 'text-[#00d9a3] bg-[#00d9a3]/15' : 'text-[#ff5c7a] bg-[#ff5c7a]/15'
+                activeTrade.type === 'long' ? 'text-[#22c58b] bg-[#22c58b]/15' : 'text-[#ef4b5c] bg-[#ef4b5c]/15'
               }`}>
                 {activeTrade.type === 'long' ? 'Long' : 'Short'}
               </span>
@@ -161,8 +161,8 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
           </div>
 
           <div className="text-right">
-            <span className="text-xs text-[#565e73] block mb-1">P&L</span>
-            <span className={`font-mono text-2xl font-bold ${activeTrade.pnl < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}`}>
+            <span className="text-xs text-[var(--text-low)] block mb-1">P&L</span>
+            <span className={`font-mono text-2xl font-bold ${activeTrade.pnl < 0 ? 'text-[#ef4b5c]' : 'text-[#22c58b]'}`}>
               {activeTrade.pnl < 0 ? '-' : '+'}${Math.abs(activeTrade.pnl).toFixed(2)}
             </span>
           </div>
@@ -170,56 +170,56 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-xl p-3.5">
-            <span className="text-xs text-[#565e73] block mb-1">Entry Price</span>
-            <span className="font-mono text-base font-semibold text-[#eef1f8]">${activeTrade.entryPrice}</span>
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-3.5">
+            <span className="text-xs text-[var(--text-low)] block mb-1">Entry Price</span>
+            <span className="font-mono text-base font-semibold text-[var(--text-hi)]">${activeTrade.entryPrice}</span>
           </div>
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-xl p-3.5">
-            <span className="text-xs text-[#565e73] block mb-1">Exit Price</span>
-            <span className="font-mono text-base font-semibold text-[#eef1f8]">${activeTrade.exitPrice}</span>
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-3.5">
+            <span className="text-xs text-[var(--text-low)] block mb-1">Exit Price</span>
+            <span className="font-mono text-base font-semibold text-[var(--text-hi)]">${activeTrade.exitPrice}</span>
           </div>
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-xl p-3.5">
-            <span className="text-xs text-[#565e73] block mb-1">Quantity</span>
-            <span className="font-mono text-base font-semibold text-[#eef1f8]">{activeTrade.size}</span>
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-3.5">
+            <span className="text-xs text-[var(--text-low)] block mb-1">Quantity</span>
+            <span className="font-mono text-base font-semibold text-[var(--text-hi)]">{activeTrade.size}</span>
           </div>
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-xl p-3.5">
-            <span className="text-xs text-[#565e73] block mb-1">Price Move</span>
-            <span className={`font-mono text-base font-semibold ${activeTrade.pnl < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}`}>
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-3.5">
+            <span className="text-xs text-[var(--text-low)] block mb-1">Price Move</span>
+            <span className={`font-mono text-base font-semibold ${activeTrade.pnl < 0 ? 'text-[#ef4b5c]' : 'text-[#22c58b]'}`}>
               {activeTrade.priceMovePercent || -17.46}%
             </span>
           </div>
         </div>
 
         {/* Trade Simulation */}
-        <div className="bg-[#161b27] border border-[#1a2029] rounded-2xl overflow-hidden mb-6">
-          <div className="flex items-center justify-between p-4 border-b border-[#1a2029]">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-2xl overflow-hidden mb-6">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--border-soft)]">
             <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#1c2230] border border-[#232a3a] flex items-center justify-center font-mono text-[9px] font-bold text-[#8d94a8]">
+              <span className="w-6 h-6 rounded-full bg-[var(--bg-panel)] border border-[var(--border-soft)] flex items-center justify-center font-mono text-[9px] font-bold text-[var(--text-mid)]">
                 {activeTrade.pairCode}
               </span>
-              <span className="font-semibold text-xs text-[#eef1f8]">{activeTrade.symbol}</span>
-              <span className="font-mono text-[10px] font-bold uppercase text-[#00d9a3] bg-[#00d9a3]/10 px-2 py-0.5 rounded">
+              <span className="font-semibold text-xs text-[var(--text-hi)]">{activeTrade.symbol}</span>
+              <span className="font-mono text-[10px] font-bold uppercase text-[#22c58b] bg-[#22c58b]/10 px-2 py-0.5 rounded">
                 {activeTrade.type}
               </span>
             </div>
 
             <div className="flex items-center gap-4 text-xs font-mono">
-              <div><span className="text-[10px] text-[#565e73] block">Entry</span><span className="text-[#eef1f8]">${activeTrade.entryPrice}</span></div>
-              <div><span className="text-[10px] text-[#565e73] block">Exit</span><span className="text-[#eef1f8]">${activeTrade.exitPrice}</span></div>
-              <div><span className="text-[10px] text-[#565e73] block">P&L</span><span className={Number(activeTrade.pnl) < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}>{Number(activeTrade.pnl) < 0 ? '-' : '+'}${Math.abs(Number(activeTrade.pnl)).toFixed(2)}</span></div>
+              <div><span className="text-[10px] text-[var(--text-low)] block">Entry</span><span className="text-[var(--text-hi)]">${activeTrade.entryPrice}</span></div>
+              <div><span className="text-[10px] text-[var(--text-low)] block">Exit</span><span className="text-[var(--text-hi)]">${activeTrade.exitPrice}</span></div>
+              <div><span className="text-[10px] text-[var(--text-low)] block">P&L</span><span className={Number(activeTrade.pnl) < 0 ? 'text-[#ef4b5c]' : 'text-[#22c58b]'}>{Number(activeTrade.pnl) < 0 ? '-' : '+'}${Math.abs(Number(activeTrade.pnl)).toFixed(2)}</span></div>
             </div>
           </div>
 
           <div className="h-64 flex flex-col items-center justify-center p-6 text-center gap-2">
-            <BarChart2 className="w-8 h-8 text-[#565e73] opacity-60" />
-            <h4 className="font-sora text-sm font-semibold text-[#eef1f8]">Trade Replay Not Available</h4>
-            <p className="text-xs text-[#565e73] max-w-xs leading-relaxed">
+            <BarChart2 className="w-8 h-8 text-[var(--text-low)] opacity-60" />
+            <h4 className="font-sora text-sm font-semibold text-[var(--text-hi)]">Trade Replay Not Available</h4>
+            <p className="text-xs text-[var(--text-low)] max-w-xs leading-relaxed">
               This trade was added manually. Connect a trading account to view trade replay and simulation features.
             </p>
           </div>
 
-          <div className="p-3 px-4 border-t border-[#1a2029]">
-            <span className="inline-flex items-center gap-1.5 text-xs text-[#565e73] font-semibold">
+          <div className="p-3 px-4 border-t border-[var(--border-soft)]">
+            <span className="inline-flex items-center gap-1.5 text-xs text-[var(--text-low)] font-semibold">
               <Edit3 className="w-3.5 h-3.5" /> Manual Entry
             </span>
           </div>
@@ -228,26 +228,26 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
         {/* Content Row: Journal Status & Trade Quality */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           {/* Journal Status */}
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-2xl p-5">
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-2xl p-5">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-sora text-xs font-semibold text-[#eef1f8] flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-[#7aa0ff]" />
+              <h3 className="font-sora text-xs font-semibold text-[var(--text-hi)] flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[#5aa2f2]" />
                 Journal Entry
               </h3>
               <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                hasJournal ? 'text-[#00d9a3] bg-[#00d9a3]/15' : 'text-[#f2b84b] bg-[#f2b84b]/15'
+                hasJournal ? 'text-[#22c58b] bg-[#22c58b]/15' : 'text-amber-500 bg-amber-500/15'
               }`}>
                 {hasJournal ? 'Journaled' : 'Not Journaled'}
               </span>
             </div>
 
             <div className="flex flex-col items-center justify-center py-6 text-center gap-3">
-              <p className="text-xs text-[#565e73]">
+              <p className="text-xs text-[var(--text-low)]">
                 {hasJournal ? 'Journal notes attached for this trade.' : 'No journal entry for this trade'}
               </p>
               <button
                 onClick={() => onNavigateToJournal(activeTrade.id)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#2981eb] to-[#3a63d9] text-white hover:brightness-110 shadow-md shadow-[#2981eb]/20"
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#2981eb] to-[#3a63d9] text-white hover:brightness-110 shadow-md shadow-[#2981eb]/20 cursor-pointer"
               >
                 {hasJournal ? 'Edit Journal Entry' : 'Add Journal Entry'}
               </button>
@@ -255,33 +255,33 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
           </div>
 
           {/* Trade Quality Score */}
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-2xl p-5">
-            <h3 className="font-sora text-xs font-semibold text-[#eef1f8] mb-3 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#7aa0ff]" />
+          <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-2xl p-5">
+            <h3 className="font-sora text-xs font-semibold text-[var(--text-hi)] mb-3 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#5aa2f2]" />
               Trade Quality Score
             </h3>
 
             <div className="flex items-center gap-5">
-              <div className="w-18 h-18 rounded-full border-4 border-[#232a3a] flex items-center justify-center shrink-0 bg-[#1c2230]">
-                <span className="font-mono text-xl font-bold text-[#f2b84b]">{totalQualityScore}</span>
+              <div className="w-18 h-18 rounded-full border-4 border-[var(--border-soft)] flex items-center justify-center shrink-0 bg-[var(--bg-panel)] shadow-inner">
+                <span className="font-mono text-xl font-bold text-amber-500">{totalQualityScore}</span>
               </div>
 
               <div className="flex-1 flex flex-col gap-1.5 text-[11px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#8d94a8]">Profitability</span>
-                  <span className="font-mono text-[#565e73]">{profitabilityPts}/30</span>
+                  <span className="text-[var(--text-mid)]">Profitability</span>
+                  <span className="font-mono text-[var(--text-low)]">{profitabilityPts}/30</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#8d94a8]">Execution</span>
-                  <span className="font-mono text-[#565e73]">{executionPts}/40</span>
+                  <span className="text-[var(--text-mid)]">Execution</span>
+                  <span className="font-mono text-[var(--text-low)]">{executionPts}/40</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#8d94a8]">Journal</span>
-                  <span className="font-mono text-[#565e73]">{journalPts}/20</span>
+                  <span className="text-[var(--text-mid)]">Journal</span>
+                  <span className="font-mono text-[var(--text-low)]">{journalPts}/20</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#8d94a8]">Rating</span>
-                  <span className="font-mono text-[#565e73]">{ratingPts}/10</span>
+                  <span className="text-[var(--text-mid)]">Rating</span>
+                  <span className="font-mono text-[var(--text-low)]">{ratingPts}/10</span>
                 </div>
               </div>
             </div>
@@ -289,10 +289,10 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
         </div>
 
         {/* AI Insights Section */}
-        <div className="bg-[#161b27] border border-[#1a2029] rounded-2xl p-5 mb-6">
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-2xl p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-sora text-xs font-semibold text-[#eef1f8] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#7aa0ff]" />
+            <h3 className="font-sora text-xs font-semibold text-[var(--text-hi)] flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#5aa2f2]" />
               AI Pattern Analysis
             </h3>
             <span className="text-[10px] font-semibold text-[#a78bfa] bg-[#a78bfa]/15 px-2.5 py-0.5 rounded-full">
@@ -300,11 +300,11 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
             </span>
           </div>
 
-          <div className="bg-[#1c2230] border border-dashed border-[#232a3a] rounded-xl p-3.5 flex items-start gap-3">
+          <div className="bg-[var(--bg-panel)] border border-dashed border-[var(--border-soft)] rounded-xl p-3.5 flex items-start gap-3">
             <span className="text-xl">💡</span>
             <div>
-              <span className="font-semibold text-xs text-[#eef1f8] block mb-1">AI Setup Diagnostic</span>
-              <p className="text-xs text-[#565e73] leading-relaxed">
+              <span className="font-semibold text-xs text-[var(--text-hi)] block mb-1">AI Setup Diagnostic</span>
+              <p className="text-xs text-[var(--text-low)] leading-relaxed">
                 {activeTrade.pnl < 0
                   ? 'Analysis indicates trade was taken near resistance during high-volatility news window. Consider waiting for H4 candle confirmation.'
                   : 'Trade followed clean trendline retest with 1:3 Risk to Reward ratio. Great discipline on execution!'}
@@ -314,22 +314,22 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
         </div>
 
         {/* Comparison Section */}
-        <div className="bg-[#161b27] border border-[#1a2029] rounded-2xl p-5">
-          <h3 className="font-sora text-xs font-semibold text-[#eef1f8] mb-3 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#7aa0ff]" />
+        <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-2xl p-5">
+          <h3 className="font-sora text-xs font-semibold text-[var(--text-hi)] mb-3 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-[#5aa2f2]" />
             vs Your Average
           </h3>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#1c2230] border border-[#232a3a] rounded-xl p-3">
-              <span className="text-[11px] text-[#565e73] block mb-1">vs Avg Loser</span>
-              <span className="font-mono text-sm font-semibold text-[#eef1f8]">-${Math.abs(activeTrade.pnl).toFixed(2)}</span>
-              <span className="text-[10px] text-[#ff5c7a] font-bold block mt-1">-27%</span>
+            <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-xl p-3">
+              <span className="text-[11px] text-[var(--text-low)] block mb-1">vs Avg Loser</span>
+              <span className="font-mono text-sm font-semibold text-[var(--text-hi)]">-${Math.abs(activeTrade.pnl).toFixed(2)}</span>
+              <span className="text-[10px] text-[#ef4b5c] font-bold block mt-1">-27%</span>
             </div>
-            <div className="bg-[#1c2230] border border-[#232a3a] rounded-xl p-3">
-              <span className="text-[11px] text-[#565e73] block mb-1">Hold Duration</span>
-              <span className="font-mono text-sm font-[#eef1f8]">{activeTrade.duration || '1d 6h'}</span>
-              <span className="text-[10px] text-[#ff5c7a] font-bold block mt-1">+0%</span>
+            <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-xl p-3">
+              <span className="text-[11px] text-[var(--text-low)] block mb-1">Hold Duration</span>
+              <span className="font-mono text-sm text-[var(--text-hi)]">{activeTrade.duration || '1d 6h'}</span>
+              <span className="text-[10px] text-[#ef4b5c] font-bold block mt-1">+0%</span>
             </div>
           </div>
         </div>
