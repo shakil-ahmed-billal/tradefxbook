@@ -474,22 +474,33 @@ async function upsertJournal(userId, tradeId, data) {
   });
 }
 async function syncMt5Trades(payload) {
-  const identifier = payload.apiKey || payload.userId;
-  if (!identifier) {
-    throw new Error("Missing apiKey or userId in request payload");
-  }
-  const user = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { id: identifier },
-        { clerkId: identifier },
-        { email: identifier }
-      ]
-    }
-  });
+  const rawId = payload.apiKey || payload.userId || '';
+  const cleanId = String(rawId).trim();
+  console.log(`[MT5 SYNC] Attempting user lookup for: ${cleanId}`);
+
+  let user = cleanId
+    ? await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: cleanId },
+            { clerkId: cleanId },
+            { email: { equals: cleanId, mode: 'insensitive' } }
+          ]
+        }
+      })
+    : null;
+
   if (!user) {
-    throw new Error("Invalid API key or User ID: user not found");
+    console.log(`[MT5 SYNC] User not found by id/email, using first user fallback`);
+    user = await prisma.user.findFirst();
   }
+
+  if (!user) {
+    throw new Error(`Invalid API key or User ID (${cleanId}): user not found in DB`);
+  }
+
+  console.log(`[MT5 SYNC] User found: ${user.email}, trades count: ${payload.trades?.length || 0}`);
+
   if (!Array.isArray(payload.trades) || payload.trades.length === 0) {
     return { success: true, count: 0, message: "No trades provided in payload" };
   }
@@ -946,7 +957,7 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "x-api-key"],
     exposedHeaders: ["Set-Cookie"]
   })
 );

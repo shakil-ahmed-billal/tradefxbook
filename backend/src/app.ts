@@ -61,7 +61,7 @@ app.use(
 
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "x-api-key"],
 
     exposedHeaders: ["Set-Cookie"],
 
