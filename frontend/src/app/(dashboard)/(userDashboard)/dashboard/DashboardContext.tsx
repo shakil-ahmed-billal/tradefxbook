@@ -6,7 +6,10 @@ import { Trade, UserProfile } from '@/types';
 import { INITIAL_USER } from '@/data/initialData';
 import { authClient } from '@/lib/auth-client';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const PROD_API = 'https://tradefxbook-eta.vercel.app';
+const DEV_API = 'http://localhost:4000';
+const IS_DEV = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (IS_DEV ? DEV_API : PROD_API);
 const LS_USER_KEY = 'tradefxbook_user';
 const LS_AUTH_KEY = 'tradefxbook_authenticated';
 const LS_TRADES_KEY = 'tradefxbook_trades';

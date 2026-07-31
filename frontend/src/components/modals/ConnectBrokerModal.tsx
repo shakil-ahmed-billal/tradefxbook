@@ -249,7 +249,10 @@ export const ConnectBrokerModal: React.FC<ConnectBrokerModalProps> = ({
   if (!isOpen) return null;
 
   const apiKey = user?.email || 'tfb_live_user_key';
-  const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000') + '/api/trades/mt5-sync';
+  const PROD_API = 'https://tradefxbook-eta.vercel.app';
+  const DEV_API = 'http://localhost:4000';
+  const IS_DEV = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  const apiUrl = (process.env.NEXT_PUBLIC_API_URL || (IS_DEV ? DEV_API : PROD_API)) + '/api/trades/mt5-sync';
 
   const copyToClipboard = (text: string, setFn: (val: boolean) => void) => {
     navigator.clipboard.writeText(text);

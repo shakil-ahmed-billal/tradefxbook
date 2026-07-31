@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { X, Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useDashboard } from '../../app/(dashboard)/(userDashboard)/dashboard/DashboardContext';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const PROD_API = 'https://tradefxbook-eta.vercel.app';
+const DEV_API = 'http://localhost:4000';
+const IS_DEV = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (IS_DEV ? DEV_API : PROD_API);
 
 function normalizeSymbol(rawSymbol: string): string {
   if (!rawSymbol) return 'UNKNOWN';
