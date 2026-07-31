@@ -107,7 +107,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const gaugeCircumference = 2 * Math.PI * gaugeRadius;
 
   return (
-    <div className="flex flex-col max-w-5xl mx-auto pb-16 animate-in fade-in duration-200">
+    <div className="flex flex-col w-full pb-16 animate-in fade-in duration-200">
       
       {/* SUCCESS TOAST BAR */}
       {savedSuccess && (
