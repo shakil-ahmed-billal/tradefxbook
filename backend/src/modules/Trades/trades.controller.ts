@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as tradesService from './trades.service';
-import { PlanTier } from '@prisma/client';
+import { PlanTier } from '../../../generated/prisma/client';
 
 export async function listTradesHandler(req: Request, res: Response) {
   try {
@@ -39,7 +39,7 @@ export async function importCsvHandler(req: Request, res: Response) {
 
 export async function getTradeHandler(req: Request, res: Response) {
   try {
-    const trade = await tradesService.getTrade(req.userId!, req.params.id);
+    const trade = await tradesService.getTrade(req.userId!, req.params.id as string);
     if (!trade) return res.status(404).json({ error: 'Not found' });
     res.json(trade);
   } catch (err: any) {
@@ -49,7 +49,7 @@ export async function getTradeHandler(req: Request, res: Response) {
 
 export async function updateTradeHandler(req: Request, res: Response) {
   try {
-    const trade = await tradesService.updateTrade(req.userId!, req.params.id, req.body);
+    const trade = await tradesService.updateTrade(req.userId!, req.params.id as string, req.body);
     res.json(trade);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -58,7 +58,7 @@ export async function updateTradeHandler(req: Request, res: Response) {
 
 export async function deleteTradeHandler(req: Request, res: Response) {
   try {
-    await tradesService.deleteTrade(req.userId!, req.params.id);
+    await tradesService.deleteTrade(req.userId!, req.params.id as string);
     res.status(204).send();
   } catch (err: any) {
     res.status(500).json({ error: err.message });

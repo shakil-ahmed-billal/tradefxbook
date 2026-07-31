@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { auth } from '../lib/auth';
 import { prisma } from '../lib/prisma'; // Using existing prisma instance
-import { PlanTier } from '@prisma/client';
 
 // Extend express Request to include userId and userPlan
 declare global {
@@ -16,7 +15,7 @@ declare global {
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const session = await auth.api.getSession({
-      headers: req.headers,
+      headers: new Headers(req.headers as any),
     });
 
     if (!session || !session.user) {

@@ -1,9 +1,9 @@
-import { Decimal } from '@prisma/client/runtime/library';
+import { Prisma } from '../../generated/prisma/client';
 
 export interface TradeLike {
-  pnl: Decimal | null;
-  entryPrice: Decimal;
-  exitPrice: Decimal | null;
+  pnl: Prisma.Decimal | null;
+  entryPrice: Prisma.Decimal;
+  exitPrice: Prisma.Decimal | null;
   openedAt: Date;
   closedAt: Date | null;
 }

@@ -1,5 +1,5 @@
 import { prisma } from '../../lib/prisma';
-import { PlanTier } from '@prisma/client';
+import { PlanTier } from '../../../generated/prisma/client';
 
 export async function listTrades(userId: string, plan: PlanTier, query: any) {
   const limit = query.limit ? Number(query.limit) : 500;

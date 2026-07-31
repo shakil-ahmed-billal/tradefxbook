@@ -1,4 +1,4 @@
-import { JournalEntry, Trade } from '@prisma/client';
+import { JournalEntry, Trade } from '../../generated/prisma/client';
 
 export function tradeQualityScore(trade: Trade, journal: JournalEntry | null) {
   let profitability = 0;
