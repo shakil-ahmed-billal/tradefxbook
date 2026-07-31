@@ -15,6 +15,7 @@ import {
   User
 } from 'lucide-react';
 import { UserProfile } from '@/types';
+import { ModeToggle } from '@/components/shared/ModeToggle';
 
 interface TopBarProps {
   user: UserProfile;
@@ -106,13 +107,7 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* Right controls */}
       <div className="flex items-center gap-2 lg:gap-2.5">
-        <button
-          onClick={() => setIsDark(!isDark)}
-          className="w-9 h-9 rounded-lg flex items-center justify-center bg-transparent hover:bg-[#141824] border border-transparent hover:border-[#212636] text-[#9aa2b3] hover:text-[#f4f6fa] transition-colors"
-          title="Toggle theme"
-        >
-          {isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-        </button>
+        <ModeToggle />
 
         <button
           onClick={onOpenAddTrade}
