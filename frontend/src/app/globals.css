@@ -107,38 +107,57 @@
 }
 
 /* Dynamic theme overrides for card backgrounds, panels & borders */
+:root:not(.dark) .bg-\[\#10141d\],
+:root:not(.dark) .bg-\[\#0e1017\],
+:root:not(.dark) .bg-\[\#090b10\],
+:root:not(.dark) .bg-\[\#0a0d14\],
+:root:not(.dark) [class*="bg-[#10141d]"],
 :root:not(.dark) [class*="bg-[#0e1017]"],
 :root:not(.dark) [class*="bg-[#090b10]"],
 :root:not(.dark) [class*="bg-[#0a0d14]"] {
   background-color: var(--bg-panel) !important;
 }
 
+:root:not(.dark) .bg-\[\#141824\],
+:root:not(.dark) .bg-\[\#161b27\],
 :root:not(.dark) [class*="bg-[#141824]"],
 :root:not(.dark) [class*="bg-[#161b27]"] {
   background-color: var(--bg-elevated) !important;
 }
 
+:root:not(.dark) .bg-\[\#1a1f2c\],
+:root:not(.dark) .bg-\[\#1c2230\],
+:root:not(.dark) .bg-\[\#1f2638\],
 :root:not(.dark) [class*="bg-[#1a1f2c]"],
 :root:not(.dark) [class*="bg-[#1c2230]"],
 :root:not(.dark) [class*="bg-[#1f2638]"] {
   background-color: var(--bg-hover) !important;
 }
 
+:root:not(.dark) .border-\[\#232a3a\],
+:root:not(.dark) .border-\[\#1a1e2b\],
+:root:not(.dark) .border-\[\#212636\],
+:root:not(.dark) .border-\[\#2a3244\],
+:root:not(.dark) .border-\[\#1a2029\],
+:root:not(.dark) [class*="border-[#232a3a]"],
 :root:not(.dark) [class*="border-[#1a1e2b]"],
 :root:not(.dark) [class*="border-[#212636]"],
-:root:not(.dark) [class*="border-[#232a3a]"],
-:root:not(.dark) [class*="border-[#2a3244]"] {
+:root:not(.dark) [class*="border-[#2a3244]"],
+:root:not(.dark) [class*="border-[#1a2029]"] {
   border-color: var(--border) !important;
 }
 
+:root:not(.dark) .text-\[\#f4f6fa\],
 :root:not(.dark) [class*="text-[#f4f6fa]"] {
   color: var(--text-hi) !important;
 }
 
+:root:not(.dark) .text-\[\#9aa2b3\],
 :root:not(.dark) [class*="text-[#9aa2b3]"] {
   color: var(--text-mid) !important;
 }
 
+:root:not(.dark) .text-\[\#5c6478\],
 :root:not(.dark) [class*="text-[#5c6478]"] {
   color: var(--text-low) !important;
 }
