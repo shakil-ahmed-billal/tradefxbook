@@ -13,5 +13,7 @@ const router = Router();
 
 router.post('/image', upload.single('image'), uploadController.uploadSingleImageHandler);
 router.post('/images', upload.array('images', 10), uploadController.uploadMultipleImagesHandler);
+router.delete('/image', uploadController.deleteImageHandler);
+router.post('/delete-image', uploadController.deleteImageHandler);
 
 export default router;

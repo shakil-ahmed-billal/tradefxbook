@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Eye, Trash2, Maximize2, X } from 'lucide-react';
 import { Trade, ChecklistItem } from '../../types';
 import { API_BASE_URL } from '../../lib/api-config';
 
@@ -115,6 +116,8 @@ export const JournalView: React.FC<JournalViewProps> = ({
   };
 
   const [isUploading, setIsUploading] = useState(false);
+  const [newlyUploadedUrls, setNewlyUploadedUrls] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -139,6 +142,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
           if (data.url) {
             uploadedUrl = data.url;
             setScreenshots(prev => [...prev, data.url]);
+            setNewlyUploadedUrls(prev => [...prev, data.url]);
           }
         }
       } catch (err) {
@@ -149,7 +153,8 @@ export const JournalView: React.FC<JournalViewProps> = ({
         const reader = new FileReader();
         reader.onload = (event) => {
           if (event.target?.result) {
-            setScreenshots(prev => [...prev, event.target!.result as string]);
+            const dataUrl = event.target!.result as string;
+            setScreenshots(prev => [...prev, dataUrl]);
           }
         };
         reader.readAsDataURL(file);
@@ -160,12 +165,29 @@ export const JournalView: React.FC<JournalViewProps> = ({
     e.target.value = '';
   };
 
-  const handleRemoveImage = (index: number) => {
+  const handleRemoveImage = async (index: number) => {
+    const imgToRemove = screenshots[index];
     setScreenshots(prev => prev.filter((_, i) => i !== index));
+    setNewlyUploadedUrls(prev => prev.filter(url => url !== imgToRemove));
+
+    // If image is hosted on Cloudinary, delete from Cloudinary immediately
+    if (imgToRemove && imgToRemove.includes('cloudinary.com')) {
+      try {
+        await fetch(`${API_BASE_URL}/api/upload/delete-image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: imgToRemove }),
+        });
+      } catch (err) {
+        console.warn('Cloudinary deletion request error:', err);
+      }
+    }
   };
 
   const handleSave = async () => {
     if (!activeTrade) return;
+    setErrorMessage(null);
+
     const updatedJournal = {
       ...(activeTrade.journal || {}),
       preTradeAnalysis: preAnalysis,
@@ -179,18 +201,50 @@ export const JournalView: React.FC<JournalViewProps> = ({
       checklist,
       screenshots,
     };
+
     onUpdateTradeJournal(activeTrade.id, updatedJournal);
 
+    let dbSaveSuccessful = true;
     try {
-      await fetch(`${API_BASE_URL}/api/trades/${activeTrade.id}/journal`, {
+      const res = await fetch(`${API_BASE_URL}/api/trades/${activeTrade.id}/journal`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedJournal),
       });
+
+      if (!res.ok) {
+        dbSaveSuccessful = false;
+      }
     } catch (err) {
-      console.warn('Backend DB journal update:', err);
+      console.warn('Backend DB journal update error:', err);
+      dbSaveSuccessful = false;
     }
 
+    if (!dbSaveSuccessful) {
+      // Automatic Rollback: Delete newly uploaded Cloudinary images to prevent orphaned files
+      if (newlyUploadedUrls.length > 0) {
+        for (const url of newlyUploadedUrls) {
+          try {
+            await fetch(`${API_BASE_URL}/api/upload/delete-image`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url }),
+            });
+          } catch (delErr) {
+            console.warn('Rollback delete error:', delErr);
+          }
+        }
+        // Remove rolled-back URLs from screenshots view
+        setScreenshots(prev => prev.filter(url => !newlyUploadedUrls.includes(url)));
+        setNewlyUploadedUrls([]);
+      }
+
+      setErrorMessage('Failed to save journal to database. Uploaded images rolled back.');
+      return;
+    }
+
+    // Success: Clear newlyUploadedUrls tracking as they are now saved in DB
+    setNewlyUploadedUrls([]);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
   };
@@ -532,23 +586,36 @@ export const JournalView: React.FC<JournalViewProps> = ({
                     onClick={() => setModalImage(imgSrc)}
                   />
 
-                  {/* Hover Overlay Buttons */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  {/* Always-Visible Top Right Delete Button Badge */}
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage(idx);
+                    }} 
+                    className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center shadow-md cursor-pointer transition-all z-10"
+                    title="Delete Image"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Hover Overlay Action Buttons */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5 z-0">
                     <button 
                       type="button"
                       onClick={() => setModalImage(imgSrc)} 
-                      className="p-1.5 rounded-lg bg-white/20 hover:bg-white/40 text-white cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-white/25 hover:bg-white/40 text-white flex items-center justify-center cursor-pointer transition-colors shadow-sm"
                       title="View Fullscreen"
                     >
-                      <SvgScreenshots />
+                      <Eye className="w-4 h-4 text-white" />
                     </button>
                     <button 
                       type="button"
                       onClick={() => handleRemoveImage(idx)} 
-                      className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center cursor-pointer transition-colors shadow-sm"
                       title="Delete Image"
                     >
-                      <SvgTrash />
+                      <Trash2 className="w-4 h-4 text-white" />
                     </button>
                   </div>
                 </div>

@@ -9,6 +9,16 @@ cloudinary.config({
   secure: true,
 });
 
+export const extractPublicIdFromUrl = (url: string): string | null => {
+  if (!url || !url.includes('cloudinary.com')) return null;
+  const regex = /\/v\d+\/(.+?)(?:\.[a-zA-Z0-9]+)+$/;
+  const match = url.match(regex);
+  if (match && match[1]) {
+    return match[1];
+  }
+  return null;
+};
+
 export const uploadImageToCloudinary = async (
   fileBuffer: Buffer,
   folder: string = 'tradefxbook/journals'
@@ -42,9 +52,21 @@ export const uploadBase64ToCloudinary = async (
   return result.secure_url;
 };
 
-export const deleteImageFromCloudinary = async (publicId: string): Promise<boolean> => {
+export const deleteImageFromCloudinary = async (urlOrPublicId: string): Promise<boolean> => {
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const publicId = urlOrPublicId.includes('cloudinary.com')
+      ? extractPublicIdFromUrl(urlOrPublicId)
+      : urlOrPublicId;
+
+    if (!publicId) {
+      console.warn('Could not extract public_id from Cloudinary target:', urlOrPublicId);
+      return false;
+    }
+
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image',
+      invalidate: true,
+    });
     return result.result === 'ok';
   } catch (error) {
     console.error('Cloudinary deletion error:', error);

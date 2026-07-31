@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { uploadImageToCloudinary, uploadBase64ToCloudinary } from '../../utils/cloudinary';
+import { uploadImageToCloudinary, uploadBase64ToCloudinary, deleteImageFromCloudinary } from '../../utils/cloudinary';
 
 export async function uploadSingleImageHandler(req: Request, res: Response) {
   try {
@@ -44,5 +44,21 @@ export async function uploadMultipleImagesHandler(req: Request, res: Response) {
   } catch (err: any) {
     console.error('Cloudinary multiple upload error:', err);
     return res.status(500).json({ error: err.message || 'Multiple image upload failed' });
+  }
+}
+
+export async function deleteImageHandler(req: Request, res: Response) {
+  try {
+    const { url, publicId } = req.body;
+    const target = url || publicId || req.query.url || req.query.publicId;
+    if (!target) {
+      return res.status(400).json({ error: 'Image url or publicId required' });
+    }
+
+    const success = await deleteImageFromCloudinary(String(target));
+    return res.json({ success, message: success ? 'Image deleted from Cloudinary' : 'Cloudinary deletion returned not ok' });
+  } catch (err: any) {
+    console.error('Delete image error:', err);
+    return res.status(500).json({ error: err.message || 'Image deletion failed' });
   }
 }
