@@ -60,7 +60,7 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 animate-in fade-in duration-200 items-start">
       
       {/* TRADE LIST SIDEBAR */}
-      <div className="lg:col-span-4 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-4 lg:sticky lg:top-[80px] self-start h-[calc(100vh-104px)] max-h-[calc(100vh-104px)] flex flex-col shadow-lg">
+      <div className="lg:col-span-4 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-4 lg:sticky lg:top-0 self-start h-[calc(100vh-104px)] max-h-[calc(100vh-104px)] flex flex-col shadow-lg">
         <div className="flex items-center justify-between mb-3">
           <span className="font-sora font-semibold text-sm text-[var(--text-hi)]">Trade Analysis</span>
           <span className="font-mono text-xs text-[var(--text-low)]">{trades.length} trades</span>

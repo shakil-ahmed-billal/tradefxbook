@@ -57,7 +57,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-hi)] font-inter antialiased flex transition-colors duration-200">
+    <div className="h-screen w-screen overflow-hidden bg-[var(--bg-deep)] text-[var(--text-hi)] font-inter antialiased flex transition-colors duration-200">
       {/* Sidebar */}
       <Sidebar
         user={user}
@@ -68,7 +68,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       />
 
       {/* Main Content — flex-1 fills remaining width */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <TopBar
           user={user}
           onOpenSearch={() => setIsSearchOpen(true)}
@@ -78,7 +78,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         />
 
         {/* Full-width content — no max-w constraint */}
-        <main className="flex-1 p-3.5 lg:p-5 w-full">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-5 w-full">
           {children}
         </main>
       </div>
