@@ -273,22 +273,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div
                     key={trade.id}
                     onClick={() => { onSelectTrade(trade); onNavigateToJournal(); }}
-                    className="flex items-center gap-3 p-2.5 rounded-xl bg-[#161b27] border border-[#1a2029] hover:border-[#2a2f42] cursor-pointer transition-colors"
+                    className="flex items-center gap-3 p-2.5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-soft)] hover:bg-[var(--bg-hover)] hover:border-[#2981eb] cursor-pointer transition-colors"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-[#1c2230] border border-[#232a3a] flex items-center justify-center font-mono text-xs font-bold text-[#9aa2b3] shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--bg-panel)] border border-[var(--border-soft)] flex items-center justify-center font-mono text-xs font-bold text-[var(--text-mid)] shrink-0">
                       {trade.pairCode}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-xs text-[#f4f6fa]">{trade.symbol}</span>
+                        <span className="font-semibold text-xs text-[var(--text-hi)]">{trade.symbol}</span>
                         <span className={`font-mono text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${
                           trade.type === 'long' ? 'text-[#22c58b] bg-[#22c58b]/10' : 'text-[#ef4b5c] bg-[#ef4b5c]/10'
                         }`}>
                           {trade.type}
                         </span>
                       </div>
-                      <div className="text-[11px] text-[#5c6478] mt-0.5">
+                      <div className="text-[11px] text-[var(--text-low)] mt-0.5">
                         {trade.openTime ? trade.openTime.slice(0, 10) : 'N/A'}
                       </div>
                     </div>
@@ -297,7 +297,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className={`font-mono text-xs font-bold ${Number(trade.pnl) < 0 ? 'text-[#ef4b5c]' : 'text-[#22c58b]'}`}>
                         {fmt(Number(trade.pnl))}
                       </div>
-                      <div className="font-mono text-[10px] text-[#5c6478] mt-0.5">{trade.size} lots</div>
+                      <div className="font-mono text-[10px] text-[var(--text-low)] mt-0.5">{trade.size} lots</div>
                     </div>
                   </div>
                 ))}

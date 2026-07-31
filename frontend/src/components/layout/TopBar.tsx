@@ -82,10 +82,10 @@ export const TopBar: React.FC<TopBarProps> = ({
         </button>
 
         <div className="flex flex-col">
-          <h1 className="font-outfit text-base lg:text-[18px] font-semibold text-[#f4f6fa] leading-tight">
+          <h1 className="font-outfit text-base lg:text-[18px] font-semibold text-[var(--text-hi)] leading-tight">
             {getPageTitle(pathname)}
           </h1>
-          <span className="text-[11px] text-[#5c6478] font-mono tracking-tight hidden sm:inline-block">
+          <span className="text-[11px] text-[var(--text-low)] font-mono tracking-tight hidden sm:inline-block">
             {dateString || 'FRI, JUL 31 · 2026'}
           </span>
         </div>
@@ -94,13 +94,13 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* Center Search Trigger */}
       <button
         onClick={onOpenSearch}
-        className="hidden md:flex items-center gap-2.5 bg-[#141824] border border-[#212636] rounded-xl px-3 py-1.5 text-[#5c6478] text-13px w-64 lg:w-72 hover:border-[#2a2f42] transition-colors cursor-pointer"
+        className="hidden md:flex items-center gap-2.5 bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl px-3 py-1.5 text-[var(--text-low)] text-13px w-64 lg:w-72 hover:border-[#2981eb] transition-colors cursor-pointer"
       >
-        <Search className="w-4 h-4 text-[#5c6478] shrink-0" />
-        <span className="flex-1 text-left text-xs lg:text-sm text-[#5c6478] truncate">
+        <Search className="w-4 h-4 text-[var(--text-low)] shrink-0" />
+        <span className="flex-1 text-left text-xs lg:text-sm text-[var(--text-low)] truncate">
           Search trades, symbols...
         </span>
-        <kbd className="font-mono text-[10px] bg-[#1a1f2c] px-1.5 py-0.5 rounded text-[#9aa2b3]">
+        <kbd className="font-mono text-[10px] bg-[var(--bg-hover)] border border-[var(--border-soft)] px-1.5 py-0.5 rounded text-[var(--text-mid)] font-semibold">
           ⌘K
         </kbd>
       </button>
@@ -111,23 +111,23 @@ export const TopBar: React.FC<TopBarProps> = ({
 
         <button
           onClick={onOpenAddTrade}
-          className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#2981eb] text-white hover:bg-[#5aa2f2] transition-colors"
+          className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#2981eb] text-white hover:bg-[#5aa2f2] transition-colors cursor-pointer shadow-md"
           title="Add New Trade"
         >
           <Plus className="w-4 h-4" />
         </button>
 
-        <div className="hidden sm:flex items-center gap-1.5 font-mono text-xs text-[#9aa2b3] px-2 py-1 bg-[#141824] border border-[#212636] rounded-lg">
+        <div className="hidden sm:flex items-center gap-1.5 font-mono text-xs text-[var(--text-mid)] px-2 py-1 bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-lg">
           <Clock className="w-3.5 h-3.5 text-[#5aa2f2]" />
           <span>{timeString || '12:02:49 AM'}</span>
         </div>
 
         <button 
-          className="w-9 h-9 rounded-lg flex items-center justify-center bg-transparent hover:bg-[#141824] border border-transparent hover:border-[#212636] text-[#9aa2b3] hover:text-[#f4f6fa] transition-colors relative"
+          className="w-9 h-9 rounded-lg flex items-center justify-center bg-transparent hover:bg-[var(--bg-hover)] border border-transparent hover:border-[var(--border-soft)] text-[var(--text-mid)] hover:text-[var(--text-hi)] transition-colors relative cursor-pointer"
           title="Notifications"
         >
           <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#ef4b5c] ring-2 ring-[#0e1017]" />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#ef4b5c] ring-2 ring-[var(--bg-panel)]" />
         </button>
 
         {/* User Menu Dropdown */}

@@ -214,33 +214,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Link 
               href="/dashboard/settings"
               onClick={handleNavClick}
-              className="flex items-center gap-2.5 bg-[#141824] border border-[#212636] rounded-xl p-2.5 mb-3 cursor-pointer hover:border-[#2a2f42] transition-colors"
+              className="flex items-center gap-2.5 bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-2.5 mb-3 cursor-pointer hover:border-[#2981eb] transition-colors"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2981eb] to-[#1a5bb0] flex items-center justify-center font-outfit font-bold text-xs text-white shrink-0 relative">
                 {user.avatarInitials}
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#22c58b] border-2 border-[#141824]" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#22c58b] border-2 border-[var(--bg-elevated)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold text-[#f4f6fa] truncate">{user.name}</span>
-                  <span className="font-mono text-[9px] tracking-wider text-[#9aa2b3] bg-[#1a1f2c] px-1.5 py-0.5 rounded">
+                  <span className="text-xs font-semibold text-[var(--text-hi)] truncate">{user.name}</span>
+                  <span className="font-mono text-[9px] tracking-wider text-[var(--text-mid)] bg-[var(--bg-hover)] border border-[var(--border-soft)] px-1.5 py-0.5 rounded uppercase font-bold">
                     {user.plan}
                   </span>
                 </div>
-                <span className="text-[11px] text-[#5c6478] block truncate">{user.email}</span>
+                <span className="text-[11px] text-[var(--text-low)] block truncate">{user.email}</span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-[#5c6478] shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-[var(--text-low)] shrink-0" />
             </Link>
           ) : (
             <div className="relative group mb-3 flex justify-center">
               <Link href="/dashboard/settings" onClick={handleNavClick} className="block">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2981eb] to-[#1a5bb0] flex items-center justify-center font-outfit font-bold text-xs text-white relative">
                   {user.avatarInitials}
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#22c58b] border-2 border-[#141824]" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#22c58b] border-2 border-[var(--bg-elevated)]" />
                 </div>
               </Link>
               <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 z-[100] pointer-events-none">
-                <div className="bg-[#1c2230] border border-[#2a3244] text-[#f4f6fa] text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] text-[var(--text-hi)] text-xs font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
                   {user.name} · {user.plan}
                 </div>
               </div>
@@ -249,11 +249,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Menu Label */}
           {!isCollapsed && (
-            <span className="font-mono text-[10px] tracking-widest text-[#5c6478] px-1 mb-1 block font-semibold uppercase">
+            <span className="font-mono text-[10px] tracking-widest text-[var(--text-low)] px-1 mb-1 block font-semibold uppercase">
               Menu
             </span>
           )}
-          {isCollapsed && <div className="w-full border-t border-[#1a1e2b] mb-2" />}
+          {isCollapsed && <div className="w-full border-t border-[var(--border-soft)] mb-2" />}
 
           {/* Main Nav */}
           <NavItem href="/dashboard" icon={<Home className="w-4 h-4" />} label="Home" isActive={currentTab === 'home'} isCollapsed={isCollapsed} onClick={handleNavClick} />
@@ -269,10 +269,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   setAnalysisExpanded(!analysisExpanded);
                   if (!analysisExpanded) router.push('/dashboard/performance');
                 }}
-                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] font-medium transition-colors relative w-full text-left ${
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] font-medium transition-colors relative w-full text-left cursor-pointer ${
                   (currentTab === 'performance' || currentTab === 'trade-analysis')
-                    ? 'bg-[rgba(41,129,235,0.14)] text-[#5aa2f2]' 
-                    : 'text-[#9aa2b3] hover:bg-[#1a1f2c] hover:text-[#f4f6fa]'
+                    ? 'bg-[#2981eb]/15 text-[#2981eb] dark:text-[#5aa2f2] font-semibold' 
+                    : 'text-[var(--text-mid)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-hi)]'
                 }`}
               >
                 {(currentTab === 'performance' || currentTab === 'trade-analysis') && (
@@ -284,14 +284,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
 
               {analysisExpanded && (
-                <div className="flex flex-col gap-0.5 my-1 ml-7 pl-2.5 border-l border-[#212636]">
+                <div className="flex flex-col gap-0.5 my-1 ml-7 pl-2.5 border-l border-[var(--border-soft)]">
                   <Link
                     href="/dashboard/performance"
                     onClick={handleNavClick}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-[12.5px] font-medium transition-colors w-full text-left ${
                       currentTab === 'performance'
-                        ? 'text-[#5aa2f2] bg-[rgba(41,129,235,0.12)]'
-                        : 'text-[#5c6478] hover:bg-[#1a1f2c] hover:text-[#f4f6fa]'
+                        ? 'text-[#2981eb] dark:text-[#5aa2f2] bg-[#2981eb]/12 font-semibold'
+                        : 'text-[var(--text-low)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-hi)]'
                     }`}
                   >
                     <BarChart2 className="w-3.5 h-3.5" />
@@ -303,8 +303,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={handleNavClick}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-[12.5px] font-medium transition-colors w-full text-left ${
                       currentTab === 'trade-analysis'
-                        ? 'text-[#5aa2f2] bg-[rgba(41,129,235,0.12)]'
-                        : 'text-[#5c6478] hover:bg-[#1a1f2c] hover:text-[#f4f6fa]'
+                        ? 'text-[#2981eb] dark:text-[#5aa2f2] bg-[#2981eb]/12 font-semibold'
+                        : 'text-[var(--text-low)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-hi)]'
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />

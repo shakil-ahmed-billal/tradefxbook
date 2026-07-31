@@ -264,7 +264,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#1a2029] text-[11px] font-mono text-[#565e73] uppercase">
+                  <tr className="border-b border-[var(--border-soft)] text-[11px] font-mono text-[var(--text-low)] uppercase">
                     <th className="py-2.5 px-3">Symbol</th>
                     <th className="py-2.5 px-3">Type</th>
                     <th className="py-2.5 px-3">Entry</th>
@@ -273,28 +273,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <th className="py-2.5 px-3 text-right">Journal</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1a2029]">
+                <tbody className="divide-y divide-[var(--border-soft)]">
                   {trades.slice(0, 4).map(trade => (
-                    <tr key={trade.id} className="hover:bg-[#161b27]/60 text-xs transition-colors">
+                    <tr key={trade.id} className="hover:bg-[var(--bg-hover)] text-xs transition-colors">
                       <td className="py-3 px-3">
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-[#161b27] border border-[#232a3a] flex items-center justify-center font-mono text-[9px] font-bold text-[#8d94a8]">
+                          <span className="w-6 h-6 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] flex items-center justify-center font-mono text-[9px] font-bold text-[var(--text-mid)]">
                             {trade.pairCode}
                           </span>
-                          <span className="font-semibold text-[#eef1f8]">{trade.symbol}</span>
+                          <span className="font-semibold text-[var(--text-hi)]">{trade.symbol}</span>
                         </div>
                       </td>
                       <td className="py-3 px-3 font-mono">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          trade.type === 'long' ? 'text-[#00d9a3] bg-[#00d9a3]/15' : 'text-[#ff5c7a] bg-[#ff5c7a]/15'
+                          trade.type === 'long' ? 'text-[#10b981] bg-[#10b981]/15' : 'text-[#ef4444] bg-[#ef4444]/15'
                         }`}>
                           {trade.type.toUpperCase()}
                         </span>
                       </td>
-                      <td className="py-3 px-3 font-mono text-[#8d94a8]">${trade.entryPrice}</td>
-                      <td className="py-3 px-3 font-mono text-[#8d94a8]">${trade.exitPrice}</td>
+                      <td className="py-3 px-3 font-mono text-[var(--text-mid)]">${trade.entryPrice}</td>
+                      <td className="py-3 px-3 font-mono text-[var(--text-mid)]">${trade.exitPrice}</td>
                       <td className="py-3 px-3 font-mono font-bold">
-                        <span className={Number(trade.pnl) >= 0 ? 'text-[#00d9a3]' : 'text-[#ff5c7a]'}>
+                        <span className={Number(trade.pnl) >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]'}>
                           {fmt(Number(trade.pnl))}
                         </span>
                       </td>
