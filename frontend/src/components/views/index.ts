@@ -1,0 +1,13 @@
+export { AuthView } from './AuthView';
+export { DashboardView } from './DashboardView';
+export { JournalView } from './JournalView';
+export { PerformanceView } from './PerformanceView';
+export { TradesView } from './TradesView';
+export { TradeAnalysisView } from './TradeAnalysisView';
+export { SettingsView } from './SettingsView';
+export { MarketView } from './MarketView';
+export { ToolsView } from './ToolsView';
+export { BacktestingView } from './BacktestingView';
+export { AiReportView } from './AiReportView';
+export { TradersLoungeView } from './TradersLoungeView';
+export { HomeView } from './HomeView';
