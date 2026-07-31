@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as tradesService from './trades.service';
-import { PlanTier } from '../../../generated/prisma/client';
+import { PlanTier } from '@prisma/client';
 
 export async function listTradesHandler(req: Request, res: Response) {
   try {
