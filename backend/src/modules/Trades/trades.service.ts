@@ -214,14 +214,19 @@ export async function syncMt5Trades(payload: {
     type: string;
     lots?: number;
     size?: number;
+    quantity?: number;
     openPrice?: number;
+    entryPrice?: number;
     closePrice?: number;
+    exitPrice?: number;
     pnl?: number;
     profit?: number;
     commission?: number;
     swap?: number;
     openTime?: string;
+    openedAt?: string;
     closeTime?: string;
+    closedAt?: string;
     status?: 'OPEN' | 'CLOSED';
   }>;
 }) {

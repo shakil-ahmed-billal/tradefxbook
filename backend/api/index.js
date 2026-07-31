@@ -304,19 +304,24 @@ async function listTrades(userId, plan, query) {
   const limit = query.limit ? Number(query.limit) : 500;
   const page = query.page ? Number(query.page) : 1;
   const skip = (page - 1) * limit;
+  const where = { userId };
+  if (query.symbol && String(query.symbol) !== "undefined") {
+    where.symbol = { contains: String(query.symbol), mode: "insensitive" };
+  }
+  if (query.type && String(query.type) !== "undefined") {
+    where.type = query.type;
+  }
+  if (query.source && String(query.source) !== "undefined") {
+    where.source = query.source;
+  }
   const trades = await prisma.trade.findMany({
-    where: {
-      userId,
-      symbol: query.symbol ? { contains: query.symbol, mode: "insensitive" } : void 0,
-      type: query.type,
-      source: query.source
-    },
+    where,
     orderBy: { openedAt: "desc" },
     take: limit,
     skip,
     include: { journalEntry: true }
   });
-  const total = await prisma.trade.count({ where: { userId } });
+  const total = await prisma.trade.count({ where });
   return {
     data: trades,
     meta: {
@@ -474,33 +479,23 @@ async function upsertJournal(userId, tradeId, data) {
   });
 }
 async function syncMt5Trades(payload) {
-  const rawId = payload.apiKey || payload.userId || '';
+  const rawId = payload.apiKey || payload.userId || "";
   const cleanId = String(rawId).trim();
-  console.log(`[MT5 SYNC] Attempting user lookup for: ${cleanId}`);
-
-  let user = cleanId
-    ? await prisma.user.findFirst({
-        where: {
-          OR: [
-            { id: cleanId },
-            { clerkId: cleanId },
-            { email: { equals: cleanId, mode: 'insensitive' } }
-          ]
-        }
-      })
-    : null;
-
+  let user = cleanId ? await prisma.user.findFirst({
+    where: {
+      OR: [
+        { id: cleanId },
+        { clerkId: cleanId },
+        { email: { equals: cleanId, mode: "insensitive" } }
+      ]
+    }
+  }) : null;
   if (!user) {
-    console.log(`[MT5 SYNC] User not found by id/email, using first user fallback`);
     user = await prisma.user.findFirst();
   }
-
   if (!user) {
     throw new Error(`Invalid API key or User ID (${cleanId}): user not found in DB`);
   }
-
-  console.log(`[MT5 SYNC] User found: ${user.email}, trades count: ${payload.trades?.length || 0}`);
-
   if (!Array.isArray(payload.trades) || payload.trades.length === 0) {
     return { success: true, count: 0, message: "No trades provided in payload" };
   }
@@ -520,8 +515,14 @@ async function syncMt5Trades(payload) {
     const pnl = item.pnl ?? item.profit ? Number(item.pnl ?? item.profit) : null;
     const commission = Number(item.commission ?? 0);
     const swap = Number(item.swap ?? 0);
-    const openedAt = new Date(item.openTime ?? item.openedAt ?? Date.now());
-    const closedAt = item.closeTime ?? item.closedAt ? new Date(item.closeTime ?? item.closedAt) : null;
+    const parseTime = (rawStr) => {
+      if (!rawStr) return null;
+      const str = String(rawStr).replace(/\./g, "-");
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? null : d;
+    };
+    const openedAt = parseTime(item.openTime ?? item.openedAt) || /* @__PURE__ */ new Date();
+    const closedAt = parseTime(item.closeTime ?? item.closedAt);
     const existingTrade = ticketStr ? await prisma.trade.findFirst({
       where: {
         userId: user.id,
@@ -587,6 +588,7 @@ async function listTradesHandler(req, res) {
     });
     res.json(result);
   } catch (err) {
+    console.error("listTradesHandler Error:", err);
     res.status(500).json({ error: err.message });
   }
 }
@@ -649,9 +651,11 @@ async function syncMt5TradesHandler(req, res) {
       apiKey: apiKey || req.body?.apiKey,
       userId: userId || req.body?.userId
     };
+    console.log(`[MT5 WEBHOOK INCOMING]: ${payload.trades?.length || 0} trades for key: ${payload.apiKey || payload.userId}`);
     const result = await syncMt5Trades(payload);
     res.json(result);
   } catch (err) {
+    console.error("[MT5 WEBHOOK ERROR]:", err);
     res.status(400).json({ error: err.message });
   }
 }
