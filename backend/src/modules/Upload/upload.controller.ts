@@ -1,19 +1,24 @@
 import { Request, Response } from 'express';
-import { uploadImageToCloudinary, uploadBase64ToCloudinary } from '../../utils/cloudinary';
+import { CloudinaryHelper } from '../../config/cloudinary.config';
 
 export async function uploadSingleImageHandler(req: Request, res: Response) {
   try {
     if (req.file) {
-      const imageUrl = await uploadImageToCloudinary(req.file.buffer, 'tradefxbook/journals');
-      return res.json({ url: imageUrl, success: true });
+      const fileName = req.file.originalname || `trade-chart-${Date.now()}.png`;
+      const result = await CloudinaryHelper.uploadFile(req.file.buffer, fileName);
+      return res.json({ url: result.secure_url, success: true });
     }
 
     if (req.body.image) {
-      const imageUrl = await uploadBase64ToCloudinary(req.body.image, 'tradefxbook/journals');
-      return res.json({ url: imageUrl, success: true });
+      // If base64 string provided
+      const base64Data = req.body.image;
+      const buffer = Buffer.from(base64Data.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+      const fileName = `trade-chart-${Date.now()}.png`;
+      const result = await CloudinaryHelper.uploadFile(buffer, fileName);
+      return res.json({ url: result.secure_url, success: true });
     }
 
-    return res.status(400).json({ error: 'No image file or base64 data provided' });
+    return res.status(400).json({ error: 'No image file provided' });
   } catch (err: any) {
     console.error('Cloudinary upload error:', err);
     return res.status(500).json({ error: err.message || 'Image upload failed' });
@@ -26,16 +31,9 @@ export async function uploadMultipleImagesHandler(req: Request, res: Response) {
 
     if (req.files && Array.isArray(req.files)) {
       for (const file of req.files) {
-        const url = await uploadImageToCloudinary(file.buffer, 'tradefxbook/journals');
-        urls.push(url);
-      }
-      return res.json({ urls, success: true });
-    }
-
-    if (req.body.images && Array.isArray(req.body.images)) {
-      for (const img of req.body.images) {
-        const url = await uploadBase64ToCloudinary(img, 'tradefxbook/journals');
-        urls.push(url);
+        const fileName = file.originalname || `trade-chart-${Date.now()}.png`;
+        const result = await CloudinaryHelper.uploadFile(file.buffer, fileName);
+        urls.push(result.secure_url);
       }
       return res.json({ urls, success: true });
     }

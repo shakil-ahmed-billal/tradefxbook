@@ -682,51 +682,76 @@ var dashboard_routes_default = router3;
 import { Router as Router4 } from "express";
 import multer from "multer";
 
-// src/utils/cloudinary.ts
+// src/config/cloudinary.config.ts
 import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dl6twwnqv",
-  api_key: process.env.CLOUDINARY_API_KEY || "582918856444237",
-  api_secret: process.env.CLOUDINARY_API_SECRET || "6bKTUfGDWLDoYmR-rxSSmSnunEo",
-  secure: true
+  cloud_name: config_default.cloudinary.cloud_name,
+  api_key: config_default.cloudinary.api_key,
+  api_secret: config_default.cloudinary.api_secret
 });
-async function uploadImageToCloudinary(fileBuffer, folder = "tradefxbook/journals") {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: "auto"
-      },
-      (error, result) => {
-        if (error || !result) {
-          return reject(error || new Error("Cloudinary upload failed"));
+var CloudinaryHelper = {
+  uploadFile: async (fileBuffer, fileName) => {
+    if (!fileBuffer || !fileName) {
+      throw new Error("File buffer and file name are required for upload");
+    }
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    const fileNameWithoutExtension = fileName.split(".").slice(0, -1).join(".").toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
+    const uniqueName = Math.random().toString(36).substring(2) + "-" + Date.now() + "-" + fileNameWithoutExtension;
+    const folderName = extension === "pdf" ? "pdfs" : "images";
+    const folder = `job-mailer/${folderName}`;
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder,
+          public_id: uniqueName,
+          resource_type: "auto"
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
         }
-        resolve(result.secure_url);
+      );
+      streamifier.createReadStream(fileBuffer).pipe(uploadStream);
+    });
+  },
+  deleteFile: async (url) => {
+    try {
+      const regex = /\/v\d+\/(.+?)(?:\.[a-zA-Z0-9]+)+$/;
+      const match = url.match(regex);
+      if (match && match[1]) {
+        const publicId = match[1];
+        const result = await cloudinary.uploader.destroy(publicId, {
+          resource_type: "image"
+        });
+        return result.result === "ok";
       }
-    );
-    uploadStream.end(fileBuffer);
-  });
-}
-async function uploadBase64ToCloudinary(base64Data, folder = "tradefxbook/journals") {
-  const result = await cloudinary.uploader.upload(base64Data, {
-    folder,
-    resource_type: "auto"
-  });
-  return result.secure_url;
-}
+      return false;
+    } catch (error) {
+      console.error("Cloudinary deletion error:", error);
+      return false;
+    }
+  }
+};
+var uploadFileToCloudinary = CloudinaryHelper.uploadFile;
+var deleteFileFromCloudinary = CloudinaryHelper.deleteFile;
 
 // src/modules/Upload/upload.controller.ts
 async function uploadSingleImageHandler(req, res) {
   try {
     if (req.file) {
-      const imageUrl = await uploadImageToCloudinary(req.file.buffer, "tradefxbook/journals");
-      return res.json({ url: imageUrl, success: true });
+      const fileName = req.file.originalname || `trade-chart-${Date.now()}.png`;
+      const result = await CloudinaryHelper.uploadFile(req.file.buffer, fileName);
+      return res.json({ url: result.secure_url, success: true });
     }
     if (req.body.image) {
-      const imageUrl = await uploadBase64ToCloudinary(req.body.image, "tradefxbook/journals");
-      return res.json({ url: imageUrl, success: true });
+      const base64Data = req.body.image;
+      const buffer = Buffer.from(base64Data.replace(/^data:image\/\w+;base64,/, ""), "base64");
+      const fileName = `trade-chart-${Date.now()}.png`;
+      const result = await CloudinaryHelper.uploadFile(buffer, fileName);
+      return res.json({ url: result.secure_url, success: true });
     }
-    return res.status(400).json({ error: "No image file or base64 data provided" });
+    return res.status(400).json({ error: "No image file provided" });
   } catch (err) {
     console.error("Cloudinary upload error:", err);
     return res.status(500).json({ error: err.message || "Image upload failed" });
@@ -737,15 +762,9 @@ async function uploadMultipleImagesHandler(req, res) {
     const urls = [];
     if (req.files && Array.isArray(req.files)) {
       for (const file of req.files) {
-        const url = await uploadImageToCloudinary(file.buffer, "tradefxbook/journals");
-        urls.push(url);
-      }
-      return res.json({ urls, success: true });
-    }
-    if (req.body.images && Array.isArray(req.body.images)) {
-      for (const img of req.body.images) {
-        const url = await uploadBase64ToCloudinary(img, "tradefxbook/journals");
-        urls.push(url);
+        const fileName = file.originalname || `trade-chart-${Date.now()}.png`;
+        const result = await CloudinaryHelper.uploadFile(file.buffer, fileName);
+        urls.push(result.secure_url);
       }
       return res.json({ urls, success: true });
     }
