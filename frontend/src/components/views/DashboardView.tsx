@@ -134,6 +134,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     } else setCalMonth((m) => m + 1);
   };
 
+  // --- Performance range filtering (1D | 1W | 1M) ---
+  const latestTime = closedTrades.length > 0
+    ? Math.max(now.getTime(), ...closedTrades.map(t => new Date(t.openTime).getTime()).filter(t => !isNaN(t)))
+    : now.getTime();
+
+  const rangeFilteredClosedTrades = closedTrades.filter((t) => {
+    if (!t.openTime) return false;
+    const tTime = new Date(t.openTime).getTime();
+    if (isNaN(tTime)) return false;
+
+    const diffMs = latestTime - tTime;
+    if (activeRange === "1D") return diffMs <= 24 * 60 * 60 * 1000;
+    if (activeRange === "1W") return diffMs <= 7 * 24 * 60 * 60 * 1000;
+    if (activeRange === "1M") return diffMs <= 30 * 24 * 60 * 60 * 1000;
+    return true;
+  });
+
+  const performancePnL = rangeFilteredClosedTrades.reduce(
+    (acc, t) => acc + Number(t.pnl || 0),
+    0,
+  );
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-200">
       {/* STAT CARDS */}
@@ -234,15 +256,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
                 <div className="font-mono text-[11px] text-[var(--text-low)] uppercase tracking-wider mb-1">
-                  PERFORMANCE
+                  PERFORMANCE ({activeRange})
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span
-                    className={`font-mono text-2xl font-bold truncate ${totalPnL < 0 ? "text-[#ef4b5c]" : "text-[#22c58b]"}`}
+                    className={`font-mono text-2xl font-bold truncate ${performancePnL < 0 ? "text-[#ef4b5c]" : "text-[#22c58b]"}`}
                   >
-                    {fmt(totalPnL)}
+                    {fmt(performancePnL)}
                   </span>
-                  <span className="text-xs text-[var(--text-low)]">all time</span>
+                  <span className="text-xs text-[var(--text-low)]">
+                    {activeRange === "1D" ? "last 24h" : activeRange === "1W" ? "last 7d" : "last 30d"}
+                  </span>
                 </div>
               </div>
 
@@ -285,12 +309,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     >
                       <stop
                         offset="0%"
-                        stopColor={totalPnL < 0 ? "#ef4b5c" : "#22c58b"}
+                        stopColor={performancePnL < 0 ? "#ef4b5c" : "#22c58b"}
                         stopOpacity="0.22"
                       />
                       <stop
                         offset="100%"
-                        stopColor={totalPnL < 0 ? "#ef4b5c" : "#22c58b"}
+                        stopColor={performancePnL < 0 ? "#ef4b5c" : "#22c58b"}
                         stopOpacity="0"
                       />
                     </linearGradient>
@@ -307,13 +331,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     />
                   ))}
                   {(() => {
-                    // Build cumulative equity curve from sorted closed trades
-                    const sorted = [...closedTrades].sort(
+                    const sorted = [...rangeFilteredClosedTrades].sort(
                       (a, b) =>
                         new Date(a.openTime).getTime() -
                         new Date(b.openTime).getTime(),
                     );
-                    if (sorted.length < 2) return null;
+                    if (sorted.length === 0) {
+                      return (
+                        <text x="380" y="100" textAnchor="middle" fill="var(--text-low)" className="font-mono text-xs">
+                          No trades recorded in {activeRange === "1D" ? "last 24 hours" : activeRange === "1W" ? "last 7 days" : "last 30 days"}
+                        </text>
+                      );
+                    }
+                    if (sorted.length === 1) {
+                      const pVal = Number(sorted[0].pnl || 0);
+                      const color = pVal < 0 ? "#ef4b5c" : "#22c58b";
+                      return (
+                        <>
+                          <line x1="0" y1="100" x2="760" y2="100" stroke={color} strokeWidth="2" strokeDasharray="4 4" />
+                          <circle cx="380" cy="100" r="5" fill="var(--bg-panel)" stroke={color} strokeWidth="3" />
+                        </>
+                      );
+                    }
                     let cum = 0;
                     const points = sorted.map((t) => {
                       cum += Number(t.pnl || 0);
@@ -332,7 +371,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       .join(" ");
                     const lastX = toX(points.length - 1);
                     const lastY = toY(points[points.length - 1]);
-                    const color = totalPnL < 0 ? "#ef4b5c" : "#22c58b";
+                    const color = performancePnL < 0 ? "#ef4b5c" : "#22c58b";
                     return (
                       <>
                         <path
