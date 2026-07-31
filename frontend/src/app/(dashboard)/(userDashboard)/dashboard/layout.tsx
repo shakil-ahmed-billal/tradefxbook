@@ -78,7 +78,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         />
 
         {/* Full-width content — no max-w constraint */}
-        <main className="flex-1 p-5 lg:p-7 w-full">
+        <main className="flex-1 p-3.5 lg:p-5 w-full">
           {children}
         </main>
       </div>
