@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — TradeFXBook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#090b10;
+    --bg-panel:#0e1017;
+    --bg-elevated:#141824;
+    --border:#212636;
+    --border-soft:#1a1e2b;
+    --accent:#2981eb;
+    --accent-soft:#5aa2f2;
+    --accent-dim:rgba(41,129,235,.14);
+    --profit:#22c58b;
+    --loss:#ef4b5c;
+    --text-hi:#f4f6fa;
+    --text-mid:#9aa2b3;
+    --text-low:#5c6478;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg-deep);
+    color:var(--text-hi);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .shell{
+    display:grid;
+    grid-template-columns:440px 1fr;
+    min-height:100vh;
+  }
+
+  /* ================= LEFT ================= */
+  .left{
+    background:var(--bg-panel);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:40px 48px 32px;
+    border-right:1px solid var(--border-soft);
+    position:relative;
+    z-index:2;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand svg{height:22px;width:auto;color:var(--text-hi);}
+  .brand span{
+    font-family:'Outfit',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:-0.01em;
+  }
+
+  .form-wrap{
+    width:100%;
+    max-width:340px;
+    margin:0 auto;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:6px;height:6px;border-radius:50%;
+    background:var(--profit);
+    box-shadow:0 0 0 3px rgba(34,197,139,.18);
+  }
+  h1{
+    font-family:'Outfit',sans-serif;
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    line-height:1.15;
+    margin-bottom:8px;
+  }
+  .sub{
+    color:var(--text-mid);
+    font-size:14.5px;
+    line-height:1.5;
+    margin-bottom:30px;
+  }
+
+  .social-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:12px 16px;
+    background:var(--bg-elevated);
+    border:1px solid var(--border);
+    border-radius:10px;
+    color:var(--text-hi);
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .social-btn:hover{border-color:#39415a; transform:translateY(-1px);}
+  .social-btn svg{width:17px;height:17px;}
+
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:22px 0;
+    color:var(--text-low);
+    font-size:12px;
+  }
+  .divider::before,.divider::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--border);
+  }
+
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:500;
+    color:var(--text-mid);
+    margin-bottom:7px;
+  }
+  .input-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+  .input-wrap svg{
+    position:absolute;
+    left:14px;
+    width:16px;height:16px;
+    color:var(--text-low);
+    pointer-events:none;
+  }
+  .input-wrap input{
+    width:100%;
+    background:var(--bg-elevated);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px 12px 40px;
+    font-size:14px;
+    color:var(--text-hi);
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    font-family:'Inter',sans-serif;
+  }
+  .input-wrap input::placeholder{color:var(--text-low);}
+  .input-wrap input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-dim);
+  }
+
+  .submit-btn{
+    width:100%;
+    padding:12.5px 16px;
+    margin-top:6px;
+    border:none;
+    border-radius:10px;
+    background:var(--accent);
+    color:#fff;
+    font-size:14.5px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .submit-btn:hover{background:var(--accent-soft); transform:translateY(-1px);}
+  .submit-btn svg{width:15px;height:15px;}
+
+  .terms{
+    margin-top:22px;
+    font-size:12px;
+    color:var(--text-low);
+    line-height:1.6;
+    text-align:center;
+  }
+  .terms a{color:var(--text-mid); text-decoration:none; border-bottom:1px solid var(--border);}
+  .terms a:hover{color:var(--accent-soft); border-color:var(--accent-soft);}
+
+  .foot{
+    font-size:12px;
+    color:var(--text-low);
+    display:flex;
+    justify-content:space-between;
+  }
+  .foot a{color:var(--text-low); text-decoration:none;}
+
+  /* ================= RIGHT ================= */
+  .right{
+    position:relative;
+    background:
+      radial-gradient(1100px 700px at 15% -10%, rgba(41,129,235,.18), transparent 55%),
+      radial-gradient(900px 600px at 100% 100%, rgba(34,197,139,.08), transparent 50%),
+      var(--bg-deep);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:56px 64px;
+    overflow:hidden;
+  }
+  .grid-overlay{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--border-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(circle at 60% 40%, black 0%, transparent 75%);
+    opacity:.5;
+  }
+
+  .right-top{position:relative; z-index:2; max-width:480px;}
+  .tag-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.06em;
+    color:var(--profit);
+    background:rgba(34,197,139,.08);
+    border:1px solid rgba(34,197,139,.25);
+    padding:6px 12px;
+    border-radius:100px;
+    margin-bottom:22px;
+  }
+  .tag-pill::before{content:'▲';font-size:9px;}
+  .right h2{
+    font-family:'Outfit',sans-serif;
+    font-size:38px;
+    font-weight:700;
+    line-height:1.12;
+    letter-spacing:-0.02em;
+    margin-bottom:16px;
+  }
+  .right h2 em{
+    font-style:normal;
+    background:linear-gradient(90deg,var(--accent-soft),var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .right p{
+    color:var(--text-mid);
+    font-size:15px;
+    line-height:1.6;
+    max-width:400px;
+  }
+
+  /* Signature: animated equity / candlestick panel */
+  .chart-card{
+    position:relative;
+    z-index:2;
+    background:rgba(20,24,36,.55);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:22px 24px 18px;
+    backdrop-filter:blur(6px);
+    margin:28px 0;
+  }
+  .chart-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:14px;
+  }
+  .chart-head .pair{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--text-mid);
+    letter-spacing:.03em;
+  }
+  .chart-head .val{
+    font-family:'JetBrains Mono',monospace;
+    font-size:20px;
+    font-weight:600;
+    color:var(--text-hi);
+  }
+  .chart-head .delta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    color:var(--profit);
+    text-align:right;
+  }
+  svg.chart{display:block; width:100%; height:130px;}
+  .equity-line{
+    fill:none;
+    stroke:var(--accent);
+    stroke-width:2.2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:900;
+    stroke-dashoffset:900;
+    animation:draw 2.6s cubic-bezier(.4,0,.2,1) .3s forwards;
+    filter:drop-shadow(0 0 6px rgba(41,129,235,.5));
+  }
+  .equity-fill{
+    opacity:0;
+    animation:fadein 1.2s ease 1.8s forwards;
+  }
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  @keyframes fadein{to{opacity:1;}}
+  .candle{opacity:0; animation:pop .4s ease forwards;}
+  @keyframes pop{from{opacity:0; transform:scaleY(.4);} to{opacity:1; transform:scaleY(1);}}
+
+  .stats-row{
+    position:relative; z-index:2;
+    display:flex;
+    gap:36px;
+  }
+  .stat .v{
+    font-family:'JetBrains Mono',monospace;
+    font-size:20px;
+    font-weight:600;
+    color:var(--text-hi);
+    display:block;
+  }
+  .stat .l{
+    font-size:12px;
+    color:var(--text-low);
+    margin-top:3px;
+  }
+
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr;}
+    .right{display:none;}
+    .left{border-right:none;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- LEFT: AUTH -->
+  <section class="left">
+    <div class="brand">
+      <svg viewBox="0 0 443 209" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M154.851 31.749C156.716 31.749 158.129 33.4327 157.806 35.2694L151.113 73.2694C150.86 74.7034 149.614 75.749 148.158 75.749H103.942C102.487 75.749 101.241 76.7938 100.988 78.227L78.3641 206.271C78.1109 207.704 76.8654 208.749 75.4099 208.749H26.0027C24.1371 208.749 22.7239 207.064 23.0485 205.227L45.3039 79.271C45.6285 77.4338 44.2153 75.749 42.3496 75.749H3.00082C1.13582 75.749 -0.277217 74.0654 0.0462986 72.2286L6.73948 34.2286C6.99207 32.7946 8.23791 31.749 9.694 31.749H154.851Z" fill="currentColor"></path><path d="M391.523 31.749C407.523 31.749 419.939 34.9158 428.773 41.249C437.773 47.4157 442.273 56.499 442.273 68.499C442.273 71.3324 442.023 74.4157 441.523 77.749C439.689 88.0823 435.439 96.8324 428.773 103.999C423.987 109.024 418.513 112.847 412.353 115.467C410.437 116.282 410.428 119.751 412.315 120.629C417.366 122.977 421.435 126.267 424.523 130.499C429.189 136.499 431.523 143.582 431.523 151.749C431.523 154.416 431.273 157.249 430.773 160.249C428.106 175.749 420.856 187.749 409.023 196.249C397.356 204.582 381.939 208.749 362.773 208.749H272.407C271.163 208.749 270.221 207.626 270.437 206.401L281.183 145.535C281.464 143.942 283.423 143.325 284.567 144.469L313.037 172.939C316.187 176.089 321.572 173.859 321.573 169.404V33.749C321.573 32.6445 322.468 31.749 323.573 31.749H391.523ZM333.92 161.914C333.712 163.135 334.653 164.249 335.891 164.249H358.773C363.773 164.249 367.606 163.332 370.273 161.499C373.106 159.499 374.856 156.332 375.523 151.999C375.689 151.166 375.773 150.082 375.773 148.749C375.773 142.416 371.523 139.249 363.023 139.249H339.461C338.486 139.249 337.653 139.952 337.49 140.914L333.92 161.914ZM344.947 98.3947C344.726 99.6214 345.669 100.749 346.915 100.749H366.023C371.023 100.749 374.939 99.7489 377.773 97.749C380.606 95.749 382.356 92.6656 383.023 88.499C383.189 87.6657 383.273 86.5824 383.273 85.249C383.273 81.9157 382.189 79.499 380.023 77.999C378.023 76.4992 374.856 75.749 370.523 75.749H350.695C349.727 75.749 348.898 76.4421 348.727 77.3947L344.947 98.3947Z" fill="currentColor"></path><path d="M125.644 207.097C125.475 208.052 124.645 208.749 123.674 208.749H89.3091C88.0653 208.749 87.1231 207.626 87.3397 206.401L101.309 127.405C101.384 126.979 101.595 126.589 101.91 126.294L143.063 87.7252C144.466 86.4105 146.734 87.639 146.4 89.5322L125.644 207.097ZM314.511 159.674C314.511 161.456 312.357 162.349 311.097 161.089L274.985 124.976C274.227 124.219 273.007 124.193 272.218 124.917L180.925 208.749H180.924L180.923 208.748L192.313 143.654C192.48 142.697 193.311 141.999 194.283 141.999H240.929C241.898 141.999 242.727 141.306 242.898 140.353L249.679 102.603C249.9 101.376 248.957 100.249 247.711 100.249H202.479C201.238 100.249 200.296 99.1302 200.508 97.9072L204.065 77.4072C204.231 76.4488 205.062 75.749 206.035 75.749H272.174C273.144 75.749 273.975 75.052 274.143 74.096L281.189 34.096C281.404 32.8715 280.462 31.749 279.219 31.749H182.586C182.055 31.749 181.547 31.5383 181.172 31.1632L153.423 3.41421C152.163 2.15428 153.055 0 154.837 0H312.511C313.616 0 314.511 0.89543 314.511 2V159.674Z" fill="#2981EB"></path></svg>
+      <span>TradeFXBook</span>
+    </div>
+
+    <div class="form-wrap">
+      <div class="eyebrow">Journal online</div>
+      <h1>Welcome back, trader</h1>
+      <p class="sub">Sign in to review your open positions and today's journal entries.</p>
+
+      <button type="button" class="social-btn">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+
+      <div class="divider">OR CONTINUE WITH EMAIL</div>
+
+      <form onsubmit="return false;">
+        <div class="field">
+          <label for="email">Email address</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M22 7l-10 6L2 7"></path></svg>
+            <input id="email" type="email" placeholder="you@tradingdesk.com" autocomplete="email" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="pass">Password</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          Sign in
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </button>
+      </form>
+
+      <p class="terms">By continuing, you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a></p>
+    </div>
+
+    <div class="foot">
+      <span>© 2026 TradeFXBook</span>
+      <a href="/support">Need help?</a>
+    </div>
+  </section>
+
+  <!-- RIGHT: SHOWCASE / SIGNATURE -->
+  <section class="right">
+    <div class="grid-overlay"></div>
+
+    <div class="right-top">
+      <div class="tag-pill">Live journal · +18.4% this month</div>
+      <h2>Every trade, <em>logged and understood.</em></h2>
+      <p>MT4/MT5 auto-sync, real analytics, and a global desk of traders — TradeFXBook turns your history into your edge.</p>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div>
+          <div class="pair">EQUITY CURVE — 30D</div>
+          <div class="val">$48,206.40</div>
+        </div>
+        <div class="delta">▲ +12.7%<br><span style="color:var(--text-low)">since last sync</span></div>
+      </div>
+      <svg class="chart" viewBox="0 0 480 130" preserveAspectRatio="none">
+        <!-- candlesticks -->
+        <g stroke="var(--profit)" stroke-width="2">
+          <line class="candle" x1="20" y1="60" x2="20" y2="95" style="animation-delay:.1s"></line>
+          <line class="candle" x1="45" y1="50" x2="45" y2="80" style="animation-delay:.2s"></line>
+          <line class="candle" x1="70" y1="70" x2="70" y2="100" stroke="var(--loss)" style="animation-delay:.3s"></line>
+          <line class="candle" x1="95" y1="40" x2="95" y2="75" style="animation-delay:.4s"></line>
+          <line class="candle" x1="120" y1="55" x2="120" y2="90" stroke="var(--loss)" style="animation-delay:.5s"></line>
+          <line class="candle" x1="145" y1="30" x2="145" y2="65" style="animation-delay:.6s"></line>
+        </g>
+        <!-- equity line + fill -->
+        <path class="equity-fill" d="M0,110 C40,105 60,90 90,85 C130,78 150,60 190,55 C230,50 250,40 290,32 C330,25 350,20 400,14 C430,10 460,8 480,5 L480,130 L0,130 Z" fill="url(#g)"></path>
+        <path class="equity-line" d="M0,110 C40,105 60,90 90,85 C130,78 150,60 190,55 C230,50 250,40 290,32 C330,25 350,20 400,14 C430,10 460,8 480,5"></path>
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2981EB" stop-opacity="0.35"></stop>
+            <stop offset="100%" stop-color="#2981EB" stop-opacity="0"></stop>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><span class="v">12,847</span><span class="l">Active traders</span></div>
+      <div class="stat"><span class="v">8.2M</span><span class="l">Trades synced</span></div>
+      <div class="stat"><span class="v">99.99%</span><span class="l">Uptime</span></div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

@@ -24,6 +24,7 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
 }) => {
   const [activeTradeId, setActiveTradeId] = useState<string>(selectedTradeId || trades[0]?.id || '');
   const [activeTab, setActiveTab] = useState<'All' | 'Winners' | 'Losers'>('All');
+  const [visibleCount, setVisibleCount] = useState<number>(15);
 
   const activeTrade = trades.find(t => t.id === activeTradeId) || trades[0];
 
@@ -79,8 +80,17 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
           ))}
         </div>
 
-        <div className="flex flex-col gap-2 max-h-[520px] overflow-y-auto">
-          {filteredTrades.map(trade => (
+        <div 
+          className="flex flex-col gap-2 overflow-y-auto"
+          style={{ maxHeight: 'calc(100vh - 220px)' }}
+          onScroll={(e) => {
+            const target = e.target as HTMLDivElement;
+            if (target.scrollHeight - target.scrollTop <= target.clientHeight + 50) {
+              setVisibleCount(prev => Math.min(prev + 15, filteredTrades.length));
+            }
+          }}
+        >
+          {filteredTrades.slice(0, visibleCount).map(trade => (
             <button
               key={trade.id}
               onClick={() => setActiveTradeId(trade.id)}

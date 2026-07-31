@@ -180,7 +180,7 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
     });
     const min = Math.min(...dds), max = 0;
     const range = max - min || 1;
-    const toY = (v: number) => 30 + ((v-max)/range)*180;
+    const toY = (v: number) => 30 + ((max-v)/range)*180;
     const toX = (i: number) => (i/(dds.length-1))*700;
     return { pts: dds, toX, toY };
   }, [sortedTrades]);
@@ -593,13 +593,13 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
             </div>
           </div>
 
-          <div className="bg-[#161b27] border border-[#1a2029] rounded-xl p-4 flex flex-col min-h-[240px]">
+          <div className="bg-[#161b27] border border-[#1a2029] rounded-xl p-4 flex flex-col h-full">
             <h4 className="font-semibold text-xs text-[#eef1f8] mb-3 flex items-center gap-2">
               <Clock className="w-4 h-4 text-[#7aa0ff]"/>
               Day Trades — {MONTH_NAMES[currentMonth].slice(0,3)} {selectedDay}, {currentYear}
             </h4>
             {selDayData && selDayData.trades.length > 0 ? (
-              <div className="flex flex-col gap-2 overflow-y-auto max-h-[300px] pr-1">
+              <div className="flex flex-col gap-2 overflow-y-auto h-[400px] pr-1">
                 {selDayData.trades.map(t => (
                   <div key={t.id} onClick={() => onSelectTrade(t)}
                     className="p-2.5 rounded-lg bg-[#10141d] border border-[#232a3a] flex items-center justify-between text-xs cursor-pointer hover:border-[#7aa0ff] transition-colors">
@@ -677,14 +677,14 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
           <h3 className="font-sora text-sm font-semibold text-[#eef1f8] flex items-center gap-2 mb-1">
             <Clock className="w-4 h-4 text-[#7aa0ff]"/> Recent Trades
           </h3>
-          <p className="text-xs text-[#565e73] mb-4">Your last 10 trades</p>
+          <p className="text-xs text-[#565e73] mb-4">Your last 4 trades</p>
           {filteredTrades.length === 0 ? (
             <div className="text-center text-[#565e73] text-xs py-12">No trades in this period.</div>
           ) : (
             <div className="flex flex-col divide-y divide-[#1a2029]">
               {[...filteredTrades]
                 .sort((a,b) => new Date(b.openTime).getTime() - new Date(a.openTime).getTime())
-                .slice(0,10)
+                .slice(0,4)
                 .map(t => (
                   <div key={t.id} onClick={() => onSelectTrade(t)}
                     className="flex items-center gap-3 py-2.5 cursor-pointer hover:bg-[#161b27]/60 rounded transition-colors px-1">
