@@ -7,7 +7,7 @@ export async function listTradesHandler(req: Request, res: Response) {
     const { page, limit, symbol, type, source } = req.query;
     const result = await tradesService.listTrades(req.userId!, req.userPlan as PlanTier, {
       page: Number(page) || 1,
-      limit: Number(limit) || 15,
+      limit: limit ? Number(limit) : 1000,
       symbol: symbol as string,
       type: type as any,
       source: source as any,

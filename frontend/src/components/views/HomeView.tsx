@@ -23,6 +23,14 @@ interface HomeViewProps {
   onOpenConnectBroker: () => void;
 }
 
+function fmt(num: number): string {
+  const abs = Math.abs(num);
+  const sign = num < 0 ? '-' : '+';
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(2)}M`;
+  if (abs >= 100_000) return `${sign}$${(abs / 1_000).toFixed(1)}K`;
+  return `${sign}$${abs.toFixed(2)}`;
+}
+
 export const HomeView: React.FC<HomeViewProps> = ({
   trades,
   user,
@@ -31,8 +39,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenConnectBroker,
 }) => {
   const closedTrades = trades.filter(t => t.status === 'closed');
-  const totalPnL = closedTrades.reduce((acc, t) => acc + t.pnl, 0);
-  const winCount = closedTrades.filter(t => t.pnl > 0).length;
+  const totalPnL = closedTrades.reduce((acc, t) => acc + Number(t.pnl || 0), 0);
+  const winCount = closedTrades.filter(t => Number(t.pnl) > 0).length;
   const winRate = closedTrades.length > 0 ? (winCount / closedTrades.length) * 100 : 0;
   const journaledCount = trades.filter(t => t.journalStatus === 'Journaled').length;
 
@@ -90,8 +98,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="bg-[#090c12]/70 border border-[#1f2636] rounded-2xl p-4 sm:p-5 backdrop-blur-md min-w-[260px] flex flex-col gap-3">
             <div className="flex items-center justify-between text-xs pb-2 border-b border-[#1a2029]">
               <span className="text-[#8d94a8]">Net Profit / Loss</span>
-              <span className={`font-mono font-bold ${totalPnL >= 0 ? 'text-[#00d9a3]' : 'text-[#ff5c7a]'}`}>
-                {totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(2)}
+              <span className={`font-mono font-bold truncate ${totalPnL >= 0 ? 'text-[#00d9a3]' : 'text-[#ff5c7a]'}`}>
+                {fmt(totalPnL)}
               </span>
             </div>
 
@@ -286,8 +294,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <td className="py-3 px-3 font-mono text-[#8d94a8]">${trade.entryPrice}</td>
                       <td className="py-3 px-3 font-mono text-[#8d94a8]">${trade.exitPrice}</td>
                       <td className="py-3 px-3 font-mono font-bold">
-                        <span className={trade.pnl >= 0 ? 'text-[#00d9a3]' : 'text-[#ff5c7a]'}>
-                          {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
+                        <span className={Number(trade.pnl) >= 0 ? 'text-[#00d9a3]' : 'text-[#ff5c7a]'}>
+                          {fmt(Number(trade.pnl))}
                         </span>
                       </td>
                       <td className="py-3 px-3 text-right">

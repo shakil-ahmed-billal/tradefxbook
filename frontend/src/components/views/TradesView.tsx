@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { 
   Plus, 
   Filter, 
@@ -9,7 +10,9 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   PenTool,
-  Upload
+  Upload,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Trade } from '../../types';
 
@@ -34,6 +37,18 @@ export const TradesView: React.FC<TradesViewProps> = ({
   onShareTrade,
   onSelectTradeForJournal,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(trades.length / itemsPerPage) || 1;
+
+  const paginatedTrades = trades.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const startItem = trades.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, trades.length);
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-200">
       {/* PAGE HEADER */}
@@ -89,7 +104,9 @@ export const TradesView: React.FC<TradesViewProps> = ({
         <div className="flex items-center justify-between p-5 border-b border-[#1a2029]">
           <div className="flex items-baseline gap-2.5">
             <h3 className="font-sora font-semibold text-base text-[#f4f6fa]">Trade History</h3>
-            <span className="font-mono text-xs text-[#5c6478]">{trades.length} of {trades.length} trades</span>
+            <span className="font-mono text-xs text-[#5c6478]">
+              {startItem}-{endItem} of {trades.length} trades
+            </span>
           </div>
 
           <button className="flex items-center gap-1.5 text-xs font-semibold text-[#8d94a8] bg-[#161b27] border border-[#232a3a] px-3.5 py-2 rounded-xl hover:border-[#2a2f42] transition-colors">
@@ -99,110 +116,151 @@ export const TradesView: React.FC<TradesViewProps> = ({
           </button>
         </div>
 
-        {/* Plan Notice Banner */}
-        <div className="mx-5 mt-4 bg-[#4c7dff]/10 border border-[#4c7dff]/25 text-[#8d94a8] text-xs px-4 py-2.5 rounded-xl">
-          Free plan loads <b className="text-[#7aa0ff]">your last 15 trades</b>. Upgrade to Pro to unlock full history and longer timeframes.
-        </div>
-
         {/* Table */}
         <div className="overflow-x-auto p-5">
-          <table className="w-full text-left border-collapse min-w-[800px]">
-            <thead>
-              <tr className="border-b border-[#232a3a]">
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Open / Close</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Symbol</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Type</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Entry</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Exit</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Size</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">P&L</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Source</th>
-                <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1a2029]">
-              {trades.map(trade => (
-                <tr key={trade.id} className="hover:bg-[#161b27] transition-colors group">
-                  <td className="py-3.5 px-3">
-                    <div className="flex flex-col gap-1 text-[11.5px]">
-                      <div className="flex gap-1.5">
-                        <span className="text-[#565e73] w-9">Open:</span>
-                        <span className="font-mono text-[#8d94a8]">{trade.openTime.slice(5, 16).replace('T', ' ')}</span>
-                      </div>
-                      <div className="flex gap-1.5">
-                        <span className="text-[#565e73] w-9">Close:</span>
-                        <span className="font-mono text-[#8d94a8]">{trade.closeTime.slice(5, 16).replace('T', ' ')}</span>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#161b27] border border-[#232a3a] flex items-center justify-center font-mono text-[8px] font-bold text-[#8d94a8]">
-                        {trade.pairCode}
-                      </span>
-                      <span className="font-semibold text-xs text-[#eef1f8]">{trade.symbol}</span>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-3">
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full ${
-                      trade.type === 'long' ? 'text-[#00d9a3] bg-[#00d9a3]/10' : 'text-[#ff5c7a] bg-[#ff5c7a]/10'
-                    }`}>
-                      {trade.type === 'long' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                      {trade.type === 'long' ? 'Long' : 'Short'}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-3 font-mono text-xs text-[#8d94a8]">${trade.entryPrice}</td>
-                  <td className="py-3.5 px-3 font-mono text-xs text-[#8d94a8]">${trade.exitPrice}</td>
-                  <td className="py-3.5 px-3 font-mono text-xs text-[#8d94a8]">{trade.size}</td>
-
-                  <td className="py-3.5 px-3">
-                    <span className={`font-mono text-xs font-bold ${trade.pnl < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}`}>
-                      {trade.pnl < 0 ? '-' : '+'}${Math.abs(trade.pnl).toFixed(2)}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-3">
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#161b27] border border-[#232a3a] text-[#8d94a8]">
-                      <PenTool className="w-3 h-3" />
-                      {trade.source}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => onSelectTradeForJournal(trade)}
-                        className="p-1.5 rounded-lg text-[#565e73] hover:text-[#7aa0ff] hover:bg-[#1c2230] transition-colors"
-                        title="Open in Journal"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => onShareTrade(trade)}
-                        className="p-1.5 rounded-lg text-[#565e73] hover:text-[#7aa0ff] hover:bg-[#1c2230] transition-colors"
-                        title="Share Trade"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button
-                        onClick={() => onDeleteTrade(trade.id)}
-                        className="p-1.5 rounded-lg text-[#565e73] hover:text-[#ff5c7a] hover:bg-[#ff5c7a]/10 transition-colors"
-                        title="Delete Trade"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
+          {trades.length === 0 ? (
+            <div className="py-12 text-center text-[#5c6478]">
+              <p className="text-sm font-medium">No trades recorded yet.</p>
+              <p className="text-xs mt-1">Import your Exness CSV or click "Add Trade" to log your first trade.</p>
+            </div>
+          ) : (
+            <table className="w-full text-left border-collapse min-w-[800px]">
+              <thead>
+                <tr className="border-b border-[#232a3a]">
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Open / Close</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Symbol</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Type</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Entry</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Exit</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Size</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">P&L</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3">Source</th>
+                  <th className="font-mono text-[10.5px] font-semibold tracking-wider text-[#565e73] uppercase pb-3 px-3 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#1a2029]">
+                {paginatedTrades.map(trade => (
+                  <tr key={trade.id} className="hover:bg-[#161b27] transition-colors group">
+                    <td className="py-3.5 px-3">
+                      <div className="flex flex-col gap-1 text-[11.5px]">
+                        <div className="flex gap-1.5">
+                          <span className="text-[#565e73] w-9">Open:</span>
+                          <span className="font-mono text-[#8d94a8]">
+                            {trade.openTime ? trade.openTime.slice(5, 16).replace('T', ' ') : 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex gap-1.5">
+                          <span className="text-[#565e73] w-9">Close:</span>
+                          <span className="font-mono text-[#8d94a8]">
+                            {trade.closeTime ? trade.closeTime.slice(5, 16).replace('T', ' ') : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-6 h-6 rounded-full bg-[#161b27] border border-[#232a3a] flex items-center justify-center font-mono text-[8px] font-bold text-[#8d94a8]">
+                          {trade.pairCode}
+                        </span>
+                        <span className="font-semibold text-xs text-[#eef1f8]">{trade.symbol}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-3">
+                      <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full ${
+                        trade.type === 'long' ? 'text-[#00d9a3] bg-[#00d9a3]/10' : 'text-[#ff5c7a] bg-[#ff5c7a]/10'
+                      }`}>
+                        {trade.type === 'long' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                        {trade.type === 'long' ? 'Long' : 'Short'}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-3 font-mono text-xs text-[#8d94a8]">${Number(trade.entryPrice).toFixed(2)}</td>
+                    <td className="py-3.5 px-3 font-mono text-xs text-[#8d94a8]">${Number(trade.exitPrice).toFixed(2)}</td>
+                    <td className="py-3.5 px-3 font-mono text-xs text-[#8d94a8]">{trade.size}</td>
+
+                    <td className="py-3.5 px-3">
+                      <span className={`font-mono text-xs font-bold ${Number(trade.pnl) < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}`}>
+                        {Number(trade.pnl) < 0 ? '-' : '+'}${Math.abs(Number(trade.pnl)).toFixed(2)}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-3">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#161b27] border border-[#232a3a] text-[#8d94a8]">
+                        <PenTool className="w-3 h-3" />
+                        {trade.source}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => onSelectTradeForJournal(trade)}
+                          className="p-1.5 rounded-lg text-[#565e73] hover:text-[#7aa0ff] hover:bg-[#1c2230] transition-colors"
+                          title="Open in Journal"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => onShareTrade(trade)}
+                          className="p-1.5 rounded-lg text-[#565e73] hover:text-[#7aa0ff] hover:bg-[#1c2230] transition-colors"
+                          title="Share Trade"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => onDeleteTrade(trade.id)}
+                          className="p-1.5 rounded-lg text-[#565e73] hover:text-[#ff5c7a] hover:bg-[#ff5c7a]/10 transition-colors"
+                          title="Delete Trade"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
+
+        {/* PAGINATION CONTROLS */}
+        {trades.length > 0 && (
+          <div className="flex items-center justify-between px-5 py-4 border-t border-[#1a2029] bg-[#0e1017]">
+            <div className="text-xs text-[#5c6478] font-mono">
+              Showing <span className="text-[#f4f6fa] font-semibold">{startItem}</span> to{' '}
+              <span className="text-[#f4f6fa] font-semibold">{endItem}</span> of{' '}
+              <span className="text-[#f4f6fa] font-semibold">{trades.length}</span> trades
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#161b27] border border-[#232a3a] text-[#8d94a8] hover:text-[#f4f6fa] hover:border-[#2a2f42] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                Previous
+              </button>
+
+              <span className="text-xs font-mono text-[#8d94a8] px-2">
+                Page <strong className="text-[#f4f6fa]">{currentPage}</strong> of <strong>{totalPages}</strong>
+              </span>
+
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#161b27] border border-[#232a3a] text-[#8d94a8] hover:text-[#f4f6fa] hover:border-[#2a2f42] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+              >
+                Next
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* MT4/MT5 UPSELL CARD */}
@@ -213,7 +271,7 @@ export const TradesView: React.FC<TradesViewProps> = ({
           </div>
           <div>
             <h3 className="font-sora text-base font-bold text-[#eef1f8]">MT4/MT5 Auto-Sync</h3>
-            <p className="text-xs text-[#565e73] mt-0.5">Upgrade to Pro to connect your trading account</p>
+            <p className="text-xs text-[#565e73] mt-0.5">Connect your broker account to auto-sync trades</p>
           </div>
         </div>
 
@@ -231,23 +289,13 @@ export const TradesView: React.FC<TradesViewProps> = ({
           ))}
         </div>
 
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-[#4c7dff]/15 text-[#7aa0ff]">
-            Pro: 3 accounts
-          </span>
-          <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-[#a78bfa]/15 text-[#a78bfa]">
-            Elite: Unlimited
-          </span>
-        </div>
-
         <button
           onClick={onOpenConnectBroker}
           className="w-full py-3 rounded-xl bg-gradient-to-r from-[#2981eb] to-[#3a63d9] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#2981eb]/25 hover:brightness-110 transition-all"
         >
           <Sparkles className="w-4 h-4" />
-          Upgrade to Pro & Connect
+          Connect MT4/MT5 Account
         </button>
-        <p className="text-center text-[11.5px] text-[#565e73] mt-3">Free plan supports manual trade entry only</p>
       </section>
     </div>
   );

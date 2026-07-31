@@ -196,7 +196,7 @@ export const TradeAnalysisView: React.FC<TradeAnalysisViewProps> = ({
             <div className="flex items-center gap-4 text-xs font-mono">
               <div><span className="text-[10px] text-[#565e73] block">Entry</span><span className="text-[#eef1f8]">${activeTrade.entryPrice}</span></div>
               <div><span className="text-[10px] text-[#565e73] block">Exit</span><span className="text-[#eef1f8]">${activeTrade.exitPrice}</span></div>
-              <div><span className="text-[10px] text-[#565e73] block">P&L</span><span className={activeTrade.pnl < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}>${activeTrade.pnl.toFixed(2)}</span></div>
+              <div><span className="text-[10px] text-[#565e73] block">P&L</span><span className={Number(activeTrade.pnl) < 0 ? 'text-[#ff5c7a]' : 'text-[#00d9a3]'}>{Number(activeTrade.pnl) < 0 ? '-' : '+'}${Math.abs(Number(activeTrade.pnl)).toFixed(2)}</span></div>
             </div>
           </div>
 

@@ -9,6 +9,7 @@ import { authClient } from '@/lib/auth-client';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const LS_USER_KEY = 'tradefxbook_user';
 const LS_AUTH_KEY = 'tradefxbook_authenticated';
+const LS_TRADES_KEY = 'tradefxbook_trades';
 
 /** Convert a raw backend/Prisma trade record to the frontend Trade shape */
 function mapApiTrade(raw: any): Trade {
@@ -107,10 +108,22 @@ function getLocalUser(): UserProfile | null {
   return null;
 }
 
+function getLocalTrades(): Trade[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem(LS_TRADES_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed.map(mapApiTrade);
+    }
+  } catch {}
+  return [];
+}
+
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
-  const [trades, setTrades] = useState<Trade[]>([]);
+  const [trades, setTrades] = useState<Trade[]>(getLocalTrades);
   const [user, setUser] = useState<UserProfile>(INITIAL_USER);
   const [selectedTradeId, setSelectedTradeId] = useState<string>('');
   const [isAddTradeOpen, setIsAddTradeOpen] = useState(false);
@@ -120,8 +133,14 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [shareTrade, setShareTrade] = useState<Trade | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // Track if we've done the auth check at least once
   const [authChecked, setAuthChecked] = useState(false);
+
+  // Sync trades to localStorage whenever trades change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LS_TRADES_KEY, JSON.stringify(trades));
+    }
+  }, [trades]);
 
   useEffect(() => {
     if (isPending) return; // Still resolving session, wait
@@ -141,8 +160,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       localStorage.setItem(LS_USER_KEY, JSON.stringify(resolvedUser));
       localStorage.setItem(LS_AUTH_KEY, '1');
 
-      // Fetch trades from backend
-      fetch(`${API_URL}/api/trades`, { credentials: 'include' })
+      // Fetch ALL trades from backend without 15 limitation
+      fetch(`${API_URL}/api/trades?limit=1000`, { credentials: 'include' })
         .then(res => res.ok ? res.json() : null)
         .then(result => {
           if (result?.data && Array.isArray(result.data)) {
@@ -151,13 +170,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             if (mapped.length > 0) setSelectedTradeId(String(mapped[0].id));
           }
         })
-        .catch(() => console.warn('Backend offline — trades not loaded.'))
+        .catch(() => console.warn('Backend offline — using local trades.'))
         .finally(() => { setIsLoading(false); setAuthChecked(true); });
 
     } else if (localUser) {
-      // ✅ Better-Auth session expired/unavailable but localStorage has a valid user
-      // Allow offline access — backend may just be temporarily down
+      // ✅ Offline mode with local trades
       setUser(localUser);
+      setTrades(getLocalTrades());
       setIsLoading(false);
       setAuthChecked(true);
     } else {
@@ -174,6 +193,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch {}
     localStorage.removeItem(LS_USER_KEY);
     localStorage.removeItem(LS_AUTH_KEY);
+    localStorage.removeItem(LS_TRADES_KEY);
     router.replace('/login');
   };
 
@@ -203,6 +223,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const handleClearAll = async () => {
     if (typeof window !== 'undefined' && window.confirm('Are you sure you want to clear all logged trades?')) {
       setTrades([]);
+      localStorage.removeItem(LS_TRADES_KEY);
     }
   };
 
@@ -220,19 +241,17 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch {}
   };
 
-  // Loading spinner while session resolves
   if (isPending || !authChecked) {
     return (
       <div className="min-h-screen bg-[#090b10] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 rounded-full border-2 border-[#2981eb] border-t-transparent animate-spin" />
-          <p className="text-xs text-[#5c6478] font-mono tracking-widest uppercase">Verifying session...</p>
+          <p className="text-xs text-[#5c6478] font-mono tracking-widest uppercase">Loading workspace...</p>
         </div>
       </div>
     );
   }
 
-  // After auth check: if no session & no local user, render nothing (redirect already fired)
   if (!session && !getLocalUser()) return null;
 
   return (
