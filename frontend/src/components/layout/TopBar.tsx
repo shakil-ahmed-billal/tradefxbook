@@ -70,7 +70,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   };
 
   return (
-    <header className="h-[64px] shrink-0 flex items-center justify-between px-4 lg:px-7 border-b border-[#1a1e2b] bg-[#0e1017] sticky top-0 z-30">
+    <header className="h-[64px] shrink-0 flex items-center justify-between px-4 lg:px-7 border-b border-[var(--border-soft)] bg-[var(--bg-panel)] text-[var(--text-hi)] sticky top-0 z-30 transition-colors duration-200">
       <div className="flex items-center gap-3">
         {/* Mobile menu toggle button */}
         <button

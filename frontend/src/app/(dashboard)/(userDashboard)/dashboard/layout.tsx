@@ -57,7 +57,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-[#f4f6fa] font-inter antialiased flex">
+    <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-hi)] font-inter antialiased flex transition-colors duration-200">
       {/* Sidebar */}
       <Sidebar
         user={user}

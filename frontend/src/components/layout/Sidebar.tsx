@@ -159,14 +159,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside className={`
-        fixed lg:sticky top-0 left-0 h-screen bg-[#0e1017] border-r border-[#1a1e2b]
+        fixed lg:sticky top-0 left-0 h-screen bg-[var(--bg-panel)] border-r border-[var(--border-soft)] text-[var(--text-hi)]
         flex flex-col z-50 transition-all duration-200 ease-in-out overflow-hidden shrink-0
         ${sidebarWidth}
         ${isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         
         {/* Logo Row */}
-        <div className={`flex items-center border-b border-[#1a1e2b] ${isCollapsed ? 'justify-center px-2 py-4' : 'px-4 py-4'}`}>
+        <div className={`flex items-center border-b border-[var(--border-soft)] ${isCollapsed ? 'justify-center px-2 py-4' : 'px-4 py-4'}`}>
           {isCollapsed ? (
             <Link href="/dashboard" onClick={handleNavClick} className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-[#2981eb] to-[#1a5bb0] shadow-lg shadow-[#2981eb]/25">
               <span className="font-outfit font-black text-white text-xs">FX</span>
