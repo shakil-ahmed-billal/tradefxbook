@@ -55,11 +55,11 @@ export const TradesView: React.FC<TradesViewProps> = ({
       />
 
       {/* TRADES TABLE */}
-      <div className="bg-[#0e1017] border border-[#1a1e2b] rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-[#1a1e2b] bg-[#141824]/50 text-[#5c6478] font-mono text-[11px] uppercase tracking-wider">
+              <tr className="border-b border-[var(--border-soft)] bg-[var(--bg-elevated)] text-[var(--text-low)] font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-3.5 px-4 font-medium">Symbol</th>
                 <th className="py-3.5 px-4 font-medium">Type</th>
                 <th className="py-3.5 px-4 font-medium">Lots</th>
@@ -70,11 +70,11 @@ export const TradesView: React.FC<TradesViewProps> = ({
                 <th className="py-3.5 px-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1a1e2b]/60">
+            <tbody className="divide-y divide-[var(--border-soft)]">
               {trades.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-[#5c6478]">
-                    No trades logged yet. Click <strong className="text-[#9aa2b3]">Add Trade</strong> or <strong className="text-[#9aa2b3]">Import CSV</strong> to start.
+                  <td colSpan={8} className="py-12 text-center text-[var(--text-low)]">
+                    No trades logged yet. Click <strong className="text-[var(--text-mid)]">Add Trade</strong> or <strong className="text-[var(--text-mid)]">Import CSV</strong> to start.
                   </td>
                 </tr>
               ) : (
@@ -83,8 +83,8 @@ export const TradesView: React.FC<TradesViewProps> = ({
                   const isProfit = pnlNum >= 0;
 
                   return (
-                    <tr key={trade.id} className="hover:bg-[#141824]/40 transition-colors group">
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#f4f6fa]">
+                    <tr key={trade.id} className="hover:bg-[var(--bg-hover)] transition-colors group">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[var(--text-hi)]">
                         {trade.symbol}
                       </td>
                       <td className="py-3.5 px-4">
@@ -103,9 +103,9 @@ export const TradesView: React.FC<TradesViewProps> = ({
                           {trade.type}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-[#9aa2b3]">{trade.size}</td>
-                      <td className="py-3.5 px-4 font-mono text-[#9aa2b3]">{trade.entryPrice}</td>
-                      <td className="py-3.5 px-4 font-mono text-[#9aa2b3]">
+                      <td className="py-3.5 px-4 font-mono text-[var(--text-mid)]">{trade.size}</td>
+                      <td className="py-3.5 px-4 font-mono text-[var(--text-mid)]">{trade.entryPrice}</td>
+                      <td className="py-3.5 px-4 font-mono text-[var(--text-mid)]">
                         {trade.exitPrice || '—'}
                       </td>
                       <td

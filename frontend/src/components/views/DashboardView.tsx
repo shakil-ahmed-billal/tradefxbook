@@ -113,7 +113,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="w-8 h-8 rounded-lg bg-[#2981eb]/15 text-[#5aa2f2] flex items-center justify-center">
               <DollarSign className="w-4 h-4" />
             </div>
-            <span className="font-mono text-[10px] font-semibold tracking-wider text-[#9aa2b3] bg-[#1c2230] px-2 py-0.5 rounded-full">
+            <span className="font-mono text-[10px] font-semibold tracking-wider text-[var(--text-mid)] bg-[var(--bg-elevated)] border border-[var(--border-soft)] px-2 py-0.5 rounded-full">
               All Time
             </span>
           </div>

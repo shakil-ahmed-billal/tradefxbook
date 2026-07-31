@@ -153,61 +153,57 @@ export const JournalView: React.FC<JournalViewProps> = ({
     <div className="flex flex-col lg:grid lg:grid-cols-[328px_1fr] gap-[20px] items-start animate-in fade-in duration-200">
       
       {/* TRADE LIST SIDEBAR */}
-      <div className="bg-[#0e1017] border border-[#212636] rounded-2xl overflow-hidden w-full flex flex-col h-120vh">
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl overflow-hidden w-full flex flex-col h-120vh">
         <div className="flex items-center justify-between p-4 pb-3">
-          <span className="font-outfit font-semibold text-[14.5px] text-[#f4f6fa]">Trade Journal</span>
+          <span className="font-outfit font-semibold text-[14.5px] text-[var(--text-hi)]">Trade Journal</span>
           <div className="flex items-center gap-[10px]">
-            <label className="flex items-center gap-1.5 text-[11.5px] text-[#9aa2b3] cursor-pointer">
-              <input type="checkbox" checked={isLive} onChange={e => setIsLive(e.target.checked)} className="accent-[#2981eb] w-[13px] h-[13px]" />
-              Live
+            <label className="flex items-center gap-1.5 text-[11.5px] text-[var(--text-mid)] cursor-pointer">
+              <input type="checkbox" checked={isLive} onChange={e => setIsLive(e.target.checked)} className="rounded" />
+              Live Sync
             </label>
-            <span className="font-mono text-[10.5px] text-[#5c6478] bg-[#141824] px-2 py-[3px] rounded-full border border-[#212636]">
-              {trades.length} entries
-            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#22c58b]" />
           </div>
         </div>
-        
-        <div className="flex gap-1 px-3 pb-3.5 overflow-x-auto no-scrollbar border-b border-[#1a1e2b]">
-          {(['All', 'Journaled', 'Pending', 'Legacy'] as const).map(tab => {
-            const count = trades.filter(t => tab === 'All' ? true : t.journalStatus === tab).length;
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => { setActiveTab(tab); setDisplayLimit(15); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium whitespace-nowrap transition-all border ${
-                  isActive ? 'bg-[#2981eb]/15 text-[#5aa2f2] border-[#2981eb]/30' : 'bg-transparent border-transparent text-[#9aa2b3] hover:bg-[#141824]'
-                }`}
-              >
-                {tab}
-                <span className={`font-mono text-[10px] px-1.5 py-[1px] rounded-full ${isActive ? 'bg-[#2981eb]/25' : 'bg-white/10'}`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+
+        {/* Tab switcher */}
+        <div className="grid grid-cols-4 gap-1 p-1 mx-4 mb-3 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-soft)]">
+          {(['All', 'Journaled', 'Pending', 'Legacy'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
+                activeTab === tab ? 'bg-[#2981eb] text-white' : 'text-[var(--text-mid)] hover:text-[var(--text-hi)]'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
-        <div 
-          onScroll={handleScroll}
-          className="flex flex-col px-2.5 pb-2.5 gap-1.5 overflow-y-auto max-h-[640px] pt-1.5"
-        >
-          {visibleTrades.map(trade => {
-            const isSel = activeTradeId === trade.id;
+        {/* Trade list */}
+        <div className="flex-1 overflow-y-auto px-3 pb-3 flex flex-col gap-1.5" onScroll={handleScroll}>
+          {filteredTrades.length === 0 ? (
+            <div className="text-center py-10 text-xs text-[var(--text-low)]">
+              No {activeTab.toLowerCase()} trades found
+            </div>
+          ) : visibleTrades.map(trade => {
+            const isSel = trade.id === activeTradeId;
             const isWin = Number(trade.pnl) >= 0;
             return (
               <button
                 key={trade.id}
                 onClick={() => setActiveTradeId(trade.id)}
-                className={`flex flex-col gap-2 p-3 rounded-xl text-left w-full transition-all border ${
-                  isSel ? 'bg-[#141824] border-[#2981eb] shadow-[inset_0_0_0_1px_rgba(41,129,235,0.25)]' : 'bg-transparent border-transparent hover:bg-[#141824]'
+                className={`flex flex-col gap-2 p-3 rounded-xl text-left w-full transition-all border cursor-pointer ${
+                  isSel
+                    ? 'bg-[var(--bg-elevated)] border-[#2981eb] shadow-[inset_0_0_0_1px_rgba(41,129,235,0.25)]'
+                    : 'bg-transparent border-transparent hover:bg-[var(--bg-hover)]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="w-[26px] h-[26px] rounded-full bg-[#1a1f2c] border border-[#212636] flex items-center justify-center font-mono text-[9px] font-bold text-[#9aa2b3] shrink-0">
+                  <span className="w-[26px] h-[26px] rounded-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] flex items-center justify-center font-mono text-[9px] font-bold text-[var(--text-mid)] shrink-0">
                     {trade.pairCode}
                   </span>
-                  <span className="text-[13px] font-semibold flex-1 tracking-[0.01em] text-[#f4f6fa]">{trade.symbol}</span>
+                  <span className="text-[13px] font-semibold flex-1 tracking-[0.01em] text-[var(--text-hi)]">{trade.symbol}</span>
                   <span className="font-mono text-[9px] font-semibold text-[#5aa2f2] bg-[#2981eb]/15 px-1.5 py-0.5 rounded-[5px]">
                     {trade.journalStatus === 'Journaled' ? 'Done' : 'New'}
                   </span>
@@ -216,12 +212,12 @@ export const JournalView: React.FC<JournalViewProps> = ({
                   <span className={`font-mono text-[10.5px] font-semibold px-[7px] py-[2px] rounded-[5px] ${trade.type === 'long' ? 'text-[#22c58b] bg-[#22c58b]/15' : 'text-[#ef4b5c] bg-[#ef4b5c]/15'}`}>
                     {trade.type === 'long' ? 'Long' : 'Short'}
                   </span>
-                  <span className="font-mono text-[#9aa2b3]">{trade.entryPrice}</span>
+                  <span className="font-mono text-[var(--text-mid)]">{trade.entryPrice}</span>
                   <span className={`ml-auto font-mono text-[12.5px] font-semibold ${isWin ? 'text-[#22c58b]' : 'text-[#ef4b5c]'}`}>
                     {isWin ? '+' : '-'}${Math.abs(Number(trade.pnl)).toFixed(2)}
                   </span>
                 </div>
-                <div className="text-[11px] text-[#5c6478] font-mono">
+                <div className="text-[11px] text-[var(--text-low)] font-mono">
                   {trade.openTime ? trade.openTime.slice(0, 16).replace('T', ', ') : 'N/A'}
                 </div>
               </button>
@@ -237,7 +233,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
       </div>
 
       {/* MAIN JOURNAL PANEL */}
-      <div className="bg-[#0e1017] border border-[#212636] rounded-2xl overflow-hidden w-full">
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl overflow-hidden w-full">
         
         {/* Detail Header */}
         <div className="flex items-start justify-between p-[18px_22px] border-b border-[#1a1e2b] gap-4 flex-wrap">

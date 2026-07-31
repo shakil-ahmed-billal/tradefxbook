@@ -263,51 +263,51 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
 
       {/* ── METRICS GRID ─────────────────────────────────────────────────── */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-[#121a2c] via-[#10141d] to-[#10141d] border border-[#253156] rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5 relative overflow-hidden">
           <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-[radial-gradient(circle,rgba(76,125,255,.18),transparent_70%)] pointer-events-none"/>
           <div className="w-9 h-9 rounded-xl bg-[#4c7dff]/15 text-[#7aa0ff] flex items-center justify-center mb-3"><DollarSign className="w-4.5 h-4.5"/></div>
-          <span className="text-xs text-[#8d94a8] font-medium block mb-1">Total P&L</span>
-          <span className={`font-mono text-2xl font-semibold tracking-tight block truncate ${totalPnL<0?'text-[#ff5c7a]':'text-[#00d9a3]'}`}>{fmt(totalPnL)}</span>
-          <div className="text-xs text-[#565e73] mt-2">From {filteredTrades.length} closed trades</div>
-          <div className="text-[11px] text-[#565e73] mt-2 pt-2 border-t border-[#1a2029]">Your net profit/loss for the selected period</div>
+          <span className="text-xs text-[var(--text-mid)] font-medium block mb-1">Total P&L</span>
+          <span className={`font-mono text-2xl font-semibold tracking-tight block truncate ${totalPnL<0?'text-[#ef4b5c]':'text-[#22c58b]'}`}>{fmt(totalPnL)}</span>
+          <div className="text-xs text-[var(--text-low)] mt-2">From {filteredTrades.length} closed trades</div>
+          <div className="text-[11px] text-[var(--text-low)] mt-2 pt-2 border-t border-[var(--border-soft)]">Your net profit/loss for the selected period</div>
         </div>
 
-        <div className="bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
+        <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5">
           <div className="w-9 h-9 rounded-xl bg-[#a78bfa]/15 text-[#a78bfa] flex items-center justify-center mb-3"><Target className="w-4.5 h-4.5"/></div>
-          <span className="text-xs text-[#8d94a8] font-medium block mb-1">Win Rate</span>
-          <span className={`font-mono text-2xl font-semibold tracking-tight block ${winRate>=50?'text-[#00d9a3]':'text-[#ff5c7a]'}`}>{winRate.toFixed(1)}%</span>
-          <div className="text-xs text-[#565e73] mt-1">{winners.length} wins • {losers.length} losses</div>
-          <div className="w-full h-1.5 rounded-full bg-[#1c2230] mt-3 overflow-hidden">
+          <span className="text-xs text-[var(--text-mid)] font-medium block mb-1">Win Rate</span>
+          <span className={`font-mono text-2xl font-semibold tracking-tight block ${winRate>=50?'text-[#22c58b]':'text-[#ef4b5c]'}`}>{winRate.toFixed(1)}%</span>
+          <div className="text-xs text-[var(--text-low)] mt-1">{winners.length} wins • {losers.length} losses</div>
+          <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)] mt-3 overflow-hidden">
             <div className="h-full rounded-full bg-gradient-to-r from-[#a78bfa] to-[#c4b5fd]" style={{width:`${winRate}%`}}/>
           </div>
-          <div className="text-[11px] text-[#565e73] mt-2 pt-2 border-t border-[#1a2029]">Percentage of profitable trades</div>
+          <div className="text-[11px] text-[var(--text-low)] mt-2 pt-2 border-t border-[var(--border-soft)]">Percentage of profitable trades</div>
         </div>
 
-        <div className="bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
+        <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5">
           <div className="w-9 h-9 rounded-xl bg-[#f2b84b]/15 text-[#f2b84b] flex items-center justify-center mb-3"><BarChart2 className="w-4.5 h-4.5"/></div>
-          <span className="text-xs text-[#8d94a8] font-medium block mb-1">Profit Factor</span>
-          <span className={`font-mono text-2xl font-semibold tracking-tight block ${profitFactor>=1?'text-[#00d9a3]':'text-[#ff5c7a]'}`}>{profitFactor===Infinity?'∞':profitFactor.toFixed(2)}</span>
-          <div className="text-xs text-[#565e73] mt-1">{profitFactor<1?'⚠ Needs work':'✓ Good ratio'}</div>
-          <div className="text-[11px] text-[#565e73] mt-2 pt-2 border-t border-[#1a2029]">Gross profit ÷ gross loss (above 1.5 is good)</div>
+          <span className="text-xs text-[var(--text-mid)] font-medium block mb-1">Profit Factor</span>
+          <span className={`font-mono text-2xl font-semibold tracking-tight block ${profitFactor>=1?'text-[#22c58b]':'text-[#ef4b5c]'}`}>{profitFactor===Infinity?'∞':profitFactor.toFixed(2)}</span>
+          <div className="text-xs text-[var(--text-low)] mt-1">{profitFactor<1?'⚠ Needs work':'✓ Good ratio'}</div>
+          <div className="text-[11px] text-[var(--text-low)] mt-2 pt-2 border-t border-[var(--border-soft)]">Gross profit ÷ gross loss (above 1.5 is good)</div>
         </div>
 
-        <div className="bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
-          <div className="w-9 h-9 rounded-xl bg-[#00d9a3]/15 text-[#00d9a3] flex items-center justify-center mb-3"><Activity className="w-4.5 h-4.5"/></div>
-          <span className="text-xs text-[#8d94a8] font-medium block mb-1">Expectancy</span>
-          <span className={`font-mono text-2xl font-semibold tracking-tight block truncate ${expectancy<0?'text-[#ff5c7a]':'text-[#00d9a3]'}`}>{fmt(expectancy)}</span>
-          <div className="text-xs text-[#565e73] mt-1">Average per trade</div>
-          <div className="text-[11px] text-[#565e73] mt-2 pt-2 border-t border-[#1a2029]">Expected profit per trade based on your stats</div>
+        <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5">
+          <div className="w-9 h-9 rounded-xl bg-[#22c58b]/15 text-[#22c58b] flex items-center justify-center mb-3"><Activity className="w-4.5 h-4.5"/></div>
+          <span className="text-xs text-[var(--text-mid)] font-medium block mb-1">Expectancy</span>
+          <span className={`font-mono text-2xl font-semibold tracking-tight block truncate ${expectancy<0?'text-[#ef4b5c]':'text-[#22c58b]'}`}>{fmt(expectancy)}</span>
+          <div className="text-xs text-[var(--text-low)] mt-1">Average per trade</div>
+          <div className="text-[11px] text-[var(--text-low)] mt-2 pt-2 border-t border-[var(--border-soft)]">Expected profit per trade based on your stats</div>
         </div>
       </section>
 
       {/* ── QUICK STATS + EQUITY CURVE ───────────────────────────────────── */}
       <section className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Quick Stats */}
-        <div className="lg:col-span-2 bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
-          <h3 className="font-sora text-sm font-semibold text-[#eef1f8] flex items-center gap-2 mb-1">
+        <div className="lg:col-span-2 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5">
+          <h3 className="font-sora text-sm font-semibold text-[var(--text-hi)] flex items-center gap-2 mb-1">
             <List className="w-4 h-4 text-[#7aa0ff]"/> Quick Stats
           </h3>
-          <p className="text-xs text-[#565e73] mb-4">Key trading metrics at a glance</p>
+          <p className="text-xs text-[var(--text-low)] mb-4">Key trading metrics at a glance</p>
           <div className="grid grid-cols-2 gap-2.5">
             {[
               {label:'Avg Winner',   val: avgWin > 0   ? `+$${avgWin.toFixed(2)}`  : '$0.00',   pos: true},
@@ -319,27 +319,27 @@ export const PerformanceView: React.FC<PerformanceViewProps> = ({ trades, onSele
               {label:'Risk:Reward',  val: rr !== '—' ? `1:${rr}` : '—',             pos: false},
               {label:'Open Trades',  val: `0`,                                       pos: null},
             ].map(({label,val,pos}) => (
-              <div key={label} className="bg-[#161b27] border border-[#1a2029] rounded-xl p-3">
-                <span className="text-[10.5px] text-[#565e73] block mb-1">{label}</span>
-                <span className={`font-mono text-sm font-semibold truncate block ${pos===true?'text-[#00d9a3]':pos===false?'text-[#ff5c7a]':'text-[#eef1f8]'}`}>{val}</span>
+              <div key={label} className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-3">
+                <span className="text-[10.5px] text-[var(--text-low)] block mb-1">{label}</span>
+                <span className={`font-mono text-sm font-semibold truncate block ${pos===true?'text-[#22c58b]':pos===false?'text-[#ef4b5c]':'text-[var(--text-hi)]'}`}>{val}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Equity Curve */}
-        <div className="lg:col-span-3 bg-[#10141d] border border-[#232a3a] rounded-2xl p-5">
+        <div className="lg:col-span-3 bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl p-5">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="font-sora text-sm font-semibold text-[#eef1f8] flex items-center gap-2 mb-1">
+              <h3 className="font-sora text-sm font-semibold text-[var(--text-hi)] flex items-center gap-2 mb-1">
                 <TrendingUp className="w-4 h-4 text-[#7aa0ff]"/> Equity Curve
               </h3>
-              <p className="text-xs text-[#565e73]">Cumulative P&L progression</p>
+              <p className="text-xs text-[var(--text-low)]">Cumulative P&L progression</p>
             </div>
-            <div className="flex items-center gap-1 bg-[#161b27] border border-[#232a3a] p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-[var(--bg-elevated)] border border-[var(--border-soft)] p-1 rounded-lg">
               {(['Equity','Drawdown'] as const).map(tab => (
                 <button key={tab} onClick={() => setEcTab(tab)}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${ecTab===tab?'bg-[#1c2230] text-[#eef1f8]':'text-[#565e73] hover:text-[#8d94a8]'}`}>
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer ${ecTab===tab?'bg-[#2981eb] text-white':'text-[var(--text-mid)] hover:text-[var(--text-hi)]'}`}>
                   {tab}
                 </button>
               ))}

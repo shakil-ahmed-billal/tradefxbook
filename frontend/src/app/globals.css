@@ -130,20 +130,19 @@
   border-color: var(--border) !important;
 }
 
-:root:not(.dark) .text-\[\#f4f6fa\] {
+:root:not(.dark) .text-\[\#f4f6fa\],
+:root:not(.dark) .text-\[\#eef1f8\] {
   color: var(--text-hi) !important;
 }
 
-:root:not(.dark) .text-\[\#9aa2b3\] {
-  color: var(--text-mid) !important;
-}
-
-:root:not(.dark) .text-\[\#5c6478\] {
-  color: var(--text-low) !important;
-}
-
+:root:not(.dark) .text-\[\#9aa2b3\],
 :root:not(.dark) .text-\[\#8d94a8\] {
   color: var(--text-mid) !important;
+}
+
+:root:not(.dark) .text-\[\#5c6478\],
+:root:not(.dark) .text-\[\#565e73\] {
+  color: var(--text-low) !important;
 }
 
 /* Custom font utilities */
