@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trade, UserProfile } from '@/types';
 import { INITIAL_USER } from '@/data/initialData';
@@ -78,6 +78,8 @@ interface DashboardContextType {
   handleDeleteTrade: (id: string) => void;
   handleClearAll: () => void;
   handleUpdateTradeJournal: (tradeId: string, updatedJournal: any) => void;
+  handleSyncTrades: () => Promise<number>;
+  isSyncingTrades: boolean;
   handleLogout: () => void;
   isAddTradeOpen: boolean;
   setIsAddTradeOpen: (open: boolean) => void;
@@ -142,18 +144,22 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [trades]);
 
+  const fetchedRef = useRef(false);
+
   useEffect(() => {
     if (isPending) return; // Still resolving session, wait
+    if (fetchedRef.current) return; // Prevent duplicate/looping API calls
 
     const localUser = getLocalUser();
+    const sessionEmail = session?.user?.email;
 
-    if (session) {
-      // ✅ Better-Auth session active
+    if (session && sessionEmail) {
+      fetchedRef.current = true;
       const resolvedUser: UserProfile = {
-        name: session.user.name || session.user.email.split('@')[0],
-        email: session.user.email,
+        name: session.user.name || sessionEmail.split('@')[0],
+        email: sessionEmail,
         plan: 'FREE',
-        avatarInitials: (session.user.name || session.user.email).charAt(0).toUpperCase(),
+        avatarInitials: (session.user.name || sessionEmail).charAt(0).toUpperCase(),
         isAuthenticated: true,
       };
       setUser(resolvedUser);
@@ -161,31 +167,55 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       localStorage.setItem(LS_AUTH_KEY, '1');
 
       // Fetch ALL trades from backend without 15 limitation
-      fetch(`${API_URL}/api/trades?limit=1000`, { credentials: 'include' })
+      const localTrades = getLocalTrades();
+      if (localTrades.length > 0) {
+        setTrades(localTrades);
+      }
+
+      fetch(`${API_URL}/api/trades?limit=1000&t=${Date.now()}`, { credentials: 'include', cache: 'no-store' })
         .then(res => res.ok ? res.json() : null)
-        .then(result => {
+        .then(async (result) => {
           if (result?.data && Array.isArray(result.data)) {
             const mapped = result.data.map(mapApiTrade);
-            setTrades(mapped);
-            if (mapped.length > 0) setSelectedTradeId(String(mapped[0].id));
+            if (mapped.length > 0) {
+              setTrades(mapped);
+              if (mapped.length > 0) setSelectedTradeId(String(mapped[0].id));
+            } else if (localTrades.length > 0) {
+              // DB has 0 trades — bulk insert local trades into DB!
+              try {
+                await fetch(`${API_URL}/api/trades/import-csv`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({ tradesData: localTrades }),
+                });
+                const res2 = await fetch(`${API_URL}/api/trades?limit=1000`, { credentials: 'include' });
+                if (res2.ok) {
+                  const r2 = await res2.json();
+                  if (r2?.data && Array.isArray(r2.data)) {
+                    const mapped2 = r2.data.map(mapApiTrade);
+                    setTrades(mapped2);
+                  }
+                }
+              } catch {}
+            }
           }
         })
         .catch(() => console.warn('Backend offline — using local trades.'))
         .finally(() => { setIsLoading(false); setAuthChecked(true); });
 
     } else if (localUser) {
-      // ✅ Offline mode with local trades
+      fetchedRef.current = true;
       setUser(localUser);
       setTrades(getLocalTrades());
       setIsLoading(false);
       setAuthChecked(true);
     } else {
-      // ❌ No session anywhere — redirect to login
       setIsLoading(false);
       setAuthChecked(true);
       router.replace('/login');
     }
-  }, [session, isPending]);
+  }, [session?.user?.email, isPending]);
 
   const handleLogout = async () => {
     try {
@@ -227,6 +257,33 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const [isSyncingTrades, setIsSyncingTrades] = useState(false);
+
+  const handleSyncTrades = async (): Promise<number> => {
+    setIsSyncingTrades(true);
+    let count = 0;
+    try {
+      const res = await fetch(`${API_URL}/api/trades?limit=1000&t=${Date.now()}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result?.data && Array.isArray(result.data)) {
+          const mapped = result.data.map(mapApiTrade);
+          setTrades(mapped);
+          count = mapped.length;
+          if (mapped.length > 0 && !selectedTradeId) setSelectedTradeId(String(mapped[0].id));
+        }
+      }
+    } catch (err) {
+      console.warn('Backend sync error:', err);
+    } finally {
+      setIsSyncingTrades(false);
+    }
+    return count;
+  };
+
   const handleUpdateTradeJournal = async (tradeId: string, updatedJournal: any) => {
     setTrades(prev => prev.map(t =>
       t.id === tradeId ? { ...t, journalStatus: 'Journaled', journal: updatedJournal } : t
@@ -266,6 +323,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       handleDeleteTrade,
       handleClearAll,
       handleUpdateTradeJournal,
+      handleSyncTrades,
+      isSyncingTrades,
       handleLogout,
       isAddTradeOpen,
       setIsAddTradeOpen,

@@ -12,10 +12,12 @@ import {
   Sun,
   Moon,
   LogOut,
-  User
+  User,
+  RotateCw
 } from 'lucide-react';
 import { UserProfile } from '@/types';
 import { ModeToggle } from '@/components/shared/ModeToggle';
+import { useDashboard } from '@/app/(dashboard)/(userDashboard)/dashboard/DashboardContext';
 
 interface TopBarProps {
   user: UserProfile;
@@ -34,10 +36,17 @@ export const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const { handleSyncTrades, isSyncingTrades } = useDashboard();
   const [timeString, setTimeString] = useState<string>('');
   const [dateString, setDateString] = useState<string>('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const [syncToast, setSyncToast] = useState<string | null>(null);
+
+  const onSyncClick = async () => {
+    const count = await handleSyncTrades();
+    setSyncToast(`Synced ${count} trades successfully!`);
+    setTimeout(() => setSyncToast(null), 3000);
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -106,8 +115,24 @@ export const TopBar: React.FC<TopBarProps> = ({
       </button>
 
       {/* Right controls */}
-      <div className="flex items-center gap-2 lg:gap-2.5">
+      <div className="flex items-center gap-2 lg:gap-2.5 relative">
+        {syncToast && (
+          <div className="absolute top-11 right-0 bg-[#22c58b]/20 border border-[#22c58b]/40 text-[#22c58b] px-3 py-1.5 rounded-xl text-xs font-mono font-semibold animate-in fade-in zoom-in-95 duration-150 z-50 whitespace-nowrap shadow-xl">
+            ✓ {syncToast}
+          </div>
+        )}
+
         <ModeToggle />
+
+        <button
+          onClick={onSyncClick}
+          disabled={isSyncingTrades}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-xs font-outfit font-bold text-[var(--text-hi)] hover:border-[#2981eb] hover:bg-[var(--bg-hover)] transition-all cursor-pointer shadow-sm disabled:opacity-50"
+          title="Sync trades from Exness MT5 / Backend"
+        >
+          <RotateCw className={`w-3.5 h-3.5 text-[#5aa2f2] ${isSyncingTrades ? 'animate-spin' : ''}`} />
+          <span className="hidden sm:inline">{isSyncingTrades ? 'Syncing...' : 'Sync'}</span>
+        </button>
 
         <button
           onClick={onOpenAddTrade}

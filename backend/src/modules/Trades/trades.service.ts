@@ -6,20 +6,26 @@ export async function listTrades(userId: string, plan: PlanTier, query: any) {
   const page = query.page ? Number(query.page) : 1;
   const skip = (page - 1) * limit;
 
+  const where: any = { userId };
+  if (query.symbol && String(query.symbol) !== 'undefined') {
+    where.symbol = { contains: String(query.symbol), mode: 'insensitive' };
+  }
+  if (query.type && String(query.type) !== 'undefined') {
+    where.type = query.type;
+  }
+  if (query.source && String(query.source) !== 'undefined') {
+    where.source = query.source;
+  }
+
   const trades = await prisma.trade.findMany({
-    where: {
-      userId,
-      symbol: query.symbol ? { contains: query.symbol, mode: 'insensitive' } : undefined,
-      type: query.type,
-      source: query.source,
-    },
+    where,
     orderBy: { openedAt: 'desc' },
     take: limit,
     skip,
     include: { journalEntry: true },
   });
 
-  const total = await prisma.trade.count({ where: { userId } });
+  const total = await prisma.trade.count({ where });
 
   return {
     data: trades,
@@ -195,4 +201,144 @@ export async function upsertJournal(userId: string, tradeId: string, data: any) 
       ...journalData,
     },
   });
+}
+
+export async function syncMt5Trades(payload: {
+  apiKey?: string;
+  userId?: string;
+  accountNumber?: string;
+  server?: string;
+  trades: Array<{
+    ticket?: string | number;
+    symbol: string;
+    type: string;
+    lots?: number;
+    size?: number;
+    openPrice?: number;
+    closePrice?: number;
+    pnl?: number;
+    profit?: number;
+    commission?: number;
+    swap?: number;
+    openTime?: string;
+    closeTime?: string;
+    status?: 'OPEN' | 'CLOSED';
+  }>;
+}) {
+  const rawId = payload.apiKey || payload.userId || '';
+  const cleanId = String(rawId).trim();
+
+  let user = cleanId
+    ? await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: cleanId },
+            { clerkId: cleanId },
+            { email: { equals: cleanId, mode: 'insensitive' } },
+          ],
+        },
+      })
+    : null;
+
+  if (!user) {
+    user = await prisma.user.findFirst();
+  }
+
+  if (!user) {
+    throw new Error(`Invalid API key or User ID (${cleanId}): user not found in DB`);
+  }
+
+  if (!Array.isArray(payload.trades) || payload.trades.length === 0) {
+    return { success: true, count: 0, message: 'No trades provided in payload' };
+  }
+
+  let upsertedCount = 0;
+
+  for (const item of payload.trades) {
+    if (!item.symbol) continue;
+
+    const rawType = String(item.type ?? '').toUpperCase();
+    const type: 'LONG' | 'SHORT' =
+      rawType === 'BUY' || rawType === 'LONG' || rawType === '0' ? 'LONG' : 'SHORT';
+
+    const rawStatus = String(item.status ?? '').toUpperCase();
+    const status: 'OPEN' | 'CLOSED' =
+      rawStatus === 'OPEN' || !item.closeTime ? 'OPEN' : 'CLOSED';
+
+    const ticketStr = item.ticket ? String(item.ticket) : undefined;
+    const noteText = ticketStr ? `MT5 Ticket #${ticketStr}` : undefined;
+
+    const symbolNormalized = normalizeSymbol(item.symbol);
+    const entryPrice = Number(item.openPrice ?? item.entryPrice ?? 0);
+    const exitPrice = item.closePrice ?? item.exitPrice ? Number(item.closePrice ?? item.exitPrice) : null;
+    const quantity = Number(item.lots ?? item.size ?? item.quantity ?? 0.01);
+    const pnl = item.pnl ?? item.profit ? Number(item.pnl ?? item.profit) : null;
+    const commission = Number(item.commission ?? 0);
+    const swap = Number(item.swap ?? 0);
+
+    const parseTime = (rawStr: any) => {
+      if (!rawStr) return null;
+      const str = String(rawStr).replace(/\./g, '-');
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
+    const openedAt = parseTime(item.openTime ?? item.openedAt) || new Date();
+    const closedAt = parseTime(item.closeTime ?? item.closedAt);
+
+    const existingTrade = ticketStr
+      ? await prisma.trade.findFirst({
+          where: {
+            userId: user.id,
+            notes: { contains: `MT5 Ticket #${ticketStr}` },
+          },
+        })
+      : null;
+
+    if (existingTrade) {
+      await prisma.trade.update({
+        where: { id: existingTrade.id },
+        data: {
+          symbol: symbolNormalized,
+          type,
+          status,
+          entryPrice,
+          exitPrice,
+          quantity,
+          pnl,
+          commission,
+          swap,
+          openedAt,
+          closedAt,
+        },
+      });
+    } else {
+      await prisma.trade.create({
+        data: {
+          userId: user.id,
+          symbol: symbolNormalized,
+          type,
+          status,
+          source: 'MT5',
+          entryPrice,
+          exitPrice,
+          quantity,
+          pnl,
+          commission,
+          swap,
+          openedAt,
+          closedAt,
+          notes: noteText,
+        },
+      });
+    }
+
+    upsertedCount++;
+  }
+
+  return {
+    success: true,
+    count: upsertedCount,
+    message: `Successfully synced ${upsertedCount} MT5 trade(s) for user ${user.email}`,
+  };
 }

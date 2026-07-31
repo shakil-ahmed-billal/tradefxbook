@@ -473,6 +473,95 @@ async function upsertJournal(userId, tradeId, data) {
     }
   });
 }
+async function syncMt5Trades(payload) {
+  const identifier = payload.apiKey || payload.userId;
+  if (!identifier) {
+    throw new Error("Missing apiKey or userId in request payload");
+  }
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { id: identifier },
+        { clerkId: identifier },
+        { email: identifier }
+      ]
+    }
+  });
+  if (!user) {
+    throw new Error("Invalid API key or User ID: user not found");
+  }
+  if (!Array.isArray(payload.trades) || payload.trades.length === 0) {
+    return { success: true, count: 0, message: "No trades provided in payload" };
+  }
+  let upsertedCount = 0;
+  for (const item of payload.trades) {
+    if (!item.symbol) continue;
+    const rawType = String(item.type ?? "").toUpperCase();
+    const type = rawType === "BUY" || rawType === "LONG" || rawType === "0" ? "LONG" : "SHORT";
+    const rawStatus = String(item.status ?? "").toUpperCase();
+    const status = rawStatus === "OPEN" || !item.closeTime ? "OPEN" : "CLOSED";
+    const ticketStr = item.ticket ? String(item.ticket) : void 0;
+    const noteText = ticketStr ? `MT5 Ticket #${ticketStr}` : void 0;
+    const symbolNormalized = normalizeSymbol(item.symbol);
+    const entryPrice = Number(item.openPrice ?? item.entryPrice ?? 0);
+    const exitPrice = item.closePrice ?? item.exitPrice ? Number(item.closePrice ?? item.exitPrice) : null;
+    const quantity = Number(item.lots ?? item.size ?? item.quantity ?? 0.01);
+    const pnl = item.pnl ?? item.profit ? Number(item.pnl ?? item.profit) : null;
+    const commission = Number(item.commission ?? 0);
+    const swap = Number(item.swap ?? 0);
+    const openedAt = new Date(item.openTime ?? item.openedAt ?? Date.now());
+    const closedAt = item.closeTime ?? item.closedAt ? new Date(item.closeTime ?? item.closedAt) : null;
+    const existingTrade = ticketStr ? await prisma.trade.findFirst({
+      where: {
+        userId: user.id,
+        notes: { contains: `MT5 Ticket #${ticketStr}` }
+      }
+    }) : null;
+    if (existingTrade) {
+      await prisma.trade.update({
+        where: { id: existingTrade.id },
+        data: {
+          symbol: symbolNormalized,
+          type,
+          status,
+          entryPrice,
+          exitPrice,
+          quantity,
+          pnl,
+          commission,
+          swap,
+          openedAt,
+          closedAt
+        }
+      });
+    } else {
+      await prisma.trade.create({
+        data: {
+          userId: user.id,
+          symbol: symbolNormalized,
+          type,
+          status,
+          source: "MT5",
+          entryPrice,
+          exitPrice,
+          quantity,
+          pnl,
+          commission,
+          swap,
+          openedAt,
+          closedAt,
+          notes: noteText
+        }
+      });
+    }
+    upsertedCount++;
+  }
+  return {
+    success: true,
+    count: upsertedCount,
+    message: `Successfully synced ${upsertedCount} MT5 trade(s) for user ${user.email}`
+  };
+}
 
 // src/modules/Trades/trades.controller.ts
 async function listTradesHandler(req, res) {
@@ -540,6 +629,21 @@ async function upsertJournalHandler(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+async function syncMt5TradesHandler(req, res) {
+  try {
+    const apiKey = req.headers["x-api-key"] || req.body?.apiKey;
+    const userId = req.userId || req.body?.userId;
+    const payload = {
+      ...req.body,
+      apiKey: apiKey || req.body?.apiKey,
+      userId: userId || req.body?.userId
+    };
+    const result = await syncMt5Trades(payload);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
 
 // src/middlewares/requireAuth.ts
 async function requireAuth(req, res, next) {
@@ -562,6 +666,7 @@ async function requireAuth(req, res, next) {
 
 // src/modules/Trades/trades.routes.ts
 var router2 = Router2();
+router2.post("/mt5-sync", syncMt5TradesHandler);
 router2.use(requireAuth);
 router2.get("/", listTradesHandler);
 router2.post("/", createTradeHandler);
@@ -691,6 +796,15 @@ cloudinary.config({
   api_secret: config_default.cloudinary.api_secret || process.env.CLOUDINARY_API_SECRET,
   secure: true
 });
+var extractPublicIdFromUrl = (url) => {
+  if (!url || !url.includes("cloudinary.com")) return null;
+  const regex = /\/v\d+\/(.+?)(?:\.[a-zA-Z0-9]+)+$/;
+  const match = url.match(regex);
+  if (match && match[1]) {
+    return match[1];
+  }
+  return null;
+};
 var uploadImageToCloudinary = async (fileBuffer, folder = "tradefxbook/journals") => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -714,6 +828,23 @@ var uploadBase64ToCloudinary = async (base64Data, folder = "tradefxbook/journals
     resource_type: "auto"
   });
   return result.secure_url;
+};
+var deleteImageFromCloudinary = async (urlOrPublicId) => {
+  try {
+    const publicId = urlOrPublicId.includes("cloudinary.com") ? extractPublicIdFromUrl(urlOrPublicId) : urlOrPublicId;
+    if (!publicId) {
+      console.warn("Could not extract public_id from Cloudinary target:", urlOrPublicId);
+      return false;
+    }
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "image",
+      invalidate: true
+    });
+    return result.result === "ok";
+  } catch (error) {
+    console.error("Cloudinary deletion error:", error);
+    return false;
+  }
 };
 
 // src/modules/Upload/upload.controller.ts
@@ -756,6 +887,20 @@ async function uploadMultipleImagesHandler(req, res) {
     return res.status(500).json({ error: err.message || "Multiple image upload failed" });
   }
 }
+async function deleteImageHandler(req, res) {
+  try {
+    const { url, publicId } = req.body;
+    const target = url || publicId || req.query.url || req.query.publicId;
+    if (!target) {
+      return res.status(400).json({ error: "Image url or publicId required" });
+    }
+    const success = await deleteImageFromCloudinary(String(target));
+    return res.json({ success, message: success ? "Image deleted from Cloudinary" : "Cloudinary deletion returned not ok" });
+  } catch (err) {
+    console.error("Delete image error:", err);
+    return res.status(500).json({ error: err.message || "Image deletion failed" });
+  }
+}
 
 // src/modules/Upload/upload.routes.ts
 var upload = multer({
@@ -768,6 +913,8 @@ var upload = multer({
 var router4 = Router4();
 router4.post("/image", upload.single("image"), uploadSingleImageHandler);
 router4.post("/images", upload.array("images", 10), uploadMultipleImagesHandler);
+router4.delete("/image", deleteImageHandler);
+router4.post("/delete-image", deleteImageHandler);
 var upload_routes_default = router4;
 
 // src/routes/index.ts

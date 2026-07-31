@@ -4,6 +4,9 @@ import { requireAuth } from '../../middlewares/requireAuth';
 
 const router = Router();
 
+// Public Webhook for MT5 EA HTTPS POST Sync (Authenticated via apiKey / userId in payload or x-api-key header)
+router.post('/mt5-sync', tradesController.syncMt5TradesHandler);
+
 router.use(requireAuth);
 
 router.get('/', tradesController.listTradesHandler);

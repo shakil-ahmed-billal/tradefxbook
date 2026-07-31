@@ -14,6 +14,7 @@ export async function listTradesHandler(req: Request, res: Response) {
     });
     res.json(result);
   } catch (err: any) {
+    console.error('listTradesHandler Error:', err);
     res.status(500).json({ error: err.message });
   }
 }
@@ -71,5 +72,23 @@ export async function upsertJournalHandler(req: Request, res: Response) {
     res.json(journal);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+}
+
+export async function syncMt5TradesHandler(req: Request, res: Response) {
+  try {
+    const apiKey = (req.headers['x-api-key'] as string) || req.body?.apiKey;
+    const userId = req.userId || req.body?.userId;
+    const payload = {
+      ...req.body,
+      apiKey: apiKey || req.body?.apiKey,
+      userId: userId || req.body?.userId,
+    };
+    console.log(`[MT5 WEBHOOK INCOMING]: ${payload.trades?.length || 0} trades for key: ${payload.apiKey || payload.userId}`);
+    const result = await tradesService.syncMt5Trades(payload);
+    res.json(result);
+  } catch (err: any) {
+    console.error('[MT5 WEBHOOK ERROR]:', err);
+    res.status(400).json({ error: err.message });
   }
 }
