@@ -15,19 +15,20 @@ const MQL5_EA_CODE = `//+-------------------------------------------------------
 //+------------------------------------------------------------------+
 #property copyright "TradeFXBook"
 #property link      "https://tradefxbook.com"
-#property version   "1.00"
-#property description "Auto Sync trades from Exness MT5 to TradeFXBook Dashboard"
+#property version   "2.00"
+#property description "Auto Sync ALL trades from Exness MT5 to TradeFXBook Dashboard"
 
 //--- Inputs
-input string   InpApiKey       = "YOUR_API_KEY_HERE";                     // TradeFXBook API Key / User ID
-input string   InpApiUrl       = "http://localhost:4000/api/trades/mt5-sync"; // Backend Sync Webhook URL
-input int      InpSyncInterval = 10;                                      // Sync Frequency (Seconds)
+input string   InpApiKey       = "YOUR_API_KEY_HERE";                          // TradeFXBook API Key (your email)
+input string   InpApiUrl       = "https://tradefxbook-eta.vercel.app/api/trades/mt5-sync"; // Backend Webhook URL
+input int      InpSyncInterval = 30;                                           // Sync Frequency (Seconds)
+input int      InpBatchSize    = 100;                                          // Trades per batch (max 100)
 
 int OnInit()
   {
-   Print("TradeFXBook EA initialized. Syncing to: ", InpApiUrl);
+   Print("TradeFXBook EA v2 initialized. Syncing ALL trades to: ", InpApiUrl);
    EventSetTimer(InpSyncInterval);
-   SyncTrades();
+   SyncAllTrades();
    return(INIT_SUCCEEDED);
   }
 
@@ -38,109 +39,198 @@ void OnDeinit(const int reason)
 
 void OnTimer()
   {
-   SyncTrades();
+   SyncAllTrades();
   }
 
 void OnTradeTransaction(const MqlTradeTransaction& trans, const MqlTradeRequest& request, const MqlTradeResult& result)
   {
-   SyncTrades();
+   SyncAllTrades();
   }
 
-void SyncTrades()
+void SyncAllTrades()
   {
    if(StringLen(InpApiKey) == 0 || InpApiKey == "YOUR_API_KEY_HERE")
      {
-      Print("TradeFXBook EA Warning: Please enter your valid API Key in EA settings.");
+      Print("TradeFXBook Warning: Please set your API Key (email) in EA settings.");
       return;
      }
 
-   string json = "{\\"apiKey\\":\\"" + InpApiKey + "\\",\\"trades\\":[";
-   int count = 0;
-
-   // 1. Scan Open Positions
-   int totalPositions = PositionsTotal();
-   for(int i = 0; i < totalPositions; i++)
+   // --- Step 1: Load ALL history from the beginning of time
+   if(!HistorySelect(0, TimeCurrent()))
      {
-      ulong ticket = PositionGetTicket(i);
-      if(ticket > 0)
-        {
-         string symbol = PositionGetString(POSITION_SYMBOL);
-         long type = PositionGetInteger(POSITION_TYPE); // 0=BUY, 1=SELL
-         double volume = PositionGetDouble(POSITION_VOLUME);
-         double openPrice = PositionGetDouble(POSITION_PRICE_OPEN);
-         double profit = PositionGetDouble(POSITION_PROFIT);
-         double swap = PositionGetDouble(POSITION_SWAP);
-         datetime openTime = (datetime)PositionGetInteger(POSITION_TIME);
+      Print("TradeFXBook: HistorySelect failed");
+      return;
+     }
 
-         if(count > 0) json += ",";
-         json += "{";
-         json += "\\"ticket\\":" + IntegerToString(ticket) + ",";
-         json += "\\"symbol\\":\\"" + symbol + "\\",";
-         json += "\\"type\\":\\"" + (type == 0 ? "BUY" : "SELL") + "\\",";
-         json += "\\"lots\\":" + DoubleToString(volume, 2) + ",";
-         json += "\\"openPrice\\":" + DoubleToString(openPrice, 5) + ",";
-         json += "\\"pnl\\":" + DoubleToString(profit, 2) + ",";
-         json += "\\"swap\\":" + DoubleToString(swap, 2) + ",";
-         json += "\\"openTime\\":\\"" + TimeToString(openTime, TIME_DATE|TIME_SECONDS) + "\\",";
-         json += "\\"status\\":\\"OPEN\\"";
-         json += "}";
-         count++;
+   int totalDeals = HistoryDealsTotal();
+   Print("TradeFXBook: Total deals found in history: ", totalDeals);
+
+   // --- Step 2: Build a map of order ticket -> open price and open time
+   // We need DEAL_ENTRY_IN deals to get the open price for each order
+   // Store: ticket -> {openPrice, openTime, type, symbol, lots}
+
+   // We'll match IN and OUT deals by their order ticket
+   // Arrays to store ENTRY_IN data
+   ulong  inTickets[];
+   double inPrices[];
+   datetime inTimes[];
+   string inSymbols[];
+   long   inTypes[];
+   double inVolumes[];
+   int inCount = 0;
+
+   ArrayResize(inTickets, totalDeals);
+   ArrayResize(inPrices, totalDeals);
+   ArrayResize(inTimes, totalDeals);
+   ArrayResize(inSymbols, totalDeals);
+   ArrayResize(inTypes, totalDeals);
+   ArrayResize(inVolumes, totalDeals);
+
+   for(int i = 0; i < totalDeals; i++)
+     {
+      ulong dealTicket = HistoryDealGetTicket(i);
+      long entryType = HistoryDealGetInteger(dealTicket, DEAL_ENTRY);
+      if(entryType == DEAL_ENTRY_IN)
+        {
+         ulong orderTkt = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
+         inTickets[inCount]  = (orderTkt > 0 ? orderTkt : dealTicket);
+         inPrices[inCount]   = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
+         inTimes[inCount]    = (datetime)HistoryDealGetInteger(dealTicket, DEAL_TIME);
+         inSymbols[inCount]  = HistoryDealGetString(dealTicket, DEAL_SYMBOL);
+         inTypes[inCount]    = HistoryDealGetInteger(dealTicket, DEAL_TYPE);
+         inVolumes[inCount]  = HistoryDealGetDouble(dealTicket, DEAL_VOLUME);
+         inCount++;
         }
      }
 
-   // 2. Scan Closed History Deals
-   if(HistorySelect(0, TimeCurrent()))
+   // --- Step 3: Collect all CLOSED deals (DEAL_ENTRY_OUT) with batching
+   int batchSize = MathMax(1, MathMin(InpBatchSize, 100));
+   int batchStart = 0;
+   int totalSynced = 0;
+
+   while(batchStart < totalDeals)
      {
-      int totalDeals = HistoryDealsTotal();
-      for(int i = MathMax(0, totalDeals - 50); i < totalDeals; i++)
+      string json = "{\\"apiKey\\":\\"" + InpApiKey + "\\",\\"trades\\":[";
+      int count = 0;
+      int batchEnd = MathMin(batchStart + batchSize, totalDeals);
+
+      for(int i = batchStart; i < batchEnd; i++)
         {
          ulong dealTicket = HistoryDealGetTicket(i);
          long entryType = HistoryDealGetInteger(dealTicket, DEAL_ENTRY);
-         if(entryType == DEAL_ENTRY_OUT)
-           {
-            ulong orderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
-            string symbol = HistoryDealGetString(dealTicket, DEAL_SYMBOL);
-            long type = HistoryDealGetInteger(dealTicket, DEAL_TYPE);
-            double volume = HistoryDealGetDouble(dealTicket, DEAL_VOLUME);
-            double price = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
-            double profit = HistoryDealGetDouble(dealTicket, DEAL_PROFIT);
-            double commission = HistoryDealGetDouble(dealTicket, DEAL_COMMISSION);
-            double swap = HistoryDealGetDouble(dealTicket, DEAL_SWAP);
-            datetime dealTime = (datetime)HistoryDealGetInteger(dealTicket, DEAL_TIME);
 
-            if(count > 0) json += ",";
-            json += "{";
-            json += "\\"ticket\\":" + IntegerToString(orderTicket > 0 ? orderTicket : dealTicket) + ",";
-            json += "\\"symbol\\":\\"" + symbol + "\\",";
-            json += "\\"type\\":\\"" + (type == 0 ? "BUY" : "SELL") + "\\",";
-            json += "\\"lots\\":" + DoubleToString(volume, 2) + ",";
-            json += "\\"closePrice\\":" + DoubleToString(price, 5) + ",";
-            json += "\\"pnl\\":" + DoubleToString(profit, 2) + ",";
-            json += "\\"commission\\":" + DoubleToString(commission, 2) + ",";
-            json += "\\"swap\\":" + DoubleToString(swap, 2) + ",";
-            json += "\\"closeTime\\":\\"" + TimeToString(dealTime, TIME_DATE|TIME_SECONDS) + "\\",";
-            json += "\\"status\\":\\"CLOSED\\"";
-            json += "}";
-            count++;
+         // Only process closing deals
+         if(entryType != DEAL_ENTRY_OUT) continue;
+
+         ulong orderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
+         ulong useTicket   = (orderTicket > 0 ? orderTicket : dealTicket);
+         string symbol     = HistoryDealGetString(dealTicket, DEAL_SYMBOL);
+         long   dealType   = HistoryDealGetInteger(dealTicket, DEAL_TYPE);
+         double volume     = HistoryDealGetDouble(dealTicket, DEAL_VOLUME);
+         double closePrice = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
+         double profit     = HistoryDealGetDouble(dealTicket, DEAL_PROFIT);
+         double commission = HistoryDealGetDouble(dealTicket, DEAL_COMMISSION);
+         double swap       = HistoryDealGetDouble(dealTicket, DEAL_SWAP);
+         datetime closeTime = (datetime)HistoryDealGetInteger(dealTicket, DEAL_TIME);
+
+         // Find matching open price from ENTRY_IN deals
+         double openPrice = 0.0;
+         datetime openTime = closeTime;
+         for(int j = 0; j < inCount; j++)
+           {
+            if(inTickets[j] == useTicket)
+              {
+               openPrice = inPrices[j];
+               openTime  = inTimes[j];
+               break;
+              }
+           }
+
+         if(count > 0) json += ",";
+         json += "{";
+         json += "\\"ticket\\":" + IntegerToString(useTicket) + ",";
+         json += "\\"symbol\\":\\"" + symbol + "\\",";
+         json += "\\"type\\":\\"" + (dealType == 0 ? "BUY" : "SELL") + "\\",";
+         json += "\\"lots\\":" + DoubleToString(volume, 2) + ",";
+         json += "\\"openPrice\\":" + DoubleToString(openPrice, 5) + ",";
+         json += "\\"closePrice\\":" + DoubleToString(closePrice, 5) + ",";
+         json += "\\"pnl\\":" + DoubleToString(profit, 2) + ",";
+         json += "\\"commission\\":" + DoubleToString(commission, 2) + ",";
+         json += "\\"swap\\":" + DoubleToString(swap, 2) + ",";
+         json += "\\"openTime\\":\\"" + TimeToString(openTime, TIME_DATE|TIME_SECONDS) + "\\",";
+         json += "\\"closeTime\\":\\"" + TimeToString(closeTime, TIME_DATE|TIME_SECONDS) + "\\",";
+         json += "\\"status\\":\\"CLOSED\\"";
+         json += "}";
+         count++;
+        }
+
+      // Also include open positions in first batch
+      if(batchStart == 0)
+        {
+         int totalPos = PositionsTotal();
+         for(int i = 0; i < totalPos; i++)
+           {
+            ulong ticket = PositionGetTicket(i);
+            if(ticket > 0)
+              {
+               string symbol  = PositionGetString(POSITION_SYMBOL);
+               long posType   = PositionGetInteger(POSITION_TYPE);
+               double volume  = PositionGetDouble(POSITION_VOLUME);
+               double opPrice = PositionGetDouble(POSITION_PRICE_OPEN);
+               double profit  = PositionGetDouble(POSITION_PROFIT);
+               double swap    = PositionGetDouble(POSITION_SWAP);
+               datetime opTime = (datetime)PositionGetInteger(POSITION_TIME);
+
+               if(count > 0) json += ",";
+               json += "{";
+               json += "\\"ticket\\":" + IntegerToString(ticket) + ",";
+               json += "\\"symbol\\":\\"" + symbol + "\\",";
+               json += "\\"type\\":\\"" + (posType == 0 ? "BUY" : "SELL") + "\\",";
+               json += "\\"lots\\":" + DoubleToString(volume, 2) + ",";
+               json += "\\"openPrice\\":" + DoubleToString(opPrice, 5) + ",";
+               json += "\\"pnl\\":" + DoubleToString(profit, 2) + ",";
+               json += "\\"swap\\":" + DoubleToString(swap, 2) + ",";
+               json += "\\"openTime\\":\\"" + TimeToString(opTime, TIME_DATE|TIME_SECONDS) + "\\",";
+               json += "\\"status\\":\\"OPEN\\"";
+               json += "}";
+               count++;
+              }
            }
         }
+
+      json += "]}";
+
+      if(count == 0)
+        {
+         batchStart += batchSize;
+         continue;
+        }
+
+      // Send HTTP POST
+      char postData[];
+      char result[];
+      string resultHeaders;
+      StringToCharArray(json, postData, 0, WHOLE_ARRAY, CP_UTF8);
+      ArrayResize(postData, ArraySize(postData) - 1);
+
+      string headers = "Content-Type: application/json\\r\\n";
+      headers += "x-api-key: " + InpApiKey + "\\r\\n";
+
+      int res = WebRequest("POST", InpApiUrl, headers, 15000, postData, result, resultHeaders);
+      if(res == 200)
+        {
+         totalSynced += count;
+         Print("TradeFXBook Batch [", batchStart, "-", batchEnd, "] synced ", count, " trades. Response: ", CharArrayToString(result, 0, WHOLE_ARRAY, CP_UTF8));
+        }
+      else
+        {
+         Print("TradeFXBook Batch [", batchStart, "-", batchEnd, "] FAILED. HTTP: ", res, " Response: ", CharArrayToString(result, 0, WHOLE_ARRAY, CP_UTF8));
+        }
+
+      batchStart += batchSize;
      }
 
-   json += "]}";
-   if(count == 0) return;
-
-   char postData[];
-   char result[];
-   string resultHeaders;
-   StringToCharArray(json, postData, 0, WHOLE_ARRAY, CP_UTF8);
-   ArrayResize(postData, ArraySize(postData) - 1);
-
-   string headers = "Content-Type: application/json\\r\\n";
-   int res = WebRequest("POST", InpApiUrl, headers, 10000, postData, result, resultHeaders);
-   if(res == 200)
-     {
-      Print("TradeFXBook Sync Success: ", CharArrayToString(result, 0, WHOLE_ARRAY, CP_UTF8));
-     }
+   Print("TradeFXBook: Total synced this run: ", totalSynced, " trades");
   }
 `;
 
