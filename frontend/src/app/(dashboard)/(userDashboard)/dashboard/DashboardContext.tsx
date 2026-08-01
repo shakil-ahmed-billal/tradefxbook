@@ -267,10 +267,14 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const handleClearAll = async () => {
-    if (typeof window !== 'undefined' && window.confirm('Are you sure you want to clear all logged trades?')) {
-      setTrades([]);
-      localStorage.removeItem(LS_TRADES_KEY);
-    }
+    setTrades([]);
+    localStorage.removeItem(LS_TRADES_KEY);
+    try {
+      await fetch(`${API_URL}/api/trades`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+    } catch {}
   };
 
   const [isSyncingTrades, setIsSyncingTrades] = useState(false);

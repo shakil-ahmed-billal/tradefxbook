@@ -49,6 +49,7 @@ export const TradesView: React.FC<TradesViewProps> = ({
 
   // Selected Trades for Bulk Actions
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 
   // Apply filters
   const filteredTrades = useMemo(() => {
@@ -118,7 +119,7 @@ export const TradesView: React.FC<TradesViewProps> = ({
         onOpenAddTrade={onOpenAddTrade}
         onOpenConnectBroker={onOpenConnectBroker}
         onOpenImportCSV={onOpenImportCSV}
-        onClearAll={onClearAll}
+        onClearAll={() => setIsClearConfirmOpen(true)}
       />
 
       {/* ADVANCED FILTERING PANEL */}
@@ -345,6 +346,48 @@ export const TradesView: React.FC<TradesViewProps> = ({
           onPageChange={setCurrentPage}
         />
       </div>
+
+      {/* CLEAR ALL CONFIRMATION MODAL */}
+      {isClearConfirmOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-[var(--bg-panel)] border border-[var(--border-soft)] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150 flex flex-col p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#ef4b5c]/10 border border-[#ef4b5c]/30 text-[#ef4b5c] flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-outfit text-base font-bold text-[var(--text-hi)]">Clear All Trades?</h3>
+                <p className="text-xs text-[var(--text-low)]">This action will delete all logged trades from your database and UI permanently.</p>
+              </div>
+            </div>
+
+            <div className="bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl p-3 text-xs text-[var(--text-mid)] flex items-start gap-2">
+              <span className="text-[#ef4b5c] font-bold">⚠️ Warning:</span>
+              <span>This cannot be undone. All MT5 and manual trade logs will be removed.</span>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsClearConfirmOpen(false)}
+                className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-xs font-semibold text-[var(--text-hi)] hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onClearAll();
+                  setIsClearConfirmOpen(false);
+                }}
+                className="px-4 py-2 rounded-xl bg-[#ef4b5c] text-white text-xs font-bold hover:bg-red-600 transition-all shadow-md shadow-[#ef4b5c]/20 cursor-pointer"
+              >
+                Yes, Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

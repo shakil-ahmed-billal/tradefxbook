@@ -53,15 +53,14 @@ export const TradesHeader: React.FC<TradesHeaderProps> = ({
           Add Trade
         </button>
 
-        {tradeCount > 0 && (
-          <button
-            onClick={onClearAll}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all"
-          >
-            <Trash2 className="w-4 h-4" />
-            Clear All
-          </button>
-        )}
+        <button
+          onClick={onClearAll}
+          disabled={tradeCount === 0}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
+        >
+          <Trash2 className="w-4 h-4" />
+          Clear All
+        </button>
       </div>
     </section>
   );

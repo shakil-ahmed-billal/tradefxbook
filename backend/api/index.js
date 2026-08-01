@@ -791,6 +791,11 @@ async function bulkDeleteTrades(userId, ids) {
     }
   });
 }
+async function clearAllTrades(userId) {
+  return prisma.trade.deleteMany({
+    where: { userId }
+  });
+}
 
 // src/modules/Trades/trades.controller.ts
 async function listTradesHandler(req, res) {
@@ -896,6 +901,15 @@ async function bulkDeleteTradesHandler(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+async function clearAllTradesHandler(req, res) {
+  try {
+    await clearAllTrades(req.userId);
+    res.status(204).send();
+  } catch (err) {
+    console.error("clearAllTradesHandler Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+}
 
 // src/middlewares/requireAuth.ts
 function extractSessionToken(req) {
@@ -963,6 +977,7 @@ var router2 = Router2();
 router2.post("/mt5-sync", syncMt5TradesHandler);
 router2.use(requireAuth);
 router2.post("/bulk-delete", bulkDeleteTradesHandler);
+router2.delete("/", clearAllTradesHandler);
 router2.get("/", listTradesHandler);
 router2.post("/", createTradeHandler);
 router2.post("/import-csv", importCsvHandler);

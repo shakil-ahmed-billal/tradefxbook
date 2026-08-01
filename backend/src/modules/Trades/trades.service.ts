@@ -565,3 +565,11 @@ export async function bulkDeleteTrades(userId: string, ids: string[]) {
   });
 }
 
+export async function clearAllTrades(userId: string) {
+  return prisma.trade.deleteMany({
+    where: { userId },
+  });
+}
+
+
+

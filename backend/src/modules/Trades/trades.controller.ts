@@ -117,3 +117,13 @@ export async function bulkDeleteTradesHandler(req: Request, res: Response) {
   }
 }
 
+export async function clearAllTradesHandler(req: Request, res: Response) {
+  try {
+    await tradesService.clearAllTrades(req.userId!);
+    res.status(204).send();
+  } catch (err: any) {
+    console.error('clearAllTradesHandler Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
