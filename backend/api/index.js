@@ -31,11 +31,24 @@ var config_default = {
 };
 
 // src/lib/prisma.ts
-var connectionString = config_default.database_url || process.env.DATABASE_URL || "";
+var rawConnectionString = config_default.database_url || process.env.DATABASE_URL || "";
+function getCleanConnectionString(rawUrl) {
+  if (!rawUrl) return "";
+  try {
+    const parsed = new URL(rawUrl);
+    parsed.searchParams.delete("sslmode");
+    parsed.searchParams.delete("ssl");
+    parsed.searchParams.delete("uselibpqcompat");
+    return parsed.toString();
+  } catch {
+    return rawUrl.replace(/([?&])(sslmode|ssl|uselibpqcompat)=[^&]*&?/g, "$1").replace(/[?&]$/, "");
+  }
+}
 var isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+var connectionString = getCleanConnectionString(rawConnectionString);
 var pool = new Pool({
   connectionString,
-  ssl: isProduction || connectionString.includes("sslmode=") ? { rejectUnauthorized: false } : void 0
+  ssl: isProduction || rawConnectionString.includes("sslmode=") ? { rejectUnauthorized: false } : void 0
 });
 var adapter = new PrismaPg(pool);
 var prisma = globalThis.prismaGlobal ?? new PrismaClient({
