@@ -2,35 +2,40 @@ import React from 'react';
 
 export const AuthShowcase: React.FC = () => {
   return (
-    <section className="hidden lg:flex lg:col-span-7 relative bg-gradient-to-br from-[#090b10] via-[#0e1017] to-[#141824] p-12 lg:p-16 flex-col justify-between overflow-hidden">
-      <div className="absolute inset-0 bg-grid-pattern opacity-40 mask-radial" />
+    <section className="hidden lg:flex lg:col-span-7 relative bg-gradient-to-br from-[var(--bg-deep)] via-[var(--bg-panel)] to-[var(--bg-elevated)] p-12 lg:p-16 flex-col justify-between overflow-hidden border-l border-[var(--border-soft)] transition-colors duration-200">
+      <div className="absolute inset-0 bg-grid-pattern opacity-30 mask-radial pointer-events-none" />
 
       <div className="relative z-10 max-w-lg">
-        <div className="inline-flex items-center gap-2 font-mono text-xs text-[#22c58b] bg-[#22c58b]/10 border border-[#22c58b]/25 px-3 py-1.5 rounded-full mb-6">
-          <span>▲</span> Live journal · Exness & MT4/MT5 support
+        <div className="inline-flex items-center gap-2 font-outfit text-[11px] font-extrabold uppercase tracking-widest text-[#22c58b] bg-[#22c58b]/10 border border-[#22c58b]/25 px-3.5 py-1.5 rounded-full mb-6 shadow-sm">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#22c58b] animate-pulse" />
+          LIVE JOURNAL · EXNESS & MT4/MT5 SUPPORT
         </div>
 
-        <h2 className="font-outfit text-4xl font-bold text-[#f4f6fa] tracking-tight leading-tight mb-4">
+        <h2 className="font-sora text-3xl lg:text-4xl font-extrabold text-[var(--text-hi)] tracking-tight leading-tight mb-4">
           Every trade,{' '}
           <em className="not-italic bg-gradient-to-r from-[#5aa2f2] to-[#2981eb] bg-clip-text text-transparent">
             logged and understood.
           </em>
         </h2>
 
-        <p className="text-sm text-[#9aa2b3] leading-relaxed">
+        <p className="font-inter text-sm text-[var(--text-mid)] leading-relaxed">
           Import your Exness CSV trade logs in one click, track your Win Rate, Max Drawdown, and performance analytics seamlessly.
         </p>
       </div>
 
-      <div className="relative z-10 bg-[#141824]/60 border border-[#212636] rounded-2xl p-6 backdrop-blur-md my-8 shadow-2xl">
+      <div className="relative z-10 bg-[var(--bg-panel)]/80 border border-[var(--border-soft)] rounded-2xl p-6 backdrop-blur-md my-8 shadow-2xl">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <div className="font-mono text-xs text-[#9aa2b3]">EQUITY CURVE</div>
-            <div className="font-mono text-xl font-bold text-[#f4f6fa]">$48,206.40</div>
+            <div className="font-outfit text-[10px] font-bold uppercase tracking-widest text-[var(--text-low)]">
+              EQUITY CURVE
+            </div>
+            <div className="font-mono text-xl font-bold text-[var(--text-hi)] mt-0.5">$48,206.40</div>
           </div>
-          <div className="font-mono text-xs text-[#22c58b] text-right">
+          <div className="font-mono text-xs font-bold text-[#22c58b] text-right">
             ▲ +12.7%
-            <span className="block text-[10px] text-[#5c6478]">realtime metrics</span>
+            <span className="block font-outfit text-[9px] font-bold uppercase tracking-wider text-[var(--text-low)] mt-0.5">
+              REALTIME METRICS
+            </span>
           </div>
         </div>
 
@@ -57,16 +62,22 @@ export const AuthShowcase: React.FC = () => {
 
       <div className="relative z-10 flex gap-8">
         <div>
-          <span className="font-mono text-xl font-bold text-[#f4f6fa] block">12,847</span>
-          <span className="text-xs text-[#5c6478]">Active traders</span>
+          <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">12,847</span>
+          <span className="font-outfit text-[10px] font-bold uppercase tracking-wider text-[var(--text-low)]">
+            ACTIVE TRADERS
+          </span>
         </div>
         <div>
-          <span className="font-mono text-xl font-bold text-[#f4f6fa] block">8.2M</span>
-          <span className="text-xs text-[#5c6478]">Trades logged</span>
+          <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">8.2M</span>
+          <span className="font-outfit text-[10px] font-bold uppercase tracking-wider text-[var(--text-low)]">
+            TRADES LOGGED
+          </span>
         </div>
         <div>
-          <span className="font-mono text-xl font-bold text-[#f4f6fa] block">99.99%</span>
-          <span className="text-xs text-[#5c6478]">Uptime</span>
+          <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">99.99%</span>
+          <span className="font-outfit text-[10px] font-bold uppercase tracking-wider text-[var(--text-low)]">
+            SYSTEM UPTIME
+          </span>
         </div>
       </div>
     </section>
