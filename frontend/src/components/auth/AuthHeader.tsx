@@ -24,7 +24,7 @@ export const AuthHeader: React.FC = () => {
             fill="#2981EB"
           />
         </svg>
-        <span className="font-outfit font-extrabold text-base tracking-wider text-[var(--text-hi)] uppercase">
+        <span className="font-semibold text-lg text-[var(--text-hi)]">
           TradeFXBook
         </span>
       </div>
