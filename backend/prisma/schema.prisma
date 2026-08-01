@@ -170,6 +170,7 @@ model Trade {
 
   journalEntry    JournalEntry?
 
+  @@unique([userId, symbol, type, openedAt, entryPrice, quantity])
   @@index([userId, openedAt])
   @@index([userId, symbol])
   @@map("trades")

@@ -376,11 +376,11 @@ function normalizeSymbol(rawSymbol) {
   return s;
 }
 async function importTradesFromCsv(userId, payload) {
-  const tradesToInsert = [];
+  const parsedTrades = [];
   if (Array.isArray(payload.tradesData) && payload.tradesData.length > 0) {
     for (const item of payload.tradesData) {
       const type = item.type?.toString().toUpperCase() === "BUY" || item.type?.toString().toUpperCase() === "LONG" ? "LONG" : "SHORT";
-      tradesToInsert.push({
+      parsedTrades.push({
         userId,
         symbol: normalizeSymbol(item.symbol),
         type,
@@ -394,7 +394,7 @@ async function importTradesFromCsv(userId, payload) {
         swap: Number(item.swap ?? 0),
         openedAt: new Date(item.openedAt ?? item.opening_time_utc ?? Date.now()),
         closedAt: item.closedAt ?? item.closing_time_utc ? new Date(item.closedAt ?? item.closing_time_utc) : null,
-        notes: item.ticket ? `Ticket: ${item.ticket}` : item.notes
+        notes: item.ticket ? `Exness Ticket #${item.ticket}` : item.notes
       });
     }
   } else if (payload.csvText) {
@@ -421,7 +421,7 @@ async function importTradesFromCsv(userId, payload) {
         const profit = getVal(row, "profit") || getVal(row, "pnl");
         const type = rawType.toLowerCase() === "buy" || rawType.toLowerCase() === "long" ? "LONG" : "SHORT";
         const pnlVal = profit !== "" ? Number(profit) : null;
-        tradesToInsert.push({
+        parsedTrades.push({
           userId,
           symbol: normalizeSymbol(rawSymbol),
           type,
@@ -440,15 +440,85 @@ async function importTradesFromCsv(userId, payload) {
       }
     }
   }
-  if (tradesToInsert.length === 0) {
+  if (parsedTrades.length === 0) {
     return { count: 0, message: "No valid trade records found to import." };
   }
+  const existingTrades = await prisma.trade.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      symbol: true,
+      type: true,
+      openedAt: true,
+      entryPrice: true,
+      quantity: true,
+      notes: true
+    }
+  });
+  const extractTicketId = (notesStr) => {
+    if (!notesStr) return null;
+    const match = notesStr.match(/\b\d{6,12}\b/);
+    return match ? match[0] : null;
+  };
+  const isDuplicateTrade = (newTrade, pool2) => {
+    const newTicket = extractTicketId(newTrade.notes);
+    for (const existing of pool2) {
+      if (newTicket) {
+        const existingTicket = extractTicketId(existing.notes);
+        if (existingTicket && existingTicket === newTicket) {
+          return true;
+        }
+      }
+      const normExistSymbol = normalizeSymbol(existing.symbol);
+      const normNewSymbol = normalizeSymbol(newTrade.symbol);
+      const sameSymbol = existing.symbol === newTrade.symbol || normExistSymbol === normNewSymbol;
+      const sameType = String(existing.type).toUpperCase() === String(newTrade.type).toUpperCase();
+      if (sameSymbol && sameType) {
+        const sameEntry = Math.abs(Number(existing.entryPrice) - Number(newTrade.entryPrice)) < 1e-3;
+        const sameQty = Math.abs(Number(existing.quantity) - Number(newTrade.quantity)) < 1e-3;
+        const timeDiffMs = Math.abs(new Date(existing.openedAt).getTime() - new Date(newTrade.openedAt).getTime());
+        const sameTime = timeDiffMs < 12e4;
+        if (sameEntry && sameQty && sameTime) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  const currentPool = [...existingTrades];
+  const tradesToInsert = [];
+  let duplicateCount = 0;
+  for (const trade of parsedTrades) {
+    if (isDuplicateTrade(trade, currentPool)) {
+      duplicateCount++;
+      continue;
+    }
+    currentPool.push({
+      id: "",
+      symbol: trade.symbol,
+      type: trade.type,
+      openedAt: trade.openedAt,
+      entryPrice: trade.entryPrice,
+      quantity: trade.quantity,
+      notes: trade.notes
+    });
+    tradesToInsert.push(trade);
+  }
+  if (tradesToInsert.length === 0) {
+    return {
+      count: 0,
+      skipped: duplicateCount,
+      message: `No new trades imported (${duplicateCount} duplicate trade(s) skipped).`
+    };
+  }
   const created = await prisma.trade.createMany({
-    data: tradesToInsert
+    data: tradesToInsert,
+    skipDuplicates: true
   });
   return {
     count: created.count,
-    message: `Successfully imported ${created.count} trades from Exness CSV.`
+    skipped: duplicateCount,
+    message: duplicateCount > 0 ? `Successfully imported ${created.count} new trade(s). (${duplicateCount} duplicate(s) skipped)` : `Successfully imported ${created.count} trade(s) from CSV.`
   };
 }
 async function createTrade(userId, data) {
