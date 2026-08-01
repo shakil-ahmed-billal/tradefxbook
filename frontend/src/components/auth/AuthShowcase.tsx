@@ -2,23 +2,23 @@ import React from 'react';
 
 export const AuthShowcase: React.FC = () => {
   return (
-    <section className="hidden lg:flex lg:col-span-7 relative bg-gradient-to-br from-[var(--bg-deep)] via-[var(--bg-panel)] to-[var(--bg-elevated)] p-12 lg:p-16 flex-col justify-between overflow-hidden border-l border-[var(--border-soft)] transition-colors duration-200">
-      <div className="absolute inset-0 bg-grid-pattern opacity-25 mask-radial pointer-events-none" />
+    <section className="hidden lg:flex lg:col-span-7 relative bg-gradient-to-br from-[var(--bg-deep)] via-[var(--bg-panel)] to-[var(--bg-elevated)] p-12 lg:p-16 flex-col justify-between overflow-hidden border-l border-[var(--border-soft)] transition-colors duration-200 font-sans">
+      <div className="absolute inset-0 bg-grid-pattern opacity-20 mask-radial pointer-events-none" />
 
       <div className="relative z-10 max-w-lg">
-        <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#22c58b] bg-[#22c58b]/10 border border-[#22c58b]/25 px-3.5 py-1.5 rounded-full mb-6 shadow-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#22c58b] animate-pulse" />
+        <div className="inline-flex items-center gap-2 text-xs font-medium text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/25 px-3.5 py-1.5 rounded-full mb-6 shadow-sm">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
           Live journal · Exness & MT4/MT5 support
         </div>
 
-        <h2 className="text-3xl lg:text-4xl font-bold text-[var(--text-hi)] leading-tight mb-4">
+        <h2 className="text-3xl lg:text-4xl font-bold text-[var(--text-hi)] leading-tight mb-4 font-sans">
           Every trade,{' '}
-          <em className="not-italic bg-gradient-to-r from-[#5aa2f2] to-[#2981eb] bg-clip-text text-transparent">
+          <em className="not-italic bg-gradient-to-r from-[#5aa2f2] to-[#2981eb] bg-clip-text text-transparent font-sans">
             logged and understood.
           </em>
         </h2>
 
-        <p className="text-sm text-[var(--text-mid)] leading-relaxed">
+        <p className="text-sm text-[var(--text-mid)] leading-relaxed font-sans">
           Import your Exness CSV trade logs in one click, track your Win Rate, Max Drawdown, and performance analytics seamlessly.
         </p>
       </div>
@@ -31,7 +31,7 @@ export const AuthShowcase: React.FC = () => {
             </div>
             <div className="font-mono text-xl font-bold text-[var(--text-hi)] mt-0.5">$48,206.40</div>
           </div>
-          <div className="font-mono text-xs font-bold text-[#22c58b] text-right">
+          <div className="font-mono text-xs font-bold text-[#10b981] text-right">
             ▲ +12.7%
             <span className="block font-sans text-[10px] font-normal text-[var(--text-low)] mt-0.5">
               realtime metrics
@@ -63,19 +63,19 @@ export const AuthShowcase: React.FC = () => {
       <div className="relative z-10 flex gap-8">
         <div>
           <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">12,847</span>
-          <span className="text-xs text-[var(--text-low)]">
+          <span className="text-xs text-[var(--text-low)] font-sans">
             Active traders
           </span>
         </div>
         <div>
           <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">8.2M</span>
-          <span className="text-xs text-[var(--text-low)]">
+          <span className="text-xs text-[var(--text-low)] font-sans">
             Trades logged
           </span>
         </div>
         <div>
           <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">99.99%</span>
-          <span className="text-xs text-[var(--text-low)]">
+          <span className="text-xs text-[var(--text-low)] font-sans">
             System uptime
           </span>
         </div>

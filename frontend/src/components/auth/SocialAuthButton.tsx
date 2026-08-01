@@ -31,7 +31,7 @@ export const SocialAuthButton: React.FC<SocialAuthButtonProps> = ({
       type="button"
       onClick={handleGoogleSignIn}
       disabled={loading}
-      className="w-full py-2.5 px-4 mb-4 bg-[var(--bg-elevated)] hover:bg-[var(--bg-hover)] border border-[var(--border-soft)] text-[var(--text-hi)] font-medium text-xs rounded-xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer shadow-sm"
+      className="w-full py-2.5 px-4 mb-4 bg-[var(--bg-elevated)] hover:bg-[var(--bg-hover)] border border-[var(--border-soft)] text-[var(--text-hi)] font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer shadow-sm font-sans"
     >
       <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
         <path

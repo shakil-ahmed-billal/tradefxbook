@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -11,7 +11,7 @@
     --background: #f8fafc;
     --foreground: #0f172a;
 
-    --bg-deep: #f8fafc;
+    --bg-deep: #f4f6f9;
     --bg-panel: #ffffff;
     --bg-elevated: #f1f5f9;
     --bg-hover: #e2e8f0;
@@ -46,10 +46,10 @@
     --muted: #f1f5f9;
     --muted-foreground: #64748b;
 
-    --font-jakarta: 'Plus Jakarta Sans', sans-serif;
-    --font-outfit: 'Outfit', sans-serif;
-    --font-sora: 'Sora', sans-serif;
-    --font-inter: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --font-roboto: 'Roboto', sans-serif;
+    --font-outfit: 'Roboto', sans-serif;
+    --font-sora: 'Roboto', sans-serif;
+    --font-inter: 'Roboto', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
 

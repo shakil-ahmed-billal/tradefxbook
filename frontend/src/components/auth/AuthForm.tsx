@@ -75,16 +75,16 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
 
   return (
     <div className="w-full max-w-sm mx-auto my-auto font-sans">
-      {/* Category Tag */}
-      <div className="text-xs font-semibold text-[#2981eb] flex items-center gap-2 mb-3">
-        <span className="w-2 h-2 rounded-full bg-[#22c58b]" />
+      {/* Category Pill Tag */}
+      <div className="inline-flex items-center gap-2 text-xs font-medium text-[#2981eb] bg-[#2981eb]/10 border border-[#2981eb]/20 px-3 py-1.5 rounded-full mb-4">
+        <span className="w-2 h-2 rounded-full bg-[#10b981]" />
         Journal system online
       </div>
 
-      <h1 className="text-2xl lg:text-3xl font-bold text-[var(--text-hi)] mb-2">
+      <h1 className="text-2xl lg:text-3xl font-bold text-[var(--text-hi)] mb-2 font-sans">
         {isSignUp ? 'Create your account' : 'Welcome back, trader'}
       </h1>
-      <p className="text-sm text-[var(--text-mid)] leading-relaxed mb-6">
+      <p className="text-sm text-[var(--text-mid)] leading-relaxed mb-6 font-sans">
         {isSignUp
           ? 'Start tracking your trades and analyzing performance today.'
           : "Sign in to review your open positions and today's journal entries."}
@@ -123,7 +123,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
       </div>
 
       {error && (
-        <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium">
+        <div className="p-3.5 mb-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium">
           {error}
         </div>
       )}
@@ -133,7 +133,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
 
       <div className="relative flex items-center justify-center my-5">
         <div className="border-t border-[var(--border-soft)] w-full" />
-        <span className="bg-[var(--bg-panel)] px-3 text-xs font-medium text-[var(--text-low)] absolute">
+        <span className="bg-[var(--bg-panel)] px-3 text-xs font-normal text-[var(--text-low)] absolute">
           Or continue with email
         </span>
       </div>
@@ -151,7 +151,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Alex Morgan"
-                className="w-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-[var(--text-hi)] placeholder:text-[var(--text-low)] outline-none focus:border-[#2981eb] transition-all"
+                className="w-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-[var(--text-hi)] placeholder:text-[var(--text-low)] outline-none focus:border-[#2981eb] transition-all font-sans"
                 required={isSignUp}
               />
             </div>
@@ -169,7 +169,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@tradingdesk.com"
-              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-[var(--text-hi)] placeholder:text-[var(--text-low)] outline-none focus:border-[#2981eb] transition-all"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-[var(--text-hi)] placeholder:text-[var(--text-low)] outline-none focus:border-[#2981eb] transition-all font-sans"
               required
             />
           </div>
@@ -186,7 +186,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-[var(--text-hi)] placeholder:text-[var(--text-low)] outline-none focus:border-[#2981eb] transition-all"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-soft)] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-[var(--text-hi)] placeholder:text-[var(--text-low)] outline-none focus:border-[#2981eb] transition-all font-sans"
               required
             />
           </div>
@@ -195,7 +195,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 px-4 mt-2 bg-[#2981eb] hover:bg-[#5aa2f2] disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-[#2981eb]/20 cursor-pointer"
+          className="w-full py-3 px-4 mt-2 bg-[#2981eb] hover:bg-[#1e66c9] disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-[#2981eb]/20 cursor-pointer font-sans"
         >
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -208,7 +208,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccessAuth }) => {
         </button>
       </form>
 
-      <p className="text-xs text-[var(--text-low)] text-center mt-5 leading-relaxed">
+      <p className="text-xs text-[var(--text-low)] text-center mt-5 leading-relaxed font-sans">
         By continuing, you agree to our{' '}
         <a href="#" className="underline text-[var(--text-mid)] hover:text-[var(--text-hi)] transition-colors">
           Terms
