@@ -635,12 +635,41 @@ async function syncMt5Trades(payload) {
     };
     const openedAt = parseTime(item.openTime ?? item.openedAt) || /* @__PURE__ */ new Date();
     const closedAt = parseTime(item.closeTime ?? item.closedAt);
-    const existingTrade = ticketStr ? await prisma.trade.findFirst({
-      where: {
-        userId: user.id,
-        notes: { contains: `MT5 Ticket #${ticketStr}` }
-      }
-    }) : null;
+    let existingTrade = null;
+    if (ticketStr) {
+      existingTrade = await prisma.trade.findFirst({
+        where: {
+          userId: user.id,
+          OR: [
+            { notes: { contains: `Ticket #${ticketStr}` } },
+            { notes: { contains: ticketStr } }
+          ]
+        }
+      });
+    }
+    if (!existingTrade) {
+      const timeWindowStart = new Date(openedAt.getTime() - 12 * 60 * 60 * 1e3);
+      const timeWindowEnd = new Date(openedAt.getTime() + 12 * 60 * 60 * 1e3);
+      existingTrade = await prisma.trade.findFirst({
+        where: {
+          userId: user.id,
+          symbol: symbolNormalized,
+          type,
+          openedAt: {
+            gte: timeWindowStart,
+            lte: timeWindowEnd
+          },
+          entryPrice: {
+            gte: entryPrice - 1e-3,
+            lte: entryPrice + 1e-3
+          },
+          quantity: {
+            gte: quantity - 1e-3,
+            lte: quantity + 1e-3
+          }
+        }
+      });
+    }
     if (existingTrade) {
       await prisma.trade.update({
         where: { id: existingTrade.id },
@@ -686,11 +715,94 @@ async function syncMt5Trades(payload) {
     message: `Successfully synced ${upsertedCount} MT5 trade(s) for user ${user.email}`
   };
 }
+async function deduplicateUserTrades(userId) {
+  const trades = await prisma.trade.findMany({
+    where: { userId },
+    include: { journalEntry: true },
+    orderBy: { openedAt: "desc" }
+  });
+  const toDelete = [];
+  const keptTrades = [];
+  const extractTicketId = (notesStr) => {
+    if (!notesStr) return null;
+    const match = notesStr.match(/\b\d{6,12}\b/);
+    return match ? match[0] : null;
+  };
+  for (const trade of trades) {
+    let isDup = false;
+    const ticket = extractTicketId(trade.notes);
+    for (const kept of keptTrades) {
+      if (ticket) {
+        const keptTicket = extractTicketId(kept.notes);
+        if (keptTicket && keptTicket === ticket) {
+          isDup = true;
+          if (trade.journalEntry && !kept.journalEntry) {
+            toDelete.push(kept.id);
+            const idx = keptTrades.indexOf(kept);
+            keptTrades[idx] = trade;
+          } else {
+            toDelete.push(trade.id);
+          }
+          break;
+        }
+      }
+      const normKeptSymbol = normalizeSymbol(kept.symbol);
+      const normTradeSymbol = normalizeSymbol(trade.symbol);
+      const sameSymbol = kept.symbol === trade.symbol || normKeptSymbol === normTradeSymbol;
+      const sameType = String(kept.type).toUpperCase() === String(trade.type).toUpperCase();
+      if (sameSymbol && sameType) {
+        const sameEntry = Math.abs(Number(kept.entryPrice) - Number(trade.entryPrice)) < 1e-3;
+        const sameQty = Math.abs(Number(kept.quantity) - Number(trade.quantity)) < 1e-3;
+        const timeDiffMs = Math.abs(new Date(kept.openedAt).getTime() - new Date(trade.openedAt).getTime());
+        const sameTime = timeDiffMs < 24 * 60 * 60 * 1e3;
+        if (sameEntry && sameQty && sameTime) {
+          isDup = true;
+          if (trade.journalEntry && !kept.journalEntry) {
+            toDelete.push(kept.id);
+            const idx = keptTrades.indexOf(kept);
+            keptTrades[idx] = trade;
+          } else {
+            toDelete.push(trade.id);
+          }
+          break;
+        }
+      }
+    }
+    if (!isDup) {
+      keptTrades.push(trade);
+    }
+  }
+  if (toDelete.length > 0) {
+    console.log(`[DEDUPLICATE]: Deleting ${toDelete.length} duplicate trades for user: ${userId}`);
+    await prisma.trade.deleteMany({
+      where: {
+        id: { in: toDelete },
+        userId
+      }
+    });
+  }
+  return toDelete.length;
+}
+async function bulkDeleteTrades(userId, ids) {
+  return prisma.trade.deleteMany({
+    where: {
+      id: { in: ids },
+      userId
+    }
+  });
+}
 
 // src/modules/Trades/trades.controller.ts
 async function listTradesHandler(req, res) {
   try {
-    const { page, limit, symbol, type, source } = req.query;
+    const { page, limit, symbol, type, source, dedupe } = req.query;
+    if (dedupe === "true") {
+      try {
+        await deduplicateUserTrades(req.userId);
+      } catch (err) {
+        console.error("Deduplication Error:", err);
+      }
+    }
     const result = await listTrades(req.userId, req.userPlan, {
       page: Number(page) || 1,
       limit: limit ? Number(limit) : 1e3,
@@ -771,6 +883,19 @@ async function syncMt5TradesHandler(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+async function bulkDeleteTradesHandler(req, res) {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty ids array" });
+    }
+    await bulkDeleteTrades(req.userId, ids);
+    res.status(204).send();
+  } catch (err) {
+    console.error("bulkDeleteTradesHandler Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+}
 
 // src/middlewares/requireAuth.ts
 function extractSessionToken(req) {
@@ -837,6 +962,7 @@ async function requireAuth(req, res, next) {
 var router2 = Router2();
 router2.post("/mt5-sync", syncMt5TradesHandler);
 router2.use(requireAuth);
+router2.post("/bulk-delete", bulkDeleteTradesHandler);
 router2.get("/", listTradesHandler);
 router2.post("/", createTradeHandler);
 router2.post("/import-csv", importCsvHandler);

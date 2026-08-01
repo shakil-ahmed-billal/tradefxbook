@@ -79,6 +79,7 @@ interface DashboardContextType {
   setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
   handleAddTrade: (trade: Trade) => void;
   handleDeleteTrade: (id: string) => void;
+  handleBulkDeleteTrades: (ids: string[]) => Promise<void>;
   handleClearAll: () => void;
   handleUpdateTradeJournal: (tradeId: string, updatedJournal: any) => void;
   handleSyncTrades: () => Promise<number>;
@@ -253,6 +254,18 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch {}
   };
 
+  const handleBulkDeleteTrades = async (ids: string[]) => {
+    setTrades(prev => prev.filter(t => !ids.includes(t.id)));
+    try {
+      await fetch(`${API_URL}/api/trades/bulk-delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ids }),
+      });
+    } catch {}
+  };
+
   const handleClearAll = async () => {
     if (typeof window !== 'undefined' && window.confirm('Are you sure you want to clear all logged trades?')) {
       setTrades([]);
@@ -266,7 +279,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setIsSyncingTrades(true);
     let count = 0;
     try {
-      const res = await fetch(`${API_URL}/api/trades?limit=1000&t=${Date.now()}`, {
+      const res = await fetch(`${API_URL}/api/trades?limit=1000&dedupe=true&t=${Date.now()}`, {
         credentials: 'include',
         cache: 'no-store',
       });
@@ -324,6 +337,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setUser,
       handleAddTrade,
       handleDeleteTrade,
+      handleBulkDeleteTrades,
       handleClearAll,
       handleUpdateTradeJournal,
       handleSyncTrades,

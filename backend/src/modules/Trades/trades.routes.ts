@@ -9,6 +9,7 @@ router.post('/mt5-sync', tradesController.syncMt5TradesHandler);
 
 router.use(requireAuth);
 
+router.post('/bulk-delete', tradesController.bulkDeleteTradesHandler);
 router.get('/', tradesController.listTradesHandler);
 router.post('/', tradesController.createTradeHandler);
 router.post('/import-csv', tradesController.importCsvHandler);

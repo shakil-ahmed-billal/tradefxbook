@@ -14,6 +14,7 @@ export default function TradesPage() {
     setIsImportCSVOpen,
     handleClearAll,
     handleDeleteTrade,
+    handleBulkDeleteTrades,
     setShareTrade,
     setSelectedTradeId,
   } = useDashboard();
@@ -26,6 +27,7 @@ export default function TradesPage() {
       onOpenImportCSV={() => setIsImportCSVOpen(true)}
       onClearAll={handleClearAll}
       onDeleteTrade={handleDeleteTrade}
+      onBulkDeleteTrades={handleBulkDeleteTrades}
       onShareTrade={(trade) => setShareTrade(trade)}
       onSelectTradeForJournal={(trade) => {
         setSelectedTradeId(trade.id);

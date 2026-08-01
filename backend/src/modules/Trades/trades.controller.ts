@@ -4,7 +4,16 @@ import { PlanTier } from '@prisma/client';
 
 export async function listTradesHandler(req: Request, res: Response) {
   try {
-    const { page, limit, symbol, type, source } = req.query;
+    const { page, limit, symbol, type, source, dedupe } = req.query;
+    
+    if (dedupe === 'true') {
+      try {
+        await tradesService.deduplicateUserTrades(req.userId!);
+      } catch (err) {
+        console.error('Deduplication Error:', err);
+      }
+    }
+
     const result = await tradesService.listTrades(req.userId!, req.userPlan as PlanTier, {
       page: Number(page) || 1,
       limit: limit ? Number(limit) : 1000,
@@ -18,6 +27,7 @@ export async function listTradesHandler(req: Request, res: Response) {
     res.status(500).json({ error: err.message });
   }
 }
+
 
 export async function createTradeHandler(req: Request, res: Response) {
   try {
@@ -92,3 +102,18 @@ export async function syncMt5TradesHandler(req: Request, res: Response) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function bulkDeleteTradesHandler(req: Request, res: Response) {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'Invalid or empty ids array' });
+    }
+    await tradesService.bulkDeleteTrades(req.userId!, ids);
+    res.status(204).send();
+  } catch (err: any) {
+    console.error('bulkDeleteTradesHandler Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
+

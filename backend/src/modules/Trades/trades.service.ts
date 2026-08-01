@@ -391,14 +391,43 @@ export async function syncMt5Trades(payload: {
     const openedAt = parseTime(item.openTime ?? item.openedAt) || new Date();
     const closedAt = parseTime(item.closeTime ?? item.closedAt);
 
-    const existingTrade = ticketStr
-      ? await prisma.trade.findFirst({
-          where: {
-            userId: user.id,
-            notes: { contains: `MT5 Ticket #${ticketStr}` },
+    let existingTrade = null;
+    if (ticketStr) {
+      existingTrade = await prisma.trade.findFirst({
+        where: {
+          userId: user.id,
+          OR: [
+            { notes: { contains: `Ticket #${ticketStr}` } },
+            { notes: { contains: ticketStr } }
+          ]
+        }
+      });
+    }
+
+    if (!existingTrade) {
+      // Fallback check to avoid duplicates: same symbol, type, entry price, quantity, and openedAt (within 12 hours)
+      const timeWindowStart = new Date(openedAt.getTime() - 12 * 60 * 60 * 1000);
+      const timeWindowEnd = new Date(openedAt.getTime() + 12 * 60 * 60 * 1000);
+      existingTrade = await prisma.trade.findFirst({
+        where: {
+          userId: user.id,
+          symbol: symbolNormalized,
+          type,
+          openedAt: {
+            gte: timeWindowStart,
+            lte: timeWindowEnd
           },
-        })
-      : null;
+          entryPrice: {
+            gte: entryPrice - 0.001,
+            lte: entryPrice + 0.001
+          },
+          quantity: {
+            gte: quantity - 0.001,
+            lte: quantity + 0.001
+          }
+        }
+      });
+    }
 
     if (existingTrade) {
       await prisma.trade.update({
@@ -447,3 +476,92 @@ export async function syncMt5Trades(payload: {
     message: `Successfully synced ${upsertedCount} MT5 trade(s) for user ${user.email}`,
   };
 }
+
+export async function deduplicateUserTrades(userId: string): Promise<number> {
+  const trades = await prisma.trade.findMany({
+    where: { userId },
+    include: { journalEntry: true },
+    orderBy: { openedAt: 'desc' },
+  });
+
+  const toDelete: string[] = [];
+  const keptTrades: typeof trades = [];
+
+  const extractTicketId = (notesStr: string | null | undefined): string | null => {
+    if (!notesStr) return null;
+    const match = notesStr.match(/\b\d{6,12}\b/);
+    return match ? match[0] : null;
+  };
+
+  for (const trade of trades) {
+    let isDup = false;
+    const ticket = extractTicketId(trade.notes);
+
+    for (const kept of keptTrades) {
+      if (ticket) {
+        const keptTicket = extractTicketId(kept.notes);
+        if (keptTicket && keptTicket === ticket) {
+          isDup = true;
+          if (trade.journalEntry && !kept.journalEntry) {
+            toDelete.push(kept.id);
+            const idx = keptTrades.indexOf(kept);
+            keptTrades[idx] = trade;
+          } else {
+            toDelete.push(trade.id);
+          }
+          break;
+        }
+      }
+
+      const normKeptSymbol = normalizeSymbol(kept.symbol);
+      const normTradeSymbol = normalizeSymbol(trade.symbol);
+      const sameSymbol = kept.symbol === trade.symbol || normKeptSymbol === normTradeSymbol;
+      const sameType = String(kept.type).toUpperCase() === String(trade.type).toUpperCase();
+
+      if (sameSymbol && sameType) {
+        const sameEntry = Math.abs(Number(kept.entryPrice) - Number(trade.entryPrice)) < 0.001;
+        const sameQty = Math.abs(Number(kept.quantity) - Number(trade.quantity)) < 0.001;
+        const timeDiffMs = Math.abs(new Date(kept.openedAt).getTime() - new Date(trade.openedAt).getTime());
+        const sameTime = timeDiffMs < 24 * 60 * 60 * 1000;
+
+        if (sameEntry && sameQty && sameTime) {
+          isDup = true;
+          if (trade.journalEntry && !kept.journalEntry) {
+            toDelete.push(kept.id);
+            const idx = keptTrades.indexOf(kept);
+            keptTrades[idx] = trade;
+          } else {
+            toDelete.push(trade.id);
+          }
+          break;
+        }
+      }
+    }
+
+    if (!isDup) {
+      keptTrades.push(trade);
+    }
+  }
+
+  if (toDelete.length > 0) {
+    console.log(`[DEDUPLICATE]: Deleting ${toDelete.length} duplicate trades for user: ${userId}`);
+    await prisma.trade.deleteMany({
+      where: {
+        id: { in: toDelete },
+        userId,
+      },
+    });
+  }
+
+  return toDelete.length;
+}
+
+export async function bulkDeleteTrades(userId: string, ids: string[]) {
+  return prisma.trade.deleteMany({
+    where: {
+      id: { in: ids },
+      userId,
+    },
+  });
+}
+

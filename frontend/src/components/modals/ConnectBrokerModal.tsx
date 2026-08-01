@@ -21,7 +21,7 @@ const MQL5_EA_CODE = `//+-------------------------------------------------------
 //--- Inputs
 input string   InpApiKey       = "YOUR_API_KEY_HERE";                          // TradeFXBook API Key (your email)
 input string   InpApiUrl       = "https://tradefxbook-eta.vercel.app/api/trades/mt5-sync"; // Backend Webhook URL
-input int      InpSyncInterval = 30;                                           // Sync Frequency (Seconds)
+input int      InpSyncInterval = 600;                                          // Sync Frequency (Seconds)
 input int      InpBatchSize    = 100;                                          // Trades per batch (max 100)
 
 int OnInit()
@@ -44,7 +44,7 @@ void OnTimer()
 
 void OnTradeTransaction(const MqlTradeTransaction& trans, const MqlTradeRequest& request, const MqlTradeResult& result)
   {
-   SyncAllTrades();
+   // Synchronize only on Timer intervals (e.g. 10 minutes) to avoid request overload.
   }
 
 void SyncAllTrades()
