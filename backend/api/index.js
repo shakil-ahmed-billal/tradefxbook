@@ -603,9 +603,6 @@ async function syncMt5Trades(payload) {
     }
   }) : null;
   if (!user) {
-    user = await prisma.user.findFirst();
-  }
-  if (!user) {
     throw new Error(`Invalid API key or User ID (${cleanId}): user not found in DB`);
   }
   if (!Array.isArray(payload.trades) || payload.trades.length === 0) {
@@ -677,7 +674,7 @@ async function syncMt5Trades(payload) {
           symbol: symbolNormalized,
           type,
           status,
-          entryPrice,
+          entryPrice: entryPrice === 0 && Number(existingTrade.entryPrice) > 0 ? existingTrade.entryPrice : entryPrice,
           exitPrice,
           quantity,
           pnl,
