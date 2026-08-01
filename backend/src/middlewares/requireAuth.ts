@@ -12,37 +12,49 @@ declare global {
 }
 
 /**
- * Extract the session token from the Cookie header.
- * Better-Auth stores it as: better-auth.session_token=<token>
+ * Extract the session token from Cookie header or Authorization/x-session-token headers.
  */
-function extractSessionToken(cookieHeader: string | undefined): string | null {
-  if (!cookieHeader) return null;
-
-  const cookies = cookieHeader.split(';').map(c => c.trim());
-  for (const cookie of cookies) {
-    // Try both prefixed and plain variants
-    const prefixes = [
-      'better-auth.session_token=',
-      '__Secure-better-auth.session_token=',
-      '__Host-better-auth.session_token=',
-      'session_token=',
-    ];
-    for (const prefix of prefixes) {
-      if (cookie.startsWith(prefix)) {
-        return decodeURIComponent(cookie.slice(prefix.length));
+function extractSessionToken(req: Request): string | null {
+  // 1. Try Cookie header
+  const cookieHeader = req.headers['cookie'] as string | undefined;
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(';').map(c => c.trim());
+    for (const cookie of cookies) {
+      const prefixes = [
+        'better-auth.session_token=',
+        '__Secure-better-auth.session_token=',
+        '__Host-better-auth.session_token=',
+        'session_token=',
+      ];
+      for (const prefix of prefixes) {
+        if (cookie.startsWith(prefix)) {
+          return decodeURIComponent(cookie.slice(prefix.length));
+        }
       }
     }
   }
+
+  // 2. Try Authorization header (Bearer <token>)
+  const authHeader = req.headers['authorization'] as string | undefined;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.slice(7).trim();
+  }
+
+  // 3. Try x-session-token custom header
+  const customHeader = req.headers['x-session-token'] as string | undefined;
+  if (customHeader) {
+    return customHeader.trim();
+  }
+
   return null;
 }
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
-    const cookieHeader = req.headers['cookie'] as string | undefined;
-    const token = extractSessionToken(cookieHeader);
+    const token = extractSessionToken(req);
 
     if (!token) {
-      return res.status(401).json({ error: 'No session token found in cookies' });
+      return res.status(401).json({ error: 'No session token found in cookies or request headers' });
     }
 
     // Look up the session directly in Prisma — bypasses Better-Auth CSRF/origin checks

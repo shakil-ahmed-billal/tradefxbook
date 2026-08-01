@@ -7,4 +7,7 @@ const AUTH_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (IS_DEV ? DEV_API : PRO
 
 export const authClient = createAuthClient({
     baseURL: AUTH_BASE_URL,
+    fetchOptions: {
+        credentials: 'include',
+    },
 })

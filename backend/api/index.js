@@ -70,7 +70,11 @@ var auth = betterAuth({
   },
   advanced: {
     cookiePrefix: "better-auth",
-    useSecureCookies: process.env.NODE_ENV === "production",
+    useSecureCookies: true,
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true
+    },
     crossSubDomainCookies: {
       enabled: false
     },
@@ -666,30 +670,39 @@ async function syncMt5TradesHandler(req, res) {
 }
 
 // src/middlewares/requireAuth.ts
-function extractSessionToken(cookieHeader) {
-  if (!cookieHeader) return null;
-  const cookies = cookieHeader.split(";").map((c) => c.trim());
-  for (const cookie of cookies) {
-    const prefixes = [
-      "better-auth.session_token=",
-      "__Secure-better-auth.session_token=",
-      "__Host-better-auth.session_token=",
-      "session_token="
-    ];
-    for (const prefix of prefixes) {
-      if (cookie.startsWith(prefix)) {
-        return decodeURIComponent(cookie.slice(prefix.length));
+function extractSessionToken(req) {
+  const cookieHeader = req.headers["cookie"];
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(";").map((c) => c.trim());
+    for (const cookie of cookies) {
+      const prefixes = [
+        "better-auth.session_token=",
+        "__Secure-better-auth.session_token=",
+        "__Host-better-auth.session_token=",
+        "session_token="
+      ];
+      for (const prefix of prefixes) {
+        if (cookie.startsWith(prefix)) {
+          return decodeURIComponent(cookie.slice(prefix.length));
+        }
       }
     }
+  }
+  const authHeader = req.headers["authorization"];
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.slice(7).trim();
+  }
+  const customHeader = req.headers["x-session-token"];
+  if (customHeader) {
+    return customHeader.trim();
   }
   return null;
 }
 async function requireAuth(req, res, next) {
   try {
-    const cookieHeader = req.headers["cookie"];
-    const token = extractSessionToken(cookieHeader);
+    const token = extractSessionToken(req);
     if (!token) {
-      return res.status(401).json({ error: "No session token found in cookies" });
+      return res.status(401).json({ error: "No session token found in cookies or request headers" });
     }
     const session = await prisma.session.findUnique({
       where: { token },
