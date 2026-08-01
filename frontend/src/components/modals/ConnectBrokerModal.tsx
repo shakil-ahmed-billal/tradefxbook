@@ -90,6 +90,9 @@ void SyncAllTrades()
      {
       ulong dealTicket = HistoryDealGetTicket(i);
       long entryType = HistoryDealGetInteger(dealTicket, DEAL_ENTRY);
+      long dealType = HistoryDealGetInteger(dealTicket, DEAL_TYPE);
+      if(dealType != DEAL_TYPE_BUY && dealType != DEAL_TYPE_SELL) continue;
+
       if(entryType == DEAL_ENTRY_IN)
         {
          ulong orderTkt = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
@@ -118,6 +121,8 @@ void SyncAllTrades()
         {
          ulong dealTicket = HistoryDealGetTicket(i);
          long entryType = HistoryDealGetInteger(dealTicket, DEAL_ENTRY);
+         long actualDealType = HistoryDealGetInteger(dealTicket, DEAL_TYPE);
+         if(actualDealType != DEAL_TYPE_BUY && actualDealType != DEAL_TYPE_SELL) continue;
 
          // Only process closing deals
          if(entryType != DEAL_ENTRY_OUT) continue;
@@ -125,7 +130,6 @@ void SyncAllTrades()
          ulong orderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
          ulong useTicket   = (orderTicket > 0 ? orderTicket : dealTicket);
          string symbol     = HistoryDealGetString(dealTicket, DEAL_SYMBOL);
-         long   dealType   = HistoryDealGetInteger(dealTicket, DEAL_TYPE);
          double volume     = HistoryDealGetDouble(dealTicket, DEAL_VOLUME);
          double closePrice = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
          double profit     = HistoryDealGetDouble(dealTicket, DEAL_PROFIT);
@@ -150,7 +154,8 @@ void SyncAllTrades()
          json += "{";
          json += "\\"ticket\\":" + IntegerToString(useTicket) + ",";
          json += "\\"symbol\\":\\"" + symbol + "\\",";
-         json += "\\"type\\":\\"" + (dealType == 0 ? "BUY" : "SELL") + "\\",";
+         string typeStr = (actualDealType == DEAL_TYPE_BUY) ? "BUY" : "SELL";
+         json += "\\"type\\":\\"" + typeStr + "\\",";
          json += "\\"lots\\":" + DoubleToString(volume, 2) + ",";
          json += "\\"openPrice\\":" + DoubleToString(openPrice, 5) + ",";
          json += "\\"closePrice\\":" + DoubleToString(closePrice, 5) + ",";
