@@ -159,9 +159,12 @@ export const ImportCSVModal: React.FC<ImportCSVModalProps> = ({ isOpen, onClose 
             const fetchResult = await fetchRes.json();
             if (Array.isArray(fetchResult.data)) {
               setTrades(fetchResult.data.map(mapRaw));
-              setMessage({ type: 'success', text: `Successfully imported ${fetchResult.data.length} trades!` });
             }
           }
+          setMessage({
+            type: data.count === 0 ? 'error' : 'success',
+            text: data.message || (data.count === 0 ? 'No new trades imported (duplicates skipped).' : `Successfully imported ${data.count} new trades!`),
+          });
         } else {
           // Backend returned non-200, use client side parsed trades
           setTrades(prev => [...clientParsed, ...prev]);

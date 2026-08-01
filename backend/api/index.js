@@ -460,6 +460,12 @@ async function importTradesFromCsv(userId, payload) {
     const match = notesStr.match(/\b\d{6,12}\b/);
     return match ? match[0] : null;
   };
+  const formatDateStr = (dt) => {
+    if (!dt) return "";
+    const d = new Date(dt);
+    if (isNaN(d.getTime())) return "";
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+  };
   const isDuplicateTrade = (newTrade, pool2) => {
     const newTicket = extractTicketId(newTrade.notes);
     for (const existing of pool2) {
@@ -476,8 +482,11 @@ async function importTradesFromCsv(userId, payload) {
       if (sameSymbol && sameType) {
         const sameEntry = Math.abs(Number(existing.entryPrice) - Number(newTrade.entryPrice)) < 1e-3;
         const sameQty = Math.abs(Number(existing.quantity) - Number(newTrade.quantity)) < 1e-3;
+        const dateStr1 = formatDateStr(existing.openedAt);
+        const dateStr2 = formatDateStr(newTrade.openedAt);
+        const sameDate = dateStr1 === dateStr2;
         const timeDiffMs = Math.abs(new Date(existing.openedAt).getTime() - new Date(newTrade.openedAt).getTime());
-        const sameTime = timeDiffMs < 12e4;
+        const sameTime = sameDate || timeDiffMs < 24 * 60 * 60 * 1e3;
         if (sameEntry && sameQty && sameTime) {
           return true;
         }

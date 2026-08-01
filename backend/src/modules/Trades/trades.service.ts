@@ -145,6 +145,13 @@ export async function importTradesFromCsv(userId: string, payload: { csvText?: s
     return match ? match[0] : null;
   };
 
+  const formatDateStr = (dt: any) => {
+    if (!dt) return '';
+    const d = new Date(dt);
+    if (isNaN(d.getTime())) return '';
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+  };
+
   const isDuplicateTrade = (newTrade: any, pool: typeof existingTrades): boolean => {
     const newTicket = extractTicketId(newTrade.notes);
 
@@ -157,7 +164,7 @@ export async function importTradesFromCsv(userId: string, payload: { csvText?: s
         }
       }
 
-      // 2. Multi-field fallback check (symbol + type + entryPrice + quantity + open time within 2 min)
+      // 2. Multi-field fallback check (symbol + type + entryPrice + quantity)
       const normExistSymbol = normalizeSymbol(existing.symbol);
       const normNewSymbol = normalizeSymbol(newTrade.symbol);
       const sameSymbol = existing.symbol === newTrade.symbol || normExistSymbol === normNewSymbol;
@@ -167,8 +174,11 @@ export async function importTradesFromCsv(userId: string, payload: { csvText?: s
         const sameEntry = Math.abs(Number(existing.entryPrice) - Number(newTrade.entryPrice)) < 0.001;
         const sameQty = Math.abs(Number(existing.quantity) - Number(newTrade.quantity)) < 0.001;
 
+        const dateStr1 = formatDateStr(existing.openedAt);
+        const dateStr2 = formatDateStr(newTrade.openedAt);
+        const sameDate = dateStr1 === dateStr2;
         const timeDiffMs = Math.abs(new Date(existing.openedAt).getTime() - new Date(newTrade.openedAt).getTime());
-        const sameTime = timeDiffMs < 120000; // Within 2 minutes
+        const sameTime = sameDate || timeDiffMs < 24 * 60 * 60 * 1000;
 
         if (sameEntry && sameQty && sameTime) {
           return true;
