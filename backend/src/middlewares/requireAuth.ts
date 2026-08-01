@@ -51,17 +51,27 @@ function extractSessionToken(req: Request): string | null {
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
-    const token = extractSessionToken(req);
+    const rawToken = extractSessionToken(req);
 
-    if (!token) {
+    if (!rawToken) {
       return res.status(401).json({ error: 'No session token found in cookies or request headers' });
     }
 
-    // Look up the session directly in Prisma — bypasses Better-Auth CSRF/origin checks
-    const session = await prisma.session.findUnique({
+    // Better-Auth signed cookie token format: <token>.<signature>
+    // Extract base token before signature dot, falling back to rawToken
+    const token = rawToken.includes('.') ? rawToken.split('.')[0] : rawToken;
+
+    let session = await prisma.session.findUnique({
       where: { token },
       include: { user: true },
     });
+
+    if (!session && token !== rawToken) {
+      session = await prisma.session.findUnique({
+        where: { token: rawToken },
+        include: { user: true },
+      });
+    }
 
     if (!session) {
       return res.status(401).json({ error: 'Invalid or expired session token' });
