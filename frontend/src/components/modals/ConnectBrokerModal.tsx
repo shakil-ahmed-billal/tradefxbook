@@ -22,7 +22,7 @@ const MQL5_EA_CODE = `//+-------------------------------------------------------
 input string   InpApiKey       = "YOUR_API_KEY_HERE";                          // TradeFXBook API Key (your email)
 input string   InpApiUrl       = "https://tradefxbook-eta.vercel.app/api/trades/mt5-sync"; // Backend Webhook URL
 input int      InpSyncInterval = 600;                                          // Sync Frequency (Seconds)
-input int      InpBatchSize    = 100;                                          // Trades per batch (max 100)
+input int      InpBatchSize    = 1000;                                         // Trades per batch (max 2000)
 
 int OnInit()
   {
@@ -104,7 +104,7 @@ void SyncAllTrades()
      }
 
    // --- Step 3: Collect all CLOSED deals (DEAL_ENTRY_OUT) with batching
-   int batchSize = MathMax(1, MathMin(InpBatchSize, 100));
+   int batchSize = MathMax(1, MathMin(InpBatchSize, 2000));
    int batchStart = 0;
    int totalSynced = 0;
 
@@ -376,41 +376,50 @@ export const ConnectBrokerModal: React.FC<ConnectBrokerModalProps> = ({
                   <span className="font-mono font-bold text-[#5aa2f2]">Step 3:</span>
                   <span>Attach <b>TradeFXBook_EA</b> to any Exness MT5 chart, paste your <b>API Sync Key</b> in the EA settings input, and click OK!</span>
                 </div>
+                <div className="flex items-start gap-2 bg-[#f2b84b]/10 border border-[#f2b84b]/20 p-2 rounded-lg text-[var(--text-hi)]">
+                  <span className="font-mono font-bold text-[#f2b84b]">Step 4:</span>
+                  <span><b>CRITICAL:</b> Right-click inside your MT5 Terminal <b>History</b> tab at the bottom, select <b>"All History"</b> so the terminal caches all your trades (e.g. 200+). Otherwise MT5 will only sync a few trades!</span>
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCode(!showCode)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-xs font-semibold text-[var(--text-hi)] hover:bg-[var(--bg-hover)] cursor-pointer"
-                >
-                  <Code className="w-4 h-4 text-[#5aa2f2]" />
-                  <span>{showCode ? 'Hide MQL5 Code' : 'View Source Code'}</span>
-                </button>
-
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-3 pt-2">
+                <div className="text-[10px] text-[var(--text-low)] text-right">
+                  * Note: To sync new trades instantly, reload the EA or wait for the next 10-minute sync.
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <button
                     type="button"
-                    onClick={async () => {
-                      const count = await handleSyncTrades();
-                      alert(`Successfully synced ${count} trades!`);
-                    }}
-                    disabled={isSyncingTrades}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#22c58b]/20 text-[#22c58b] border border-[#22c58b]/40 hover:bg-[#22c58b]/30 transition-colors cursor-pointer disabled:opacity-50"
+                    onClick={() => setShowCode(!showCode)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-soft)] text-xs font-semibold text-[var(--text-hi)] hover:bg-[var(--bg-hover)] cursor-pointer"
                   >
-                    <RotateCw className={`w-4 h-4 ${isSyncingTrades ? 'animate-spin' : ''}`} />
-                    <span>{isSyncingTrades ? 'Syncing...' : 'Sync Trades Now'}</span>
+                    <Code className="w-4 h-4 text-[#5aa2f2]" />
+                    <span>{showCode ? 'Hide MQL5 Code' : 'View Source Code'}</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={downloadEaFile}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#2981eb] text-white hover:bg-[#5aa2f2] transition-colors shadow-lg shadow-[#2981eb]/20 cursor-pointer"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download EA</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const count = await handleSyncTrades();
+                        alert(`Successfully synced ${count} trades!`);
+                      }}
+                      disabled={isSyncingTrades}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#22c58b]/20 text-[#22c58b] border border-[#22c58b]/40 hover:bg-[#22c58b]/30 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <RotateCw className={`w-4 h-4 ${isSyncingTrades ? 'animate-spin' : ''}`} />
+                      <span>{isSyncingTrades ? 'Syncing...' : 'Sync Trades Now'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={downloadEaFile}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#2981eb] text-white hover:bg-[#5aa2f2] transition-colors shadow-lg shadow-[#2981eb]/20 cursor-pointer"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download EA</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
