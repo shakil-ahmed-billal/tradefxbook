@@ -3,9 +3,9 @@ import { ModeToggle } from '../shared/ModeToggle';
 
 export const AuthHeader: React.FC = () => {
   return (
-    <header className="flex items-center justify-between w-full mb-8">
+    <div className="flex items-center justify-between w-full mb-6 pb-4 border-b border-[var(--border-soft)]">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-[#2981eb]/10 border border-[#2981eb]/20 flex items-center justify-center text-[#2981eb]">
+        <div className="w-10 h-10 rounded-2xl bg-[#2981eb]/10 border border-[#2981eb]/20 flex items-center justify-center text-[#2981eb] shadow-sm">
           <svg
             className="h-5 w-auto text-[#2981eb]"
             viewBox="0 0 443 209"
@@ -26,12 +26,17 @@ export const AuthHeader: React.FC = () => {
             />
           </svg>
         </div>
-        <span className="font-bold text-lg text-[var(--text-hi)] font-sans">
-          TradeFXBook
-        </span>
+        <div>
+          <span className="font-bold text-lg text-[var(--text-hi)] font-sans block leading-tight">
+            TradeFXBook
+          </span>
+          <span className="text-[11px] text-[var(--text-low)] font-sans">
+            Professional Trading Journal
+          </span>
+        </div>
       </div>
 
       <ModeToggle />
-    </header>
+    </div>
   );
 };
