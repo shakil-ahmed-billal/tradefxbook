@@ -2,44 +2,44 @@ import React from 'react';
 
 export const AuthShowcase: React.FC = () => {
   return (
-    <div className="hidden lg:flex lg:col-span-6 relative bg-gradient-to-br from-[var(--bg-elevated)] via-[var(--bg-panel)] to-[var(--bg-elevated)] p-8 lg:p-10 flex-col justify-between overflow-hidden border-l border-[var(--border-soft)] transition-colors duration-200 font-sans">
-      <div className="absolute inset-0 bg-grid-pattern opacity-15 mask-radial pointer-events-none" />
+    <section className="hidden lg:flex lg:col-span-6 relative bg-gradient-to-br from-[var(--bg-deep)] via-[var(--bg-panel)] to-[var(--bg-elevated)] p-12 lg:p-16 flex-col justify-between overflow-hidden border-l border-[var(--border-soft)] transition-colors duration-200">
+      <div className="absolute inset-0 bg-grid-pattern opacity-30 mask-radial pointer-events-none" />
 
-      <div className="relative z-10">
-        <div className="inline-flex items-center gap-2 text-xs font-medium text-[#10b981] bg-[#10b981]/10 border border-[#10b981]/25 px-3 py-1 rounded-full mb-5 shadow-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
-          Live journal · Exness & MT4/MT5 support
+      <div className="relative z-10 max-w-lg">
+        <div className="inline-flex items-center gap-2 font-outfit text-[11px] font-extrabold uppercase tracking-widest text-[#22c58b] bg-[#22c58b]/10 border border-[#22c58b]/25 px-3.5 py-1.5 rounded-full mb-6 shadow-sm">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#22c58b] animate-pulse" />
+          LIVE JOURNAL · EXNESS & MT4/MT5 SUPPORT
         </div>
 
-        <h2 className="text-2xl lg:text-3xl font-bold text-[var(--text-hi)] leading-snug mb-3 font-sans">
+        <h2 className="font-sora text-3xl lg:text-4xl font-extrabold text-[var(--text-hi)] tracking-tight leading-tight mb-4">
           Every trade,{' '}
-          <span className="bg-gradient-to-r from-[#5aa2f2] to-[#2981eb] bg-clip-text text-transparent">
+          <em className="not-italic bg-gradient-to-r from-[#5aa2f2] to-[#2981eb] bg-clip-text text-transparent">
             logged and understood.
-          </span>
+          </em>
         </h2>
 
-        <p className="text-xs lg:text-sm text-[var(--text-mid)] leading-relaxed font-sans">
+        <p className="font-inter text-sm text-[var(--text-mid)] leading-relaxed">
           Import your Exness CSV trade logs in one click, track your Win Rate, Max Drawdown, and performance analytics seamlessly.
         </p>
       </div>
 
-      <div className="relative z-10 bg-[var(--bg-panel)]/90 border border-[var(--border-soft)] rounded-2xl p-5 backdrop-blur-md my-6 shadow-lg">
-        <div className="flex justify-between items-start mb-3">
+      <div className="relative z-10 bg-[var(--bg-panel)]/80 border border-[var(--border-soft)] rounded-2xl p-6 backdrop-blur-md my-8 shadow-2xl">
+        <div className="flex justify-between items-start mb-4">
           <div>
-            <div className="text-xs font-medium text-[var(--text-low)]">
-              Equity curve
+            <div className="font-outfit text-[10px] font-bold uppercase tracking-widest text-[var(--text-low)]">
+              EQUITY CURVE
             </div>
-            <div className="font-mono text-lg font-bold text-[var(--text-hi)] mt-0.5">$48,206.40</div>
+            <div className="font-mono text-xl font-bold text-[var(--text-hi)] mt-0.5">$48,206.40</div>
           </div>
-          <div className="font-mono text-xs font-bold text-[#10b981] text-right">
+          <div className="font-mono text-xs font-bold text-[#22c58b] text-right">
             ▲ +12.7%
-            <span className="block font-sans text-[10px] font-normal text-[var(--text-low)] mt-0.5">
-              realtime metrics
+            <span className="block font-outfit text-[9px] font-bold uppercase tracking-wider text-[var(--text-low)] mt-0.5">
+              REALTIME METRICS
             </span>
           </div>
         </div>
 
-        <svg className="w-full h-[110px]" viewBox="0 0 480 130" preserveAspectRatio="none">
+        <svg className="w-full h-[130px]" viewBox="0 0 480 130" preserveAspectRatio="none">
           <defs>
             <linearGradient id="authGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#2981EB" stopOpacity="0.35" />
@@ -60,26 +60,26 @@ export const AuthShowcase: React.FC = () => {
         </svg>
       </div>
 
-      <div className="relative z-10 flex gap-6 border-t border-[var(--border-soft)] pt-4">
+      <div className="relative z-10 flex gap-8">
         <div>
-          <span className="font-mono text-lg font-bold text-[var(--text-hi)] block">12,847</span>
-          <span className="text-xs text-[var(--text-low)] font-sans">
-            Active traders
+          <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">12,847</span>
+          <span className="font-outfit text-[10px] font-bold uppercase tracking-wider text-[var(--text-low)]">
+            ACTIVE TRADERS
           </span>
         </div>
         <div>
-          <span className="font-mono text-lg font-bold text-[var(--text-hi)] block">8.2M</span>
-          <span className="text-xs text-[var(--text-low)] font-sans">
-            Trades logged
+          <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">8.2M</span>
+          <span className="font-outfit text-[10px] font-bold uppercase tracking-wider text-[var(--text-low)]">
+            TRADES LOGGED
           </span>
         </div>
         <div>
-          <span className="font-mono text-lg font-bold text-[var(--text-hi)] block">99.99%</span>
-          <span className="text-xs text-[var(--text-low)] font-sans">
-            System uptime
+          <span className="font-mono text-xl font-bold text-[var(--text-hi)] block">99.99%</span>
+          <span className="font-outfit text-[10px] font-bold uppercase tracking-wider text-[var(--text-low)]">
+            SYSTEM UPTIME
           </span>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

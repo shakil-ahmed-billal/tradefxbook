@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -6,12 +6,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
+
   /* LIGHT THEME (DEFAULT) */
   :root {
     --background: #f8fafc;
     --foreground: #0f172a;
 
-    --bg-deep: #f4f6f9;
+    --bg-deep: #f8fafc;
     --bg-panel: #ffffff;
     --bg-elevated: #f1f5f9;
     --bg-hover: #e2e8f0;
@@ -46,10 +47,9 @@
     --muted: #f1f5f9;
     --muted-foreground: #64748b;
 
-    --font-roboto: 'Roboto', sans-serif;
-    --font-outfit: 'Roboto', sans-serif;
-    --font-sora: 'Roboto', sans-serif;
-    --font-inter: 'Roboto', sans-serif;
+    --font-outfit: 'Outfit', sans-serif;
+    --font-sora: 'Sora', sans-serif;
+    --font-inter: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
 
@@ -95,7 +95,7 @@
   }
 
   body {
-    font-family: 'Roboto', sans-serif;
+    font-family: var(--font-inter);
     background-color: var(--bg-deep);
     color: var(--text-hi);
     -webkit-font-smoothing: antialiased;
@@ -147,13 +147,26 @@
 }
 
 /* Custom font utilities */
-.font-outfit { font-family: var(--font-outfit); }
-.font-sora { font-family: var(--font-sora); }
-.font-inter { font-family: var(--font-inter); }
-.font-mono { font-family: var(--font-mono); }
+.font-outfit {
+  font-family: var(--font-outfit);
+}
+
+.font-sora {
+  font-family: var(--font-sora);
+}
+
+.font-inter {
+  font-family: var(--font-inter);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
 
 /* Hide scrollbar globally for clean desktop app design */
-html, body, * {
+html,
+body,
+* {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -166,7 +179,7 @@ html, body, * {
 
 /* Background Grid Pattern */
 .bg-grid-pattern {
-  background-image: 
+  background-image:
     linear-gradient(var(--border-soft) 1px, transparent 1px),
     linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
   background-size: 64px 64px;
