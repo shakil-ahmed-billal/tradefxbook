@@ -9,8 +9,9 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
 // src/lib/prisma.ts
-import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
 // src/config/index.ts
@@ -30,9 +31,19 @@ var config_default = {
 };
 
 // src/lib/prisma.ts
-var connectionString = `${config_default.database_url}`;
-var adapter = new PrismaPg({ connectionString });
-var prisma = new PrismaClient({ adapter });
+var connectionString = config_default.database_url || process.env.DATABASE_URL || "";
+var isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+var pool = new Pool({
+  connectionString,
+  ssl: isProduction || connectionString.includes("sslmode=") ? { rejectUnauthorized: false } : void 0
+});
+var adapter = new PrismaPg(pool);
+var prisma = globalThis.prismaGlobal ?? new PrismaClient({
+  adapter
+});
+if (process.env.NODE_ENV !== "production") {
+  globalThis.prismaGlobal = prisma;
+}
 
 // src/lib/auth.ts
 var auth = betterAuth({
@@ -700,14 +711,21 @@ function extractSessionToken(req) {
 }
 async function requireAuth(req, res, next) {
   try {
-    const token = extractSessionToken(req);
-    if (!token) {
+    const rawToken = extractSessionToken(req);
+    if (!rawToken) {
       return res.status(401).json({ error: "No session token found in cookies or request headers" });
     }
-    const session = await prisma.session.findUnique({
+    const token = rawToken.includes(".") ? rawToken.split(".")[0] : rawToken;
+    let session = await prisma.session.findUnique({
       where: { token },
       include: { user: true }
     });
+    if (!session && token !== rawToken) {
+      session = await prisma.session.findUnique({
+        where: { token: rawToken },
+        include: { user: true }
+      });
+    }
     if (!session) {
       return res.status(401).json({ error: "Invalid or expired session token" });
     }
