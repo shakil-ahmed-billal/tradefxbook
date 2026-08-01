@@ -170,10 +170,32 @@ export const ImportCSVModal: React.FC<ImportCSVModalProps> = ({ isOpen, onClose 
               }
             }
           }
+          const addedCount = data.count || 0;
+          const skippedCount = data.skipped || 0;
+
+          let msgText = '';
+          if (addedCount > 0 && skippedCount > 0) {
+            msgText = `✅ Added ${addedCount} new trade(s). ⚠️ ${skippedCount} duplicate trade(s) skipped.`;
+          } else if (addedCount > 0) {
+            msgText = `✅ Successfully added ${addedCount} new trade(s).`;
+          } else if (skippedCount > 0) {
+            msgText = `ℹ️ No new trades added. All ${skippedCount} duplicate trade(s) skipped.`;
+          } else {
+            msgText = data.message || 'No valid trades found to import.';
+          }
+
           setMessage({
-            type: data.count === 0 ? 'error' : 'success',
-            text: data.message || (data.count === 0 ? 'No new trades imported (duplicates skipped).' : `Successfully imported ${data.count} new trades!`),
+            type: addedCount > 0 ? 'success' : 'error',
+            text: msgText,
           });
+
+          if (addedCount > 0) {
+            setTimeout(() => {
+              onClose();
+              setFile(null);
+              setMessage(null);
+            }, 3500);
+          }
         } else {
           // Backend returned non-200, use client side parsed trades with deduplication
           setTrades(prev => {
@@ -200,12 +222,6 @@ export const ImportCSVModal: React.FC<ImportCSVModalProps> = ({ isOpen, onClose 
         });
         setMessage({ type: 'success', text: `Imported ${clientParsed.length} trades locally!` });
       }
-
-      setTimeout(() => {
-        onClose();
-        setFile(null);
-        setMessage(null);
-      }, 1500);
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Failed to parse and import CSV file.' });
     } finally {
