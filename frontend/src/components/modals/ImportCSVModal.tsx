@@ -153,12 +153,21 @@ export const ImportCSVModal: React.FC<ImportCSVModalProps> = ({ isOpen, onClose 
 
         if (res.ok) {
           const data = await res.json();
-          // Fetch updated trades list with limit=1000
-          const fetchRes = await fetch(`${API_URL}/api/trades?limit=1000`, { credentials: 'include' });
+          // Fetch updated trades list directly from Backend API with cache bypass
+          const fetchRes = await fetch(`${API_URL}/api/trades?limit=1000&t=${Date.now()}`, {
+            credentials: 'include',
+            cache: 'no-store',
+          });
           if (fetchRes.ok) {
             const fetchResult = await fetchRes.json();
             if (Array.isArray(fetchResult.data)) {
-              setTrades(fetchResult.data.map(mapRaw));
+              const freshTrades = fetchResult.data.map(mapRaw);
+              setTrades(freshTrades);
+              if (typeof window !== 'undefined') {
+                try {
+                  localStorage.setItem('tradefxbook_trades', JSON.stringify(freshTrades));
+                } catch {}
+              }
             }
           }
           setMessage({
@@ -166,13 +175,29 @@ export const ImportCSVModal: React.FC<ImportCSVModalProps> = ({ isOpen, onClose 
             text: data.message || (data.count === 0 ? 'No new trades imported (duplicates skipped).' : `Successfully imported ${data.count} new trades!`),
           });
         } else {
-          // Backend returned non-200, use client side parsed trades
-          setTrades(prev => [...clientParsed, ...prev]);
-          setMessage({ type: 'success', text: `Successfully imported ${clientParsed.length} trades!` });
+          // Backend returned non-200, use client side parsed trades with deduplication
+          setTrades(prev => {
+            const existingKeys = new Set(prev.map(t => `${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
+            const uniqueNew = clientParsed.filter(t => !existingKeys.has(`${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
+            const updated = [...uniqueNew, ...prev];
+            if (typeof window !== 'undefined') {
+              try { localStorage.setItem('tradefxbook_trades', JSON.stringify(updated)); } catch {}
+            }
+            return updated;
+          });
+          setMessage({ type: 'success', text: `Imported ${clientParsed.length} trades locally!` });
         }
       } catch (backendError) {
-        // Backend offline, fallback to client side parsed trades
-        setTrades(prev => [...clientParsed, ...prev]);
+        // Backend offline, fallback to client side parsed trades with deduplication
+        setTrades(prev => {
+          const existingKeys = new Set(prev.map(t => `${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
+          const uniqueNew = clientParsed.filter(t => !existingKeys.has(`${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
+          const updated = [...uniqueNew, ...prev];
+          if (typeof window !== 'undefined') {
+            try { localStorage.setItem('tradefxbook_trades', JSON.stringify(updated)); } catch {}
+          }
+          return updated;
+        });
         setMessage({ type: 'success', text: `Imported ${clientParsed.length} trades locally!` });
       }
 
