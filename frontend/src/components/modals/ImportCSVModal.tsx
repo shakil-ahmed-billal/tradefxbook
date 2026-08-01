@@ -199,8 +199,8 @@ export const ImportCSVModal: React.FC<ImportCSVModalProps> = ({ isOpen, onClose 
         } else {
           // Backend returned non-200, use client side parsed trades with deduplication
           setTrades(prev => {
-            const existingKeys = new Set(prev.map(t => `${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
-            const uniqueNew = clientParsed.filter(t => !existingKeys.has(`${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
+            const existingKeys = new Set(prev.map(t => `${t.symbol}_${(t as any).date || t.openTime}_${t.entryPrice}_${(t as any).quantity || t.size}`));
+            const uniqueNew = clientParsed.filter(t => !existingKeys.has(`${t.symbol}_${(t as any).date || t.openTime}_${t.entryPrice}_${(t as any).quantity || t.size}`));
             const updated = [...uniqueNew, ...prev];
             if (typeof window !== 'undefined') {
               try { localStorage.setItem('tradefxbook_trades', JSON.stringify(updated)); } catch {}
@@ -212,8 +212,8 @@ export const ImportCSVModal: React.FC<ImportCSVModalProps> = ({ isOpen, onClose 
       } catch (backendError) {
         // Backend offline, fallback to client side parsed trades with deduplication
         setTrades(prev => {
-          const existingKeys = new Set(prev.map(t => `${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
-          const uniqueNew = clientParsed.filter(t => !existingKeys.has(`${t.symbol}_${t.date}_${t.entryPrice}_${t.quantity}`));
+          const existingKeys = new Set(prev.map(t => `${t.symbol}_${(t as any).date || t.openTime}_${t.entryPrice}_${(t as any).quantity || t.size}`));
+          const uniqueNew = clientParsed.filter(t => !existingKeys.has(`${t.symbol}_${(t as any).date || t.openTime}_${t.entryPrice}_${(t as any).quantity || t.size}`));
           const updated = [...uniqueNew, ...prev];
           if (typeof window !== 'undefined') {
             try { localStorage.setItem('tradefxbook_trades', JSON.stringify(updated)); } catch {}
